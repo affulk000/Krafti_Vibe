@@ -89,7 +89,7 @@ type BookingService interface {
 
 	// Health & Monitoring
 	HealthCheck(ctx context.Context) error
-	GetServiceMetrics(ctx context.Context) map[string]interface{}
+	GetServiceMetrics(ctx context.Context) map[string]any
 }
 
 // bookingService implements BookingService
