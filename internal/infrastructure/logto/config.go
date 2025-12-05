@@ -145,6 +145,30 @@ type Scopes struct {
 	PaymentWrite   string
 	PaymentProcess string
 
+	// Invoice Management
+	InvoiceRead  string
+	InvoiceWrite string
+
+	// Subscription Management
+	SubscriptionRead  string
+	SubscriptionWrite string
+
+	// Message Management
+	MessageRead  string
+	MessageWrite string
+
+	// Notification Management
+	NotificationRead  string
+	NotificationWrite string
+
+	// Milestone Management
+	MilestoneRead  string
+	MilestoneWrite string
+
+	// Task Management
+	TaskRead  string
+	TaskWrite string
+
 	// Tenant/Organization Management
 	TenantRead   string
 	TenantWrite  string
@@ -160,6 +184,11 @@ type Scopes struct {
 	ReportRead     string
 	ReportGenerate string
 	ReportExport   string
+
+	// Webhook Management
+	WebhookRead   string
+	WebhookWrite  string
+	WebhookManage string
 
 	// Admin Scopes
 	AdminRead  string
@@ -208,6 +237,30 @@ func DefaultScopes() *Scopes {
 		PaymentWrite:   "payment:write",
 		PaymentProcess: "payment:process",
 
+		// Invoice Management
+		InvoiceRead:  "invoice:read",
+		InvoiceWrite: "invoice:write",
+
+		// Subscription Management
+		SubscriptionRead:  "subscription:read",
+		SubscriptionWrite: "subscription:write",
+
+		// Message Management
+		MessageRead:  "message:read",
+		MessageWrite: "message:write",
+
+		// Notification Management
+		NotificationRead:  "notification:read",
+		NotificationWrite: "notification:write",
+
+		// Milestone Management
+		MilestoneRead:  "milestone:read",
+		MilestoneWrite: "milestone:write",
+
+		// Task Management
+		TaskRead:  "task:read",
+		TaskWrite: "task:write",
+
 		// Tenant/Organization Management
 		TenantRead:   "tenant:read",
 		TenantWrite:  "tenant:write",
@@ -223,6 +276,11 @@ func DefaultScopes() *Scopes {
 		ReportRead:     "report:read",
 		ReportGenerate: "report:generate",
 		ReportExport:   "report:export",
+
+		// Webhook Management
+		WebhookRead:   "webhook:read",
+		WebhookWrite:  "webhook:write",
+		WebhookManage: "webhook:manage",
 
 		// Admin Scopes
 		AdminRead:  "admin:read",
