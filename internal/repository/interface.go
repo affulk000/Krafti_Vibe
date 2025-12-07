@@ -28,9 +28,10 @@ type Repositories struct {
 	ProjectUpdate    ProjectUpdateRepository
 
 	// User Management
-	Artisan  ArtisanRepository
-	Customer CustomerRepository
-	Review   *ReviewRepository
+	Artisan      ArtisanRepository
+	Customer     CustomerRepository
+	Review       *ReviewRepository
+	Availability AvailabilityRepository
 
 	// Communication & Files
 	Message      MessageRepository
@@ -45,6 +46,14 @@ type Repositories struct {
 	TenantUsageTracking TenantUsageTrackingRepository
 	DataExport          DataExportRequestRepository
 	WebhookEvent        WebhookEventRepository
+
+	// Branding & Customization
+	WhiteLabel WhiteLabelRepository
+
+	// SDK & Mobile
+	SDKClient SDKClientRepository
+	SDKKey    SDKKeyRepository
+	SDKUsage  SDKUsageRepository
 }
 
 // NewRepositories creates a new instance of all repositories with the given database connection.
@@ -82,9 +91,10 @@ func NewRepositories(db *gorm.DB, config ...RepositoryConfig) *Repositories {
 		ProjectUpdate:    NewProjectUpdateRepository(db, cfg),
 
 		// User Management
-		Artisan:  NewArtisanRepository(db, cfg),
-		Customer: NewCustomerRepository(db, cfg),
-		Review:   NewReviewRepository(db, cfg.Logger),
+		Artisan:      NewArtisanRepository(db, cfg),
+		Customer:     NewCustomerRepository(db, cfg),
+		Review:       NewReviewRepository(db, cfg.Logger),
+		Availability: NewAvailabilityRepository(db),
 
 		// Communication & Files
 		Message:      NewMessageRepository(db, cfg),
@@ -99,6 +109,14 @@ func NewRepositories(db *gorm.DB, config ...RepositoryConfig) *Repositories {
 		TenantUsageTracking: NewTenantUsageTrackingRepository(db, cfg),
 		DataExport:          NewDataExportRequestRepository(db, cfg),
 		WebhookEvent:        NewWebhookEventRepository(db, cfg),
+
+		// Branding & Customization
+		WhiteLabel: NewWhiteLabelRepository(db),
+
+		// SDK & Mobile
+		SDKClient: NewSDKClientRepository(db),
+		SDKKey:    NewSDKKeyRepository(db),
+		SDKUsage:  NewSDKUsageRepository(db),
 	}
 }
 
