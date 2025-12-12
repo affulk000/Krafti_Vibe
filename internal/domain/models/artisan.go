@@ -9,20 +9,29 @@ import (
 	"github.com/google/uuid"
 )
 
+// StringArray is a custom type for handling []string in JSONB
+type StringArray []string
+
+// CertificationArray is a custom type for handling []Certification in JSONB
+type CertificationArray []Certification
+
+// PortfolioArray is a custom type for handling []PortfolioItem in JSONB
+type PortfolioArray []PortfolioItem
+
 type Artisan struct {
 	BaseModel
-	
+
 	UserID   uuid.UUID `json:"user_id" gorm:"type:uuid;uniqueIndex;not null"`
 	TenantID uuid.UUID `json:"tenant_id" gorm:"type:uuid;index:idx_artisan_tenant_status;not null"`
-	
+
 	// Professional Info
-	Bio             string   `json:"bio,omitempty" gorm:"type:text"`
-	Specialization  []string `json:"specialization" gorm:"type:text[]"`
-	YearsExperience int      `json:"years_experience" gorm:"default:0"`
-	
+	Bio             string      `json:"bio,omitempty" gorm:"type:text"`
+	Specialization  StringArray `json:"specialization" gorm:"type:jsonb"`
+	YearsExperience int         `json:"years_experience" gorm:"default:0"`
+
 	// Certifications & Portfolio
-	Certifications []Certification `json:"certifications,omitempty" gorm:"type:jsonb"`
-	Portfolio      []PortfolioItem `json:"portfolio,omitempty" gorm:"type:jsonb"`
+	Certifications CertificationArray `json:"certifications,omitempty" gorm:"type:jsonb"`
+	Portfolio      PortfolioArray     `json:"portfolio,omitempty" gorm:"type:jsonb"`
 	
 	// Ratings & Reviews
 	Rating       float64 `json:"rating" gorm:"type:decimal(3,2);default:0"`
@@ -114,4 +123,67 @@ func (l *Location) Scan(value interface{}) error {
 
 func (l Location) Value() (driver.Value, error) {
 	return json.Marshal(l)
+}
+
+func (s *StringArray) Scan(value interface{}) error {
+	if value == nil {
+		*s = []string{}
+		return nil
+	}
+
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(bytes, s)
+}
+
+func (s StringArray) Value() (driver.Value, error) {
+	if len(s) == 0 {
+		return json.Marshal([]string{})
+	}
+	return json.Marshal(s)
+}
+
+func (c *CertificationArray) Scan(value interface{}) error {
+	if value == nil {
+		*c = []Certification{}
+		return nil
+	}
+
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(bytes, c)
+}
+
+func (c CertificationArray) Value() (driver.Value, error) {
+	if len(c) == 0 {
+		return json.Marshal([]Certification{})
+	}
+	return json.Marshal(c)
+}
+
+func (p *PortfolioArray) Scan(value interface{}) error {
+	if value == nil {
+		*p = []PortfolioItem{}
+		return nil
+	}
+
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(bytes, p)
+}
+
+func (p PortfolioArray) Value() (driver.Value, error) {
+	if len(p) == 0 {
+		return json.Marshal([]PortfolioItem{})
+	}
+	return json.Marshal(p)
 }
