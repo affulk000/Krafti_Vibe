@@ -507,11 +507,11 @@ func (r *serviceRepository) BulkUpdatePrices(ctx context.Context, serviceIDs []u
 
 	var result *gorm.DB
 	if isPercentage {
-		// Update by percentage
+		// Update by percentage - cast to numeric to ensure decimal division
 		result = r.db.WithContext(ctx).
 			Model(&models.Service{}).
 			Where("id IN ?", serviceIDs).
-			Update("price", gorm.Expr("price * (1 + ? / 100)", priceAdjustment))
+			Update("price", gorm.Expr("price * (1 + ?::numeric / 100)", priceAdjustment))
 	} else {
 		// Update by fixed amount
 		result = r.db.WithContext(ctx).
