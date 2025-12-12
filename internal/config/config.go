@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 // Config holds all application configuration
@@ -57,6 +59,7 @@ type DatabaseConfig struct {
 	Password        string
 	DBName          string
 	SSLMode         string
+	SSLHost         string // Optional: hostname for SSL certificate verification (when using IP for Host)
 	MaxOpenConns    int
 	MaxIdleConns    int
 	ConnMaxLifetime time.Duration
@@ -82,11 +85,11 @@ type RedisConfig struct {
 // LogtoConfig holds Logto connection configuration
 type LogtoConfig struct {
 	// Core Logto configuration
-	Endpoint     string `json:"endpoint"`
-	Issuer       string `json:"issuer"`
-	JWKSURI      string `json:"jwks_uri"`
-	TokenURI     string `json:"token_uri"`
-	UserInfoURI  string `json:"userinfo_uri"`
+	Endpoint    string `json:"endpoint"`
+	Issuer      string `json:"issuer"`
+	JWKSURI     string `json:"jwks_uri"`
+	TokenURI    string `json:"token_uri"`
+	UserInfoURI string `json:"userinfo_uri"`
 
 	// Application credentials
 	M2MAppID     string `json:"m2m_app_id"`
@@ -95,29 +98,29 @@ type LogtoConfig struct {
 	WebAppSecret string `json:"web_app_secret"`
 
 	// API Resources
-	APIResourceIndicator   string `json:"api_resource_indicator"`
-	AdminAPIResource       string `json:"admin_api_resource"`
-	ArtisanAPIResource     string `json:"artisan_api_resource"`
-	CustomerAPIResource    string `json:"customer_api_resource"`
+	APIResourceIndicator string `json:"api_resource_indicator"`
+	AdminAPIResource     string `json:"admin_api_resource"`
+	ArtisanAPIResource   string `json:"artisan_api_resource"`
+	CustomerAPIResource  string `json:"customer_api_resource"`
 
 	// Cache and performance settings
-	JWKSCacheTTL           int  `json:"jwks_cache_ttl"`
-	JWKSRefreshWindow      int  `json:"jwks_refresh_window"`
-	ClockSkewTolerance     int  `json:"clock_skew_tolerance"`
+	JWKSCacheTTL       int `json:"jwks_cache_ttl"`
+	JWKSRefreshWindow  int `json:"jwks_refresh_window"`
+	ClockSkewTolerance int `json:"clock_skew_tolerance"`
 
 	// Feature flags
-	EnableOrganizations    bool `json:"enable_organizations"`
-	EnableM2M              bool `json:"enable_m2m"`
-	EnableRBAC             bool `json:"enable_rbac"`
-	ValidateAudience       bool `json:"validate_audience"`
-	ValidateIssuer         bool `json:"validate_issuer"`
-	EnableLogging          bool `json:"enable_logging"`
+	EnableOrganizations     bool `json:"enable_organizations"`
+	EnableM2M               bool `json:"enable_m2m"`
+	EnableRBAC              bool `json:"enable_rbac"`
+	ValidateAudience        bool `json:"validate_audience"`
+	ValidateIssuer          bool `json:"validate_issuer"`
+	EnableLogging           bool `json:"enable_logging"`
 	EnableBackgroundRefresh bool `json:"enable_background_refresh"`
 
 	// Security settings
-	RequiredScopes         []string `json:"required_scopes"`
-	TrustedAudiences       []string `json:"trusted_audiences"`
-	AllowedOrigins         []string `json:"allowed_origins"`
+	RequiredScopes   []string `json:"required_scopes"`
+	TrustedAudiences []string `json:"trusted_audiences"`
+	AllowedOrigins   []string `json:"allowed_origins"`
 }
 
 // AppConfig holds application-specific configuration
@@ -138,6 +141,9 @@ var (
 
 // Load loads configuration from environment variables
 func Load() (*Config, error) {
+	// Load .env file first (if exists)
+	_ = godotenv.Load()
+
 	// Legacy JWT cache TTL (replaced by LOGTO_JWKS_CACHE_TTL)
 	_ = getEnv("JWT_CACHE_TTL", "3600") // Deprecated, use LOGTO_JWKS_CACHE_TTL
 
@@ -158,6 +164,7 @@ func Load() (*Config, error) {
 			Password:        getEnv("DB_PASSWORD", ""),
 			DBName:          getEnv("DB_NAME", "krafti_vibe"),
 			SSLMode:         getEnv("DB_SSLMODE", "disable"),
+			SSLHost:         getEnv("DB_SSL_HOST", ""), // Optional: for SSL cert verification with IP addresses
 			MaxOpenConns:    getIntEnv("DB_MAX_OPEN_CONNS", 25),
 			MaxIdleConns:    getIntEnv("DB_MAX_IDLE_CONNS", 5),
 			ConnMaxLifetime: getDurationEnv("DB_CONN_MAX_LIFETIME", 5*time.Minute),
@@ -179,11 +186,11 @@ func Load() (*Config, error) {
 		},
 		Auth: LogtoConfig{
 			// Core Logto URLs
-			Endpoint:     getEnv("LOGTO_ENDPOINT", ""),
-			Issuer:       getEnv("LOGTO_ISSUER", ""),
-			JWKSURI:      getEnv("LOGTO_JWKS_URI", ""),
-			TokenURI:     getEnv("LOGTO_TOKEN_URI", ""),
-			UserInfoURI:  getEnv("LOGTO_USERINFO_URI", ""),
+			Endpoint:    getEnv("LOGTO_ENDPOINT", "https://gfxldq.logto.app/"),
+			Issuer:      getEnv("LOGTO_ISSUER", "https://gfxldq.logto.app/oidc"),
+			JWKSURI:     getEnv("LOGTO_JWKS_URI", "https://gfxldq.logto.app/oidc/jwks"),
+			TokenURI:    getEnv("LOGTO_TOKEN_URI", "https://gfxldq.logto.app/oidc/token"),
+			UserInfoURI: getEnv("LOGTO_USERINFO_URI", "https://gfxldq.logto.app/oidc/me"),
 
 			// Application credentials
 			M2MAppID:     getEnv("LOGTO_M2M_APP_ID", ""),
@@ -192,29 +199,29 @@ func Load() (*Config, error) {
 			WebAppSecret: getEnv("LOGTO_WEB_APP_SECRET", ""),
 
 			// API Resources
-			APIResourceIndicator:   getEnv("LOGTO_API_RESOURCE", "https://api.kraftivibe.com"),
-			AdminAPIResource:       getEnv("LOGTO_ADMIN_API_RESOURCE", "https://api.kraftivibe.com/admin"),
-			ArtisanAPIResource:     getEnv("LOGTO_ARTISAN_API_RESOURCE", "https://api.kraftivibe.com/artisan"),
-			CustomerAPIResource:    getEnv("LOGTO_CUSTOMER_API_RESOURCE", "https://api.kraftivibe.com/customer"),
+			APIResourceIndicator: getEnv("LOGTO_API_RESOURCE", "https://api.kraftivibe.com"),
+			AdminAPIResource:     getEnv("LOGTO_ADMIN_API_RESOURCE", "https://api.kraftivibe.com/admin"),
+			ArtisanAPIResource:   getEnv("LOGTO_ARTISAN_API_RESOURCE", "https://api.kraftivibe.com/artisan"),
+			CustomerAPIResource:  getEnv("LOGTO_CUSTOMER_API_RESOURCE", "https://api.kraftivibe.com/customer"),
 
 			// Cache settings
-			JWKSCacheTTL:           getIntEnv("LOGTO_JWKS_CACHE_TTL", 900),          // 15 minutes
-			JWKSRefreshWindow:      getIntEnv("LOGTO_JWKS_REFRESH_WINDOW", 60),     // 1 minute
-			ClockSkewTolerance:     getIntEnv("LOGTO_CLOCK_SKEW_TOLERANCE", 300),   // 5 minutes
+			JWKSCacheTTL:       getIntEnv("LOGTO_JWKS_CACHE_TTL", 900),       // 15 minutes
+			JWKSRefreshWindow:  getIntEnv("LOGTO_JWKS_REFRESH_WINDOW", 60),   // 1 minute
+			ClockSkewTolerance: getIntEnv("LOGTO_CLOCK_SKEW_TOLERANCE", 300), // 5 minutes
 
 			// Feature flags
-			EnableOrganizations:    getBoolEnv("LOGTO_ENABLE_ORGANIZATIONS", true),
-			EnableM2M:              getBoolEnv("LOGTO_ENABLE_M2M", true),
-			EnableRBAC:             getBoolEnv("LOGTO_ENABLE_RBAC", true),
-			ValidateAudience:       getBoolEnv("LOGTO_VALIDATE_AUDIENCE", true),
-			ValidateIssuer:         getBoolEnv("LOGTO_VALIDATE_ISSUER", true),
-			EnableLogging:          getBoolEnv("LOGTO_ENABLE_LOGGING", true),
+			EnableOrganizations:     getBoolEnv("LOGTO_ENABLE_ORGANIZATIONS", true),
+			EnableM2M:               getBoolEnv("LOGTO_ENABLE_M2M", true),
+			EnableRBAC:              getBoolEnv("LOGTO_ENABLE_RBAC", true),
+			ValidateAudience:        getBoolEnv("LOGTO_VALIDATE_AUDIENCE", true),
+			ValidateIssuer:          getBoolEnv("LOGTO_VALIDATE_ISSUER", true),
+			EnableLogging:           getBoolEnv("LOGTO_ENABLE_LOGGING", true),
 			EnableBackgroundRefresh: getBoolEnv("LOGTO_ENABLE_BACKGROUND_REFRESH", true),
 
 			// Security settings
-			RequiredScopes:         getStringSliceEnv("LOGTO_REQUIRED_SCOPES", []string{}),
-			TrustedAudiences:       getStringSliceEnv("LOGTO_TRUSTED_AUDIENCES", []string{"https://api.kraftivibe.com"}),
-			AllowedOrigins:         getStringSliceEnv("LOGTO_ALLOWED_ORIGINS", []string{"https://kraftivibe.com", "https://app.kraftivibe.com"}),
+			RequiredScopes:   getStringSliceEnv("LOGTO_REQUIRED_SCOPES", []string{}),
+			TrustedAudiences: getStringSliceEnv("LOGTO_TRUSTED_AUDIENCES", []string{"https://api.kraftivibe.com"}),
+			AllowedOrigins:   getStringSliceEnv("LOGTO_ALLOWED_ORIGINS", []string{"https://kraftivibe.com", "https://app.kraftivibe.com"}),
 		},
 		App: AppConfig{
 			Name:           getEnv("APP_NAME", "Krafti Vibe API"),
@@ -272,9 +279,15 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+// DatabaseURL returns the DATABASE_URL environment variable if set
+func (c *Config) DatabaseURL() string {
+	return os.Getenv("DATABASE_URL")
+}
+
 // DatabaseDSN returns the database connection string
 func (c *Config) DatabaseDSN() string {
-	return fmt.Sprintf(
+	// Build base DSN
+	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		c.Database.Host,
 		c.Database.Port,
@@ -283,6 +296,17 @@ func (c *Config) DatabaseDSN() string {
 		c.Database.DBName,
 		c.Database.SSLMode,
 	)
+
+	// Add connection timeout to prevent hanging
+	dsn += " connect_timeout=10"
+
+	// If using IP address with SSL, add the real hostname for certificate verification
+	// This allows SSL to work properly when connecting via IP (to avoid IPv6 issues)
+	if c.Database.SSLHost != "" && c.Database.SSLMode != "disable" {
+		dsn += fmt.Sprintf(" sslhost=%s", c.Database.SSLHost)
+	}
+
+	return dsn
 }
 
 // RedisAddr returns the Redis address
