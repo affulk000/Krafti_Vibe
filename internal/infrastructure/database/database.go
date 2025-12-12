@@ -7,6 +7,8 @@ import (
 
 	"Krafti_Vibe/internal/config"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -27,54 +29,55 @@ func DB() *gorm.DB {
 
 // Initialize initializes the database connection
 func Initialize(cfg *config.Config, zapLogger *zap.Logger) error {
-	// Create GORM logger from zap logger
 	gormLogger := NewGormLogger(zapLogger, cfg.IsDevelopment())
 
-	// Open database connection
-	dsn := cfg.DatabaseDSN()
-	dialector := postgres.Open(dsn)
-
-	var err error
-	db, err = gorm.Open(dialector, &gorm.Config{
-		Logger: gormLogger,
-		NowFunc: func() time.Time {
-			return time.Now().UTC()
-		},
-		PrepareStmt:                              true, // Use prepared statements for better performance
-		DisableForeignKeyConstraintWhenMigrating: false,
-	})
-
-	if err != nil {
-		return fmt.Errorf("failed to connect to database: %w", err)
+	dsn := cfg.DatabaseURL()
+	if dsn != "" {
+		zapLogger.Info("using DATABASEURL", zap.String("dsn", dsn))
+	} else if dsn = cfg.DatabaseDSN(); dsn == "" {
+		zapLogger.Info("using DSN", zap.String("dsn", dsn))
 	}
 
-	// Get underlying sql.DB to configure connection pool
-	sqlDB, err := db.DB()
+	zapLogger.Info("using DSN", zap.String("dsn", dsn))
+
+	// Parse DSN (DO NOT CONNECT HERE)
+	pgxCfg, err := pgx.ParseConfig(dsn)
 	if err != nil {
-		return fmt.Errorf("failed to get sql.DB: %w", err)
+		return fmt.Errorf("failed to parse DSN: %w", err)
 	}
 
-	// Set connection pool settings
+	pgxCfg.ConnectTimeout = 10 * time.Second
+
+	// ONE connection pool only
+	sqlDB := stdlib.OpenDB(*pgxCfg)
+
 	sqlDB.SetMaxOpenConns(cfg.Database.MaxOpenConns)
 	sqlDB.SetMaxIdleConns(cfg.Database.MaxIdleConns)
 	sqlDB.SetConnMaxLifetime(cfg.Database.ConnMaxLifetime)
 	sqlDB.SetConnMaxIdleTime(cfg.Database.ConnMaxIdleTime)
 
-	// Test connection
+	db, err = gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{
+		Logger:                                   gormLogger,
+		NowFunc:                                  func() time.Time { return time.Now().UTC() },
+		PrepareStmt:                              true,
+		DisableForeignKeyConstraintWhenMigrating: true, // Disable FK constraints during migrations
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to connect using GORM: %w", err)
+	}
+
+	// ping
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := sqlDB.PingContext(ctx); err != nil {
-		return fmt.Errorf("failed to ping database: %w", err)
+		return fmt.Errorf("DB ping failed: %w", err)
 	}
 
-	zapLogger.Info("database connection established",
-		zap.String("host", cfg.Database.Host),
-		zap.String("database", cfg.Database.DBName),
-		zap.Int("max_open_conns", cfg.Database.MaxOpenConns),
-		zap.Int("max_idle_conns", cfg.Database.MaxIdleConns),
-	)
-
+	zapLogger.Info("Neon database connection established!")
 	return nil
 }
 
