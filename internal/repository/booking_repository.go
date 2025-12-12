@@ -1549,16 +1549,3 @@ func (r *bookingRepository) applyBookingFilters(query *gorm.DB, filters BookingF
 	return query
 }
 
-// InvalidateCache invalidates the cache for a specific booking
-func (r *bookingRepository) InvalidateCache(ctx context.Context, bookingID uuid.UUID) error {
-	if r.cache != nil {
-		cacheKey := fmt.Sprintf("booking:%s", bookingID.String())
-		if err := r.cache.Delete(ctx, cacheKey); err != nil {
-			if r.logger != nil {
-				r.logger.Warnf("Failed to invalidate cache for booking %s: %v", bookingID, err)
-			}
-			return err
-		}
-	}
-	return nil
-}
