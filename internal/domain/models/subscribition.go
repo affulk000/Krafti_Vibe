@@ -88,9 +88,7 @@ type Subscription struct {
 	Metadata JSONB `json:"metadata,omitempty" gorm:"type:jsonb"`
 
 	// Relationships
-	Tenant       *Tenant       `json:"tenant,omitempty" gorm:"foreignKey:TenantID"`
-	Invoices     []Invoice     `json:"invoices,omitempty" gorm:"foreignKey:SubscriptionID"`
-	UsageRecords []UsageRecord `json:"usage_records,omitempty" gorm:"foreignKey:SubscriptionID"`
+	Tenant *Tenant `json:"tenant,omitempty" gorm:"foreignKey:TenantID"`
 }
 
 // SubscriptionFeatures defines what features are enabled for the subscription
