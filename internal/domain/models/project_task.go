@@ -44,9 +44,9 @@ type ProjectTask struct {
 	OrderIndex  int          `json:"order_index" gorm:"default:0"`
 
 	// Timing
-	StartDate   *time.Time `json:"start_date,omitempty" gorm:"type:datetime"`
-	DueDate     *time.Time `json:"due_date,omitempty" gorm:"type:datetime"`
-	CompletedAt *time.Time `json:"completed_at,omitempty" gorm:"type:datetime"`
+	StartDate   *time.Time `json:"start_date,omitempty" gorm:"type:timestamptz"`
+	DueDate     *time.Time `json:"due_date,omitempty" gorm:"type:timestamptz"`
+	CompletedAt *time.Time `json:"completed_at,omitempty" gorm:"type:timestamptz"`
 
 	// Estimates and tracking
 	EstimatedHours float64 `json:"estimated_hours" gorm:"type:decimal(8,2);default:0"`
