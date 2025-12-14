@@ -18,6 +18,8 @@ import (
 	"Krafti_Vibe/internal/pkg/logger"
 	"Krafti_Vibe/internal/router"
 
+	_ "Krafti_Vibe/docs" // Import generated swagger docs
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
@@ -27,6 +29,77 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
+
+// @title Krafti Vibe API
+// @version 1.0
+// @description Multi-tenant marketplace platform API for connecting artisans with customers. Supports booking management, payments, projects, and more.
+// @description
+// @description ## Authentication
+// @description This API uses Bearer token authentication via Logto.
+// @description Get your access token from the Logto authentication endpoint and include it in the Authorization header.
+// @description
+// @description ## Rate Limiting
+// @description API requests are rate limited per tenant/IP. Default: 100 requests per second.
+// @description
+// @description ## Multi-tenancy
+// @description Most endpoints require a valid tenant context. Include tenant ID in request headers or URL parameters.
+
+// @contact.name Krafti Vibe API Support
+// @contact.url https://kraftivibe.com/support
+// @contact.email support@kraftivibe.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:3000
+// @BasePath /api/v1
+// @schemes http https
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your bearer token in the format: Bearer {token}
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name X-API-Key
+// @description API key for M2M authentication
+
+// @tag.name Health
+// @tag.description Health check and monitoring endpoints
+
+// @tag.name Users
+// @tag.description User management endpoints (CRUD, authentication, MFA)
+
+// @tag.name Tenants
+// @tag.description Tenant/organization management (platform admin only)
+
+// @tag.name Services
+// @tag.description Service catalog management
+
+// @tag.name Bookings
+// @tag.description Booking and appointment management
+
+// @tag.name Projects
+// @tag.description Project management and tracking
+
+// @tag.name Payments
+// @tag.description Payment processing and invoice management
+
+// @tag.name Messages
+// @tag.description Messaging and notifications
+
+// @tag.name Reviews
+// @tag.description Review and rating management
+
+// @tag.name Artisans
+// @tag.description Artisan profile management
+
+// @tag.name Customers
+// @tag.description Customer profile management
+
+// @tag.name Admin
+// @tag.description Platform administration endpoints
 
 // Build information (set via ldflags during build)
 var (
@@ -334,6 +407,7 @@ func run() error {
 		Cache:          redisCache,
 		ZapLogger:      zapLogger,
 		CORSConfig:     corsConfig,
+		WebhookSecret:  cfg.Auth.WebhookSigningSecret,
 	}
 
 	apiRouter := router.New(app, routerConfig)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"maps"
 	"time"
@@ -76,6 +77,12 @@ type UserService interface {
 	GetUserStats(ctx context.Context, tenantID *uuid.UUID, requestingUserID uuid.UUID) (*dto.UserStatsResponse, error)
 	GetRegistrationStats(ctx context.Context, startDate, endDate time.Time, requestingUserID uuid.UUID) (*dto.RegistrationStatsResponse, error)
 	GetUserGrowth(ctx context.Context, tenantID *uuid.UUID, months int, requestingUserID uuid.UUID) ([]*dto.UserGrowthResponse, error)
+
+	// Webhook Operations (Internal - bypass permission checks)
+	CreateUserFromWebhook(ctx context.Context, user *models.User) error
+	UpdateUserFromWebhook(ctx context.Context, userID uuid.UUID, updates map[string]interface{}) error
+	DeleteUserFromWebhook(ctx context.Context, userID uuid.UUID) error
+	UpdateUserStatusFromWebhook(ctx context.Context, userID uuid.UUID, status models.UserStatus) error
 }
 
 // userService implements UserService
@@ -1186,4 +1193,139 @@ func generateBackupCodes(count int) []string {
 		codes[i] = fmt.Sprintf("%X-%X", bytes[0:4], bytes[4:8])
 	}
 	return codes
+}
+
+// ============================================================================
+// Webhook Operations (Internal - bypass permission checks)
+// ============================================================================
+
+// CreateUserFromWebhook creates a user from a webhook event (no permission checks)
+func (s *userService) CreateUserFromWebhook(ctx context.Context, user *models.User) error {
+	s.logger.Info("creating user from webhook", "email", user.Email, "logto_user_id", user.LogtoUserID)
+
+	// Check if user already exists by Logto ID
+	if user.LogtoUserID != "" {
+		existingUser, err := s.repos.User.GetByLogtoID(ctx, user.LogtoUserID)
+		if err == nil && existingUser != nil {
+			s.logger.Warn("user already exists with this Logto ID", "logto_user_id", user.LogtoUserID)
+			return errors.NewValidationError("user with this Logto ID already exists")
+		}
+	}
+
+	// Check if user already exists by email
+	existingUser, err := s.repos.User.GetByEmail(ctx, user.Email)
+	if err == nil && existingUser != nil {
+		s.logger.Warn("user already exists with this email", "email", user.Email)
+		// Update the existing user's Logto ID if it's not set
+		if existingUser.LogtoUserID == "" && user.LogtoUserID != "" {
+			s.logger.Info("updating existing user with Logto ID", "user_id", existingUser.ID, "logto_user_id", user.LogtoUserID)
+			existingUser.LogtoUserID = user.LogtoUserID
+			if err := s.repos.User.Update(ctx, existingUser); err != nil {
+				return errors.NewServiceError("UPDATE_FAILED", "Failed to update user with Logto ID", err)
+			}
+			return nil
+		}
+		return errors.NewValidationError("user with this email already exists")
+	}
+
+	// Create user (no permission checks for webhook)
+	if err := s.repos.User.Create(ctx, user); err != nil {
+		s.logger.Error("failed to create user from webhook", "error", err)
+		return errors.NewServiceError("CREATE_FAILED", "Failed to create user from webhook", err)
+	}
+
+	s.logger.Info("user created from webhook successfully", "user_id", user.ID, "email", user.Email)
+	return nil
+}
+
+// UpdateUserFromWebhook updates a user from a webhook event (no permission checks)
+func (s *userService) UpdateUserFromWebhook(ctx context.Context, userID uuid.UUID, updates map[string]interface{}) error {
+	s.logger.Info("updating user from webhook", "user_id", userID)
+
+	// Get existing user
+	user, err := s.repos.User.GetByID(ctx, userID)
+	if err != nil {
+		return errors.NewNotFoundError("user")
+	}
+
+	// Apply updates directly to the user model
+	if email, ok := updates["email"].(string); ok {
+		user.Email = email
+	}
+	if firstName, ok := updates["first_name"].(string); ok {
+		user.FirstName = firstName
+	}
+	if lastName, ok := updates["last_name"].(string); ok {
+		user.LastName = lastName
+	}
+	if avatarURL, ok := updates["avatar_url"].(string); ok {
+		user.AvatarURL = avatarURL
+	}
+	if phoneNumber, ok := updates["phone_number"].(string); ok {
+		user.PhoneNumber = phoneNumber
+	}
+	if emailVerified, ok := updates["email_verified"].(bool); ok {
+		user.EmailVerified = emailVerified
+	}
+	if phoneVerified, ok := updates["phone_verified"].(bool); ok {
+		user.PhoneVerified = phoneVerified
+	}
+	if status, ok := updates["status"].(models.UserStatus); ok {
+		user.Status = status
+	}
+	if metadata, ok := updates["metadata"].([]byte); ok {
+		// Unmarshal the JSON bytes to JSONB (map[string]any)
+		var jsonbData models.JSONB
+		if err := json.Unmarshal(metadata, &jsonbData); err == nil {
+			user.Metadata = jsonbData
+		}
+	}
+	if updatedAt, ok := updates["updated_at"].(time.Time); ok {
+		user.UpdatedAt = updatedAt
+	}
+
+	// Update user in database
+	if err := s.repos.User.Update(ctx, user); err != nil {
+		s.logger.Error("failed to update user from webhook", "user_id", userID, "error", err)
+		return errors.NewServiceError("UPDATE_FAILED", "Failed to update user from webhook", err)
+	}
+
+	s.logger.Info("user updated from webhook successfully", "user_id", userID)
+	return nil
+}
+
+// DeleteUserFromWebhook soft deletes a user from a webhook event (no permission checks)
+func (s *userService) DeleteUserFromWebhook(ctx context.Context, userID uuid.UUID) error {
+	s.logger.Info("deleting user from webhook", "user_id", userID)
+
+	// Get user first
+	user, err := s.repos.User.GetByID(ctx, userID)
+	if err != nil {
+		return errors.NewNotFoundError("user")
+	}
+
+	// Soft delete (mark as inactive and marked for deletion)
+	now := time.Now()
+	deletionDate := now.Add(30 * 24 * time.Hour) // Schedule deletion in 30 days
+
+	if err := s.repos.User.MarkForDeletion(ctx, userID, deletionDate); err != nil {
+		s.logger.Error("failed to mark user for deletion from webhook", "user_id", userID, "error", err)
+		return errors.NewServiceError("DELETE_FAILED", "Failed to delete user from webhook", err)
+	}
+
+	s.logger.Info("user deleted from webhook successfully", "user_id", userID, "user_email", user.Email)
+	return nil
+}
+
+// UpdateUserStatusFromWebhook updates a user's status from a webhook event (no permission checks)
+func (s *userService) UpdateUserStatusFromWebhook(ctx context.Context, userID uuid.UUID, status models.UserStatus) error {
+	s.logger.Info("updating user status from webhook", "user_id", userID, "status", status)
+
+	if err := s.repos.User.UpdateStatus(ctx, userID, status); err != nil {
+		s.logger.Error("failed to update user status from webhook", "user_id", userID, "error", err)
+		return errors.NewServiceError("UPDATE_FAILED", "Failed to update user status from webhook", err)
+	}
+
+	s.logger.Info("user status updated from webhook successfully", "user_id", userID, "status", status)
+	return nil
 }

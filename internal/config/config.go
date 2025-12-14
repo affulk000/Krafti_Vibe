@@ -121,6 +121,9 @@ type LogtoConfig struct {
 	RequiredScopes   []string `json:"required_scopes"`
 	TrustedAudiences []string `json:"trusted_audiences"`
 	AllowedOrigins   []string `json:"allowed_origins"`
+
+	// Webhook settings
+	WebhookSigningSecret string `json:"webhook_signing_secret"`
 }
 
 // AppConfig holds application-specific configuration
@@ -222,6 +225,9 @@ func Load() (*Config, error) {
 			RequiredScopes:   getStringSliceEnv("LOGTO_REQUIRED_SCOPES", []string{}),
 			TrustedAudiences: getStringSliceEnv("LOGTO_TRUSTED_AUDIENCES", []string{"https://api.kraftivibe.com"}),
 			AllowedOrigins:   getStringSliceEnv("LOGTO_ALLOWED_ORIGINS", []string{"https://kraftivibe.com", "https://app.kraftivibe.com"}),
+
+			// Webhook settings
+			WebhookSigningSecret: getEnv("LOGTO_WEBHOOK_SECRET", ""),
 		},
 		App: AppConfig{
 			Name:           getEnv("APP_NAME", "Krafti Vibe API"),
