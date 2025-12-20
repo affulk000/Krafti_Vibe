@@ -50,7 +50,7 @@ func CreateTestOwner(overrides ...func(*models.User)) *models.User {
 			UpdatedAt: time.Now().UTC(),
 		},
 		TenantID:      nil, // Owner created before tenant
-		LogtoUserID:   uuid.New().String(),
+		ZitadelUserID: uuid.New().String(),
 		Email:         "owner@example.com",
 		FirstName:     "Tenant",
 		LastName:      "Owner",
@@ -72,7 +72,9 @@ func CreateTestOwner(overrides ...func(*models.User)) *models.User {
 
 // CreateTestTenantWithOwner is a helper that creates both an owner and a tenant
 // This should be used in tests that need a tenant, as tenants require an owner
-func CreateTestTenantWithOwner(db interface{ Create(value interface{}) *gorm.DB }, tenantOverrides ...func(*models.Tenant)) (*models.User, *models.Tenant) {
+func CreateTestTenantWithOwner(db interface {
+	Create(value interface{}) *gorm.DB
+}, tenantOverrides ...func(*models.Tenant)) (*models.User, *models.Tenant) {
 	// Create owner user first
 	owner := CreateTestOwner()
 	if err := db.Create(owner).Error; err != nil {
@@ -104,7 +106,7 @@ func CreateTestUser(tenantID *uuid.UUID, overrides ...func(*models.User)) *model
 			UpdatedAt: time.Now().UTC(),
 		},
 		TenantID:      tenantID,
-		LogtoUserID:   uuid.New().String(),
+		ZitadelUserID: uuid.New().String(),
 		Email:         "user@example.com",
 		FirstName:     "John",
 		LastName:      "Doe",
