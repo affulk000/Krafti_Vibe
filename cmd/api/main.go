@@ -9,14 +9,16 @@ import (
 	"syscall"
 	"time"
 
+	"Krafti_Vibe/internal/auth"
 	"Krafti_Vibe/internal/config"
 	"Krafti_Vibe/internal/infrastructure/cache"
 	"Krafti_Vibe/internal/infrastructure/database"
-	"Krafti_Vibe/internal/infrastructure/logto"
 	"Krafti_Vibe/internal/middleware"
 	"Krafti_Vibe/internal/pkg/health"
 	"Krafti_Vibe/internal/pkg/logger"
+	"Krafti_Vibe/internal/repository"
 	"Krafti_Vibe/internal/router"
+	"Krafti_Vibe/internal/service"
 
 	_ "Krafti_Vibe/docs" // Import generated swagger docs
 
@@ -35,8 +37,8 @@ import (
 // @description Multi-tenant marketplace platform API for connecting artisans with customers. Supports booking management, payments, projects, and more.
 // @description
 // @description ## Authentication
-// @description This API uses Bearer token authentication via Logto.
-// @description Get your access token from the Logto authentication endpoint and include it in the Authorization header.
+// @description This API uses Bearer token authentication via Zitadel.
+// @description Get your access token from the Zitadel authentication endpoint and include it in the Authorization header.
 // @description
 // @description ## Rate Limiting
 // @description API requests are rate limited per tenant/IP. Default: 100 requests per second.
@@ -232,47 +234,6 @@ func run() error {
 	}
 
 	// ============================================================================
-	// Logto Authentication
-	// ============================================================================
-
-	zapLogger.Info("initializing logto authentication",
-		zap.String("endpoint", cfg.Auth.Endpoint),
-		zap.String("issuer", cfg.Auth.Issuer),
-		zap.Bool("m2m_enabled", cfg.Auth.EnableM2M),
-		zap.Bool("rbac_enabled", cfg.Auth.EnableRBAC),
-	)
-
-	logtoConfig := &logto.Config{
-		Endpoint:             cfg.Auth.Endpoint,
-		AppID:                cfg.Auth.M2MAppID,
-		AppSecret:            cfg.Auth.M2MAppSecret,
-		JWKSEndpoint:         cfg.Auth.JWKSURI,
-		TokenEndpoint:        cfg.Auth.TokenURI,
-		Issuer:               cfg.Auth.Issuer,
-		APIResourceIndicator: cfg.Auth.APIResourceIndicator,
-		EnableOrganizations:  cfg.Auth.EnableOrganizations,
-		JWKSCacheTTL:         cfg.Auth.GetCacheTTLDuration(),
-		JWKSRefreshWindow:    cfg.Auth.GetRefreshWindowDuration(),
-		ValidateAudience:     cfg.Auth.ValidateAudience,
-		ValidateIssuer:       cfg.Auth.ValidateIssuer,
-		ClockSkewTolerance:   cfg.Auth.GetClockSkewToleranceDuration(),
-		EnableM2M:            cfg.Auth.EnableM2M,
-		EnableRBAC:           cfg.Auth.EnableRBAC,
-		EnableLogging:        cfg.Auth.EnableLogging,
-	}
-
-	// Initialize JWKS cache
-	jwksCache, err := logto.NewJWKSCache(cfg.Auth.JWKSURI, cfg.Auth.GetCacheTTLDuration())
-	if err != nil {
-		return fmt.Errorf("failed to initialize JWKS cache: %w", err)
-	}
-
-	// Initialize token validator
-	tokenValidator := logto.NewTokenValidator(jwksCache, cfg.Auth.Issuer)
-
-	zapLogger.Info("logto authentication initialized")
-
-	// ============================================================================
 	// Fiber Application
 	// ============================================================================
 
@@ -379,6 +340,47 @@ func run() error {
 	})
 
 	// ============================================================================
+	// Zitadel Authentication
+	// ============================================================================
+
+	zapLogger.Info("initializing Zitadel authentication",
+		zap.String("domain", cfg.Zitadel.Domain),
+	)
+
+	// Initialize Zitadel authentication
+	zitadelAuth, err := auth.NewZitadelAuth(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to initialize Zitadel authentication: %w", err)
+	}
+
+	zapLogger.Info("Zitadel authentication initialized successfully")
+
+	// ============================================================================
+	// User Sync Service (for Zitadel user synchronization)
+	// ============================================================================
+
+	zapLogger.Info("initializing user sync service")
+
+	// Create fiber logger adapter (defined later)
+	fiberLogger := logger.NewFiberLogger(zapLogger)
+
+	// Create user repository for sync service
+	userRepo := repository.NewUserRepository(db, repository.RepositoryConfig{
+		Logger: fiberLogger,
+	})
+
+	// Create user sync service
+	userSyncService := service.NewUserSyncService(userRepo, zapLogger)
+
+	// Create Zitadel authentication middleware with user sync
+	zitadelMiddleware := middleware.NewZitadelAuthMiddleware(
+		zitadelAuth.AuthZ,
+		userSyncService,
+	)
+
+	zapLogger.Info("user sync service initialized - users will be auto-synced on authentication")
+
+	// ============================================================================
 	// API Router Setup
 	// ============================================================================
 
@@ -395,19 +397,16 @@ func run() error {
 		Logger:           zapLogger,
 	}
 
-	// Create a fiber logger adapter from zap logger
-	fiberLogger := logger.NewFiberLogger(zapLogger)
-
 	// Initialize router with all dependencies
 	routerConfig := &router.Config{
-		DB:             db,
-		Logger:         fiberLogger,
-		LogtoConfig:    logtoConfig,
-		TokenValidator: tokenValidator,
-		Cache:          redisCache,
-		ZapLogger:      zapLogger,
-		CORSConfig:     corsConfig,
-		WebhookSecret:  cfg.Auth.WebhookSigningSecret,
+		DB:                db,
+		Logger:            fiberLogger,
+		ZitadelAuthZ:      zitadelAuth.AuthZ,
+		ZitadelMiddleware: zitadelMiddleware,
+		Cache:             redisCache,
+		ZapLogger:         zapLogger,
+		CORSConfig:        corsConfig,
+		WebhookSecret:     "",
 	}
 
 	apiRouter := router.New(app, routerConfig)
