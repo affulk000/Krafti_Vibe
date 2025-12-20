@@ -43,7 +43,12 @@ type User struct {
 	// Authentication
 	Email        string `json:"email" gorm:"not null;size:255;uniqueIndex:idx_user_email"`
 	PasswordHash string `json:"-" gorm:"size:255"`
-	LogtoUserID  string `json:"logto_user_id,omitempty" gorm:"uniqueIndex;size:255"`
+
+	// Multi-provider authentication support (Zitadel is now the primary provider)
+	ZitadelUserID   string     `json:"zitadel_user_id,omitempty" gorm:"uniqueIndex;size:255"`
+	AuthProvider    string     `json:"auth_provider" gorm:"type:varchar(20);default:'zitadel';index"`
+	MigrationStatus string     `json:"migration_status,omitempty" gorm:"type:varchar(20);default:'completed';index"`
+	MigratedAt      *time.Time `json:"migrated_at,omitempty"`
 
 	// Basic Info
 	FirstName   string `json:"first_name" gorm:"not null;size:100"`

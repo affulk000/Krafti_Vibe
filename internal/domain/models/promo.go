@@ -86,14 +86,12 @@ func (pc *PromoCode) CalculateDiscount(amount float64) float64 {
 		discount = pc.Value
 	case DiscountTypePercentage:
 		discount = amount * (pc.Value / 100)
-		if pc.MaxDiscount > 0 && discount > pc.MaxDiscount {
-			discount = pc.MaxDiscount
+		if pc.MaxDiscount > 0 {
+			discount = min(discount, pc.MaxDiscount)
 		}
 	}
 
-	if discount > amount {
-		discount = amount
-	}
+	discount = min(discount, amount)
 
 	return discount
 }
