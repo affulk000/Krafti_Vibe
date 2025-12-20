@@ -27,24 +27,24 @@ type CreateUserRequest struct {
 	Status         models.UserStatus `json:"status,omitempty"`
 	Timezone       string            `json:"timezone,omitempty" validate:"omitempty,max=50"`
 	Language       string            `json:"language,omitempty" validate:"omitempty,max=10"`
-	LogtoUserID    string            `json:"logto_user_id,omitempty" validate:"omitempty,max=255"`
+	ZitadelUserID  string            `json:"zitadel_user_id,omitempty" validate:"omitempty,max=255"`
 	Metadata       map[string]any    `json:"metadata,omitempty"`
 }
 
 // UpdateUserRequest represents a request to update a user
 type UpdateUserRequest struct {
-	FirstName      *string           `json:"first_name,omitempty" validate:"omitempty,max=100"`
-	LastName       *string           `json:"last_name,omitempty" validate:"omitempty,max=100"`
-	PhoneNumber    *string           `json:"phone_number,omitempty" validate:"omitempty,max=20"`
-	AvatarURL      *string           `json:"avatar_url,omitempty" validate:"omitempty,max=500,url"`
-	Role           *models.UserRole  `json:"role,omitempty"`
-	Status         *models.UserStatus `json:"status,omitempty"`
-	Timezone       *string           `json:"timezone,omitempty" validate:"omitempty,max=50"`
-	Language       *string           `json:"language,omitempty" validate:"omitempty,max=10"`
-	EmailVerified  *bool             `json:"email_verified,omitempty"`
-	PhoneVerified  *bool             `json:"phone_verified,omitempty"`
-	MFAEnabled     *bool             `json:"mfa_enabled,omitempty"`
-	Metadata       map[string]any    `json:"metadata,omitempty"`
+	FirstName     *string            `json:"first_name,omitempty" validate:"omitempty,max=100"`
+	LastName      *string            `json:"last_name,omitempty" validate:"omitempty,max=100"`
+	PhoneNumber   *string            `json:"phone_number,omitempty" validate:"omitempty,max=20"`
+	AvatarURL     *string            `json:"avatar_url,omitempty" validate:"omitempty,max=500,url"`
+	Role          *models.UserRole   `json:"role,omitempty"`
+	Status        *models.UserStatus `json:"status,omitempty"`
+	Timezone      *string            `json:"timezone,omitempty" validate:"omitempty,max=50"`
+	Language      *string            `json:"language,omitempty" validate:"omitempty,max=10"`
+	EmailVerified *bool              `json:"email_verified,omitempty"`
+	PhoneVerified *bool              `json:"phone_verified,omitempty"`
+	MFAEnabled    *bool              `json:"mfa_enabled,omitempty"`
+	Metadata      map[string]any     `json:"metadata,omitempty"`
 }
 
 // UpdatePasswordRequest represents a request to update password
@@ -145,20 +145,20 @@ type UserResponse struct {
 // UserDetailResponse represents detailed user information
 type UserDetailResponse struct {
 	UserResponse
-	LogtoUserID             string         `json:"logto_user_id,omitempty"`
-	MustChangePassword      bool           `json:"must_change_password"`
-	FailedLoginAttempts     int            `json:"failed_login_attempts"`
-	LastFailedLoginAt       *time.Time     `json:"last_failed_login_at,omitempty"`
-	LastPasswordResetAt     *time.Time     `json:"last_password_reset_at,omitempty"`
-	PasswordChangedAt       *time.Time     `json:"password_changed_at,omitempty"`
-	LockedUntil             *time.Time     `json:"locked_until,omitempty"`
-	AccountLockedReason     string         `json:"account_locked_reason,omitempty"`
-	SessionExpiresAt        *time.Time     `json:"session_expires_at,omitempty"`
-	TermsVersion            string         `json:"terms_version,omitempty"`
-	DataRetentionDays       int            `json:"data_retention_days"`
-	MarkedForDeletion       bool           `json:"marked_for_deletion"`
-	DeletionScheduledAt     *time.Time     `json:"deletion_scheduled_at,omitempty"`
-	Metadata                map[string]any `json:"metadata,omitempty"`
+	ZitadelUserID       string         `json:"zitadel_user_id,omitempty"`
+	MustChangePassword  bool           `json:"must_change_password"`
+	FailedLoginAttempts int            `json:"failed_login_attempts"`
+	LastFailedLoginAt   *time.Time     `json:"last_failed_login_at,omitempty"`
+	LastPasswordResetAt *time.Time     `json:"last_password_reset_at,omitempty"`
+	PasswordChangedAt   *time.Time     `json:"password_changed_at,omitempty"`
+	LockedUntil         *time.Time     `json:"locked_until,omitempty"`
+	AccountLockedReason string         `json:"account_locked_reason,omitempty"`
+	SessionExpiresAt    *time.Time     `json:"session_expires_at,omitempty"`
+	TermsVersion        string         `json:"terms_version,omitempty"`
+	DataRetentionDays   int            `json:"data_retention_days"`
+	MarkedForDeletion   bool           `json:"marked_for_deletion"`
+	DeletionScheduledAt *time.Time     `json:"deletion_scheduled_at,omitempty"`
+	Metadata            map[string]any `json:"metadata,omitempty"`
 }
 
 // UserListResponse represents a paginated list of users
@@ -266,21 +266,21 @@ func ToUserDetailResponse(user *models.User) *UserDetailResponse {
 	}
 
 	return &UserDetailResponse{
-		UserResponse:            *ToUserResponse(user),
-		LogtoUserID:             user.LogtoUserID,
-		MustChangePassword:      user.MustChangePassword,
-		FailedLoginAttempts:     user.FailedLoginAttempts,
-		LastFailedLoginAt:       user.LastFailedLoginAt,
-		LastPasswordResetAt:     user.LastPasswordResetAt,
-		PasswordChangedAt:       user.PasswordChangedAt,
-		LockedUntil:             user.LockedUntil,
-		AccountLockedReason:     user.AccountLockedReason,
-		SessionExpiresAt:        user.SessionExpiresAt,
-		TermsVersion:            user.TermsVersion,
-		DataRetentionDays:       user.DataRetentionDays,
-		MarkedForDeletion:       user.MarkedForDeletion,
-		DeletionScheduledAt:     user.DeletionScheduledAt,
-		Metadata:                user.Metadata,
+		UserResponse:        *ToUserResponse(user),
+		ZitadelUserID:       user.ZitadelUserID,
+		MustChangePassword:  user.MustChangePassword,
+		FailedLoginAttempts: user.FailedLoginAttempts,
+		LastFailedLoginAt:   user.LastFailedLoginAt,
+		LastPasswordResetAt: user.LastPasswordResetAt,
+		PasswordChangedAt:   user.PasswordChangedAt,
+		LockedUntil:         user.LockedUntil,
+		AccountLockedReason: user.AccountLockedReason,
+		SessionExpiresAt:    user.SessionExpiresAt,
+		TermsVersion:        user.TermsVersion,
+		DataRetentionDays:   user.DataRetentionDays,
+		MarkedForDeletion:   user.MarkedForDeletion,
+		DeletionScheduledAt: user.DeletionScheduledAt,
+		Metadata:            user.Metadata,
 	}
 }
 

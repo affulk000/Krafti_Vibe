@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"maps"
 
 	"Krafti_Vibe/internal/domain/models"
 	"Krafti_Vibe/internal/pkg/errors"
@@ -202,9 +203,7 @@ func (s *systemSettingService) UpdateSetting(ctx context.Context, id uuid.UUID, 
 		if setting.ValidationRules == nil {
 			setting.ValidationRules = make(models.JSONB)
 		}
-		for k, v := range req.ValidationRules {
-			setting.ValidationRules[k] = v
-		}
+		maps.Copy(setting.ValidationRules, req.ValidationRules)
 	}
 
 	setting.LastModifiedBy = &modifiedBy
@@ -516,17 +515,9 @@ func (s *systemSettingService) ListSettings(ctx context.Context, filter *dto.Set
 	}
 
 	// Set defaults
-	page := filter.Page
-	if page < 1 {
-		page = 1
-	}
-	pageSize := filter.PageSize
-	if pageSize < 1 {
-		pageSize = 20
-	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
+	page := max(filter.Page, 1)
+	pageSize := max(filter.PageSize, 20)
+	pageSize = min(pageSize, 100)
 
 	pagination := repository.PaginationParams{
 		Page:     page,
@@ -561,9 +552,7 @@ func (s *systemSettingService) SearchSettings(ctx context.Context, query string,
 	if pageSize < 1 {
 		pageSize = 20
 	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize = min(pageSize, 100)
 
 	pagination := repository.PaginationParams{
 		Page:     page,
@@ -602,9 +591,7 @@ func (s *systemSettingService) GetRecentChanges(ctx context.Context, hours int, 
 	if pageSize < 1 {
 		pageSize = 20
 	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize = min(pageSize, 100)
 
 	pagination := repository.PaginationParams{
 		Page:     page,
@@ -639,9 +626,7 @@ func (s *systemSettingService) GetSettingsByModifier(ctx context.Context, userID
 	if pageSize < 1 {
 		pageSize = 20
 	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize = min(pageSize, 100)
 
 	pagination := repository.PaginationParams{
 		Page:     page,

@@ -25,7 +25,7 @@ type UserService interface {
 	CreateUser(ctx context.Context, req *dto.CreateUserRequest) (*dto.UserDetailResponse, error)
 	GetUser(ctx context.Context, userID uuid.UUID, requestingUserID uuid.UUID) (*dto.UserDetailResponse, error)
 	GetUserByEmail(ctx context.Context, email string, tenantID *uuid.UUID) (*dto.UserResponse, error)
-	GetUserByLogtoID(ctx context.Context, logtoUserID string) (*dto.UserResponse, error)
+	GetUserByLogtoID(ctx context.Context, ZitadelUserID string) (*dto.UserResponse, error)
 	UpdateUser(ctx context.Context, userID uuid.UUID, requestingUserID uuid.UUID, req *dto.UpdateUserRequest) (*dto.UserDetailResponse, error)
 	DeleteUser(ctx context.Context, userID uuid.UUID, requestingUserID uuid.UUID) error
 
@@ -148,7 +148,7 @@ func (s *userService) CreateUser(ctx context.Context, req *dto.CreateUserRequest
 		Status:         status,
 		Timezone:       req.Timezone,
 		Language:       req.Language,
-		LogtoUserID:    req.LogtoUserID,
+		ZitadelUserID:  req.ZitadelUserID,
 		Metadata:       req.Metadata,
 	}
 
@@ -178,7 +178,14 @@ func (s *userService) GetUser(ctx context.Context, userID uuid.UUID, requestingU
 		return nil, errors.NewNotFoundError("user")
 	}
 
-	// Check access permissions
+	// M2M tokens (requestingUserID is empty) have already been validated by scope checks
+	// They bypass user-level permission checks
+	if requestingUserID == uuid.Nil {
+		s.logger.Info("M2M token detected, bypassing user permission checks", "user_id", userID)
+		return dto.ToUserDetailResponse(user), nil
+	}
+
+	// Check access permissions for user tokens
 	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
 	if err != nil {
 		return nil, errors.NewNotFoundError("requesting user")
@@ -225,10 +232,10 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string, tenantID
 }
 
 // GetUserByLogtoID retrieves a user by Logto user ID
-func (s *userService) GetUserByLogtoID(ctx context.Context, logtoUserID string) (*dto.UserResponse, error) {
-	s.logger.Info("getting user by logto id", "logto_user_id", logtoUserID)
+func (s *userService) GetUserByLogtoID(ctx context.Context, ZitadelUserID string) (*dto.UserResponse, error) {
+	s.logger.Info("getting user by logto id", "logto_user_id", ZitadelUserID)
 
-	user, err := s.repos.User.GetByLogtoID(ctx, logtoUserID)
+	user, err := s.repos.User.GetByZitadelID(ctx, ZitadelUserID)
 	if err != nil {
 		return nil, errors.NewNotFoundError("user")
 	}
@@ -281,13 +288,25 @@ func (s *userService) UpdateUser(ctx context.Context, userID uuid.UUID, requesti
 	}
 
 	// Role and status updates require admin permissions
-	requestingUser, _ := s.repos.User.GetByID(ctx, requestingUserID)
-	if requestingUser.IsPlatformAdmin() || requestingUser.IsTenantAdmin() || requestingUser.IsTenantOwner() {
+	// M2M tokens can update roles and status (already validated by scopes)
+	if requestingUserID == uuid.Nil {
+		// M2M token - allow role and status updates
 		if req.Role != nil {
 			user.Role = *req.Role
 		}
 		if req.Status != nil {
 			user.Status = *req.Status
+		}
+	} else {
+		// User token - check permissions
+		requestingUser, _ := s.repos.User.GetByID(ctx, requestingUserID)
+		if requestingUser != nil && (requestingUser.IsPlatformAdmin() || requestingUser.IsTenantAdmin() || requestingUser.IsTenantOwner()) {
+			if req.Role != nil {
+				user.Role = *req.Role
+			}
+			if req.Status != nil {
+				user.Status = *req.Status
+			}
 		}
 	}
 
@@ -317,26 +336,29 @@ func (s *userService) DeleteUser(ctx context.Context, userID uuid.UUID, requesti
 		return errors.NewNotFoundError("user")
 	}
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return errors.NewNotFoundError("requesting user")
-	}
-
-	// Platform admins can delete any user
-	if !requestingUser.IsPlatformAdmin() {
-		// Tenant admins can only delete users in their tenant
-		if !(requestingUser.IsTenantAdmin() || requestingUser.IsTenantOwner()) {
-			return errors.NewValidationError("You don't have permission to delete users")
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return errors.NewNotFoundError("requesting user")
 		}
 
-		if user.TenantID == nil || requestingUser.TenantID == nil || *user.TenantID != *requestingUser.TenantID {
-			return errors.NewValidationError("You can only delete users in your tenant")
-		}
+		// Platform admins can delete any user
+		if !requestingUser.IsPlatformAdmin() {
+			// Tenant admins can only delete users in their tenant
+			if !(requestingUser.IsTenantAdmin() || requestingUser.IsTenantOwner()) {
+				return errors.NewValidationError("You don't have permission to delete users")
+			}
 
-		// Can't delete tenant owners
-		if user.IsTenantOwner() {
-			return errors.NewValidationError("Cannot delete tenant owner")
+			if user.TenantID == nil || requestingUser.TenantID == nil || *user.TenantID != *requestingUser.TenantID {
+				return errors.NewValidationError("You can only delete users in your tenant")
+			}
+
+			// Can't delete tenant owners
+			if user.IsTenantOwner() {
+				return errors.NewValidationError("Cannot delete tenant owner")
+			}
 		}
 	}
 
@@ -357,19 +379,22 @@ func (s *userService) DeleteUser(ctx context.Context, userID uuid.UUID, requesti
 func (s *userService) ListUsers(ctx context.Context, filter *dto.UserFilter, requestingUserID uuid.UUID) (*dto.UserListResponse, error) {
 	s.logger.Info("listing users", "requesting_user_id", requestingUserID)
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, errors.NewNotFoundError("requesting user")
-	}
-
-	// Platform admins can see all users
-	// Tenant admins can only see users in their tenant
-	if !requestingUser.IsPlatformAdmin() {
-		if requestingUser.TenantID == nil {
-			return nil, errors.NewValidationError("Invalid user tenant")
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, reqErr := s.repos.User.GetByID(ctx, requestingUserID)
+		if reqErr != nil {
+			return nil, errors.NewNotFoundError("requesting user")
 		}
-		filter.TenantID = requestingUser.TenantID
+
+		// Platform admins can see all users
+		// Tenant admins can only see users in their tenant
+		if !requestingUser.IsPlatformAdmin() {
+			if requestingUser.TenantID == nil {
+				return nil, errors.NewValidationError("Invalid user tenant")
+			}
+			filter.TenantID = requestingUser.TenantID
+		}
 	}
 
 	// Set defaults
@@ -404,6 +429,7 @@ func (s *userService) ListUsers(ctx context.Context, filter *dto.UserFilter, req
 	// Use search if query provided
 	var users []*models.User
 	var paginationResult repository.PaginationResult
+	var err error
 
 	if filter.SearchQuery != "" {
 		users, paginationResult, err = s.repos.User.Search(ctx, filter.SearchQuery, filter.TenantID, pagination)
@@ -674,14 +700,17 @@ func (s *userService) RecordFailedLogin(ctx context.Context, userID uuid.UUID) e
 func (s *userService) UnlockUser(ctx context.Context, userID uuid.UUID, requestingUserID uuid.UUID) error {
 	s.logger.Info("unlocking user", "user_id", userID, "requesting_user_id", requestingUserID)
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return errors.NewNotFoundError("requesting user")
-	}
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return errors.NewNotFoundError("requesting user")
+		}
 
-	if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
-		return errors.NewValidationError("You don't have permission to unlock users")
+		if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
+			return errors.NewValidationError("You don't have permission to unlock users")
+		}
 	}
 
 	if err := s.repos.User.UnlockUser(ctx, userID); err != nil {
@@ -697,14 +726,17 @@ func (s *userService) UnlockUser(ctx context.Context, userID uuid.UUID, requesti
 func (s *userService) GetLockedUsers(ctx context.Context, requestingUserID uuid.UUID) ([]*dto.UserResponse, error) {
 	s.logger.Info("getting locked users")
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, errors.NewNotFoundError("requesting user")
-	}
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return nil, errors.NewNotFoundError("requesting user")
+		}
 
-	if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
-		return nil, errors.NewValidationError("You don't have permission to view locked users")
+		if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
+			return nil, errors.NewValidationError("You don't have permission to view locked users")
+		}
 	}
 
 	users, err := s.repos.User.GetLockedUsers(ctx)
@@ -772,8 +804,9 @@ func (s *userService) EnableMFA(ctx context.Context, userID uuid.UUID, req *dto.
 func (s *userService) DisableMFA(ctx context.Context, userID uuid.UUID, requestingUserID uuid.UUID) error {
 	s.logger.Info("disabling MFA", "user_id", userID)
 
+	// M2M tokens bypass permission checks (already validated by scopes)
 	// Users can disable their own MFA, or admins can disable it for others
-	if userID != requestingUserID {
+	if requestingUserID != uuid.Nil && userID != requestingUserID {
 		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
 		if err != nil {
 			return errors.NewNotFoundError("requesting user")
@@ -811,14 +844,17 @@ func (s *userService) VerifyMFA(ctx context.Context, userID uuid.UUID, req *dto.
 func (s *userService) UpdateRole(ctx context.Context, userID uuid.UUID, newRole models.UserRole, requestingUserID uuid.UUID) error {
 	s.logger.Info("updating user role", "user_id", userID, "new_role", newRole)
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return errors.NewNotFoundError("requesting user")
-	}
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return errors.NewNotFoundError("requesting user")
+		}
 
-	if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
-		return errors.NewValidationError("You don't have permission to update user roles")
+		if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
+			return errors.NewValidationError("You don't have permission to update user roles")
+		}
 	}
 
 	if err := s.repos.User.UpdateRole(ctx, userID, newRole); err != nil {
@@ -834,14 +870,17 @@ func (s *userService) UpdateRole(ctx context.Context, userID uuid.UUID, newRole 
 func (s *userService) UpdateStatus(ctx context.Context, userID uuid.UUID, newStatus models.UserStatus, requestingUserID uuid.UUID) error {
 	s.logger.Info("updating user status", "user_id", userID, "new_status", newStatus)
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return errors.NewNotFoundError("requesting user")
-	}
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return errors.NewNotFoundError("requesting user")
+		}
 
-	if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
-		return errors.NewValidationError("You don't have permission to update user status")
+		if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
+			return errors.NewValidationError("You don't have permission to update user status")
+		}
 	}
 
 	if err := s.repos.User.UpdateStatus(ctx, userID, newStatus); err != nil {
@@ -867,14 +906,17 @@ func (s *userService) DeactivateUser(ctx context.Context, userID uuid.UUID, requ
 func (s *userService) SuspendUser(ctx context.Context, userID uuid.UUID, req *dto.SuspendUserRequest, requestingUserID uuid.UUID) error {
 	s.logger.Info("suspending user", "user_id", userID, "reason", req.Reason)
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return errors.NewNotFoundError("requesting user")
-	}
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return errors.NewNotFoundError("requesting user")
+		}
 
-	if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
-		return errors.NewValidationError("You don't have permission to suspend users")
+		if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
+			return errors.NewValidationError("You don't have permission to suspend users")
+		}
 	}
 
 	if err := s.repos.User.SuspendUser(ctx, userID, req.Reason); err != nil {
@@ -1007,14 +1049,17 @@ func (s *userService) MarkForDeletion(ctx context.Context, userID uuid.UUID, sch
 func (s *userService) GetUsersMarkedForDeletion(ctx context.Context, requestingUserID uuid.UUID) ([]*dto.UserResponse, error) {
 	s.logger.Info("getting users marked for deletion")
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, errors.NewNotFoundError("requesting user")
-	}
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return nil, errors.NewNotFoundError("requesting user")
+		}
 
-	if !requestingUser.IsPlatformAdmin() {
-		return nil, errors.NewValidationError("Only platform admins can view users marked for deletion")
+		if !requestingUser.IsPlatformAdmin() {
+			return nil, errors.NewValidationError("Only platform admins can view users marked for deletion")
+		}
 	}
 
 	users, err := s.repos.User.GetUsersMarkedForDeletion(ctx)
@@ -1030,14 +1075,17 @@ func (s *userService) GetUsersMarkedForDeletion(ctx context.Context, requestingU
 func (s *userService) PermanentlyDeleteUser(ctx context.Context, userID uuid.UUID, requestingUserID uuid.UUID) error {
 	s.logger.Info("permanently deleting user", "user_id", userID)
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return errors.NewNotFoundError("requesting user")
-	}
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return errors.NewNotFoundError("requesting user")
+		}
 
-	if !requestingUser.IsPlatformAdmin() {
-		return errors.NewValidationError("Only platform admins can permanently delete users")
+		if !requestingUser.IsPlatformAdmin() {
+			return errors.NewValidationError("Only platform admins can permanently delete users")
+		}
 	}
 
 	if err := s.repos.User.PermanentlyDeleteUser(ctx, userID); err != nil {
@@ -1057,19 +1105,22 @@ func (s *userService) PermanentlyDeleteUser(ctx context.Context, userID uuid.UUI
 func (s *userService) GetUserStats(ctx context.Context, tenantID *uuid.UUID, requestingUserID uuid.UUID) (*dto.UserStatsResponse, error) {
 	s.logger.Info("getting user stats", "tenant_id", tenantID)
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, errors.NewNotFoundError("requesting user")
-	}
-
-	// Platform admins can see all stats
-	// Tenant admins can only see their tenant stats
-	if !requestingUser.IsPlatformAdmin() {
-		if requestingUser.TenantID == nil {
-			return nil, errors.NewValidationError("Invalid user tenant")
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return nil, errors.NewNotFoundError("requesting user")
 		}
-		tenantID = requestingUser.TenantID
+
+		// Platform admins can see all stats
+		// Tenant admins can only see their tenant stats
+		if !requestingUser.IsPlatformAdmin() {
+			if requestingUser.TenantID == nil {
+				return nil, errors.NewValidationError("Invalid user tenant")
+			}
+			tenantID = requestingUser.TenantID
+		}
 	}
 
 	stats, err := s.repos.User.GetUserStats(ctx, tenantID)
@@ -1085,14 +1136,17 @@ func (s *userService) GetUserStats(ctx context.Context, tenantID *uuid.UUID, req
 func (s *userService) GetRegistrationStats(ctx context.Context, startDate, endDate time.Time, requestingUserID uuid.UUID) (*dto.RegistrationStatsResponse, error) {
 	s.logger.Info("getting registration stats", "start_date", startDate, "end_date", endDate)
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, errors.NewNotFoundError("requesting user")
-	}
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return nil, errors.NewNotFoundError("requesting user")
+		}
 
-	if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
-		return nil, errors.NewValidationError("You don't have permission to view registration stats")
+		if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
+			return nil, errors.NewValidationError("You don't have permission to view registration stats")
+		}
 	}
 
 	stats, err := s.repos.User.GetRegistrationStats(ctx, startDate, endDate)
@@ -1108,23 +1162,26 @@ func (s *userService) GetRegistrationStats(ctx context.Context, startDate, endDa
 func (s *userService) GetUserGrowth(ctx context.Context, tenantID *uuid.UUID, months int, requestingUserID uuid.UUID) ([]*dto.UserGrowthResponse, error) {
 	s.logger.Info("getting user growth", "tenant_id", tenantID, "months", months)
 
-	// Check permissions
-	requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
-	if err != nil {
-		return nil, errors.NewNotFoundError("requesting user")
-	}
-
-	if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
-		return nil, errors.NewValidationError("You don't have permission to view user growth")
-	}
-
-	// Platform admins can see all growth
-	// Tenant admins can only see their tenant growth
-	if !requestingUser.IsPlatformAdmin() {
-		if requestingUser.TenantID == nil {
-			return nil, errors.NewValidationError("Invalid user tenant")
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID != uuid.Nil {
+		// Check permissions for user tokens
+		requestingUser, err := s.repos.User.GetByID(ctx, requestingUserID)
+		if err != nil {
+			return nil, errors.NewNotFoundError("requesting user")
 		}
-		tenantID = requestingUser.TenantID
+
+		if !requestingUser.IsPlatformAdmin() && !requestingUser.IsTenantAdmin() && !requestingUser.IsTenantOwner() {
+			return nil, errors.NewValidationError("You don't have permission to view user growth")
+		}
+
+		// Platform admins can see all growth
+		// Tenant admins can only see their tenant growth
+		if !requestingUser.IsPlatformAdmin() {
+			if requestingUser.TenantID == nil {
+				return nil, errors.NewValidationError("Invalid user tenant")
+			}
+			tenantID = requestingUser.TenantID
+		}
 	}
 
 	if months <= 0 {
@@ -1146,6 +1203,11 @@ func (s *userService) GetUserGrowth(ctx context.Context, tenantID *uuid.UUID, mo
 
 // checkUserUpdatePermission checks if requesting user can update target user
 func (s *userService) checkUserUpdatePermission(ctx context.Context, targetUser *models.User, requestingUserID uuid.UUID) error {
+	// M2M tokens bypass user-level permission checks (already validated by scopes)
+	if requestingUserID == uuid.Nil {
+		return nil
+	}
+
 	// Users can update their own profile
 	if targetUser.ID == requestingUserID {
 		return nil
@@ -1201,13 +1263,13 @@ func generateBackupCodes(count int) []string {
 
 // CreateUserFromWebhook creates a user from a webhook event (no permission checks)
 func (s *userService) CreateUserFromWebhook(ctx context.Context, user *models.User) error {
-	s.logger.Info("creating user from webhook", "email", user.Email, "logto_user_id", user.LogtoUserID)
+	s.logger.Info("creating user from webhook", "email", user.Email, "logto_user_id", user.ZitadelUserID)
 
 	// Check if user already exists by Logto ID
-	if user.LogtoUserID != "" {
-		existingUser, err := s.repos.User.GetByLogtoID(ctx, user.LogtoUserID)
+	if user.ZitadelUserID != "" {
+		existingUser, err := s.repos.User.GetByZitadelID(ctx, user.ZitadelUserID)
 		if err == nil && existingUser != nil {
-			s.logger.Warn("user already exists with this Logto ID", "logto_user_id", user.LogtoUserID)
+			s.logger.Warn("user already exists with this Logto ID", "logto_user_id", user.ZitadelUserID)
 			return errors.NewValidationError("user with this Logto ID already exists")
 		}
 	}
@@ -1217,9 +1279,9 @@ func (s *userService) CreateUserFromWebhook(ctx context.Context, user *models.Us
 	if err == nil && existingUser != nil {
 		s.logger.Warn("user already exists with this email", "email", user.Email)
 		// Update the existing user's Logto ID if it's not set
-		if existingUser.LogtoUserID == "" && user.LogtoUserID != "" {
-			s.logger.Info("updating existing user with Logto ID", "user_id", existingUser.ID, "logto_user_id", user.LogtoUserID)
-			existingUser.LogtoUserID = user.LogtoUserID
+		if existingUser.ZitadelUserID == "" && user.ZitadelUserID != "" {
+			s.logger.Info("updating existing user with Logto ID", "user_id", existingUser.ID, "logto_user_id", user.ZitadelUserID)
+			existingUser.ZitadelUserID = user.ZitadelUserID
 			if err := s.repos.User.Update(ctx, existingUser); err != nil {
 				return errors.NewServiceError("UPDATE_FAILED", "Failed to update user with Logto ID", err)
 			}

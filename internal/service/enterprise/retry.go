@@ -212,9 +212,7 @@ func (r *Retrier) calculateDelay(attempt int) time.Duration {
 	}
 
 	// Ensure delay doesn't exceed max
-	if delay > r.config.MaxDelay {
-		delay = r.config.MaxDelay
-	}
+	delay = min(delay, r.config.MaxDelay)
 
 	return delay
 }
@@ -338,9 +336,7 @@ func (t *RetryTracker) RecordRetry(attempts int, success bool, delay time.Durati
 		t.metrics.FailedRetries++
 	}
 
-	if attempts > t.metrics.MaxAttempts {
-		t.metrics.MaxAttempts = attempts
-	}
+	t.metrics.MaxAttempts = max(t.metrics.MaxAttempts, attempts)
 
 	// Calculate average attempts
 	if t.metrics.TotalRetries > 0 {

@@ -349,9 +349,7 @@ func (s *reportService) GetFailedReports(ctx context.Context, tenantID uuid.UUID
 	if pageSize < 1 {
 		pageSize = 20
 	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize = min(pageSize, 100)
 
 	pagination := repository.PaginationParams{
 		Page:     page,
@@ -668,9 +666,7 @@ func (s *reportService) SearchReports(ctx context.Context, tenantID uuid.UUID, q
 	if pageSize < 1 {
 		pageSize = 20
 	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize = min(pageSize, 100)
 
 	pagination := repository.PaginationParams{
 		Page:     page,

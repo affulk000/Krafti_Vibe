@@ -308,9 +308,7 @@ func (s *promoCodeService) GetActivePromoCodes(ctx context.Context, tenantID *uu
 	if pageSize < 1 {
 		pageSize = 20
 	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize = min(pageSize, 100)
 
 	pagination := repository.PaginationParams{
 		Page:     page,
@@ -375,9 +373,7 @@ func (s *promoCodeService) SearchPromoCodes(ctx context.Context, query string, t
 	if pageSize < 1 {
 		pageSize = 20
 	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
+	pageSize = min(pageSize, 100)
 
 	pagination := repository.PaginationParams{
 		Page:     page,
