@@ -103,7 +103,7 @@ func TestUserRepository_GetByEmail(t *testing.T) {
 	})
 }
 
-func TestUserRepository_GetByLogtoID(t *testing.T) {
+func TestUserRepository_GetByZitadelID(t *testing.T) {
 	tdb := testutil.NewTestDB(t)
 	defer tdb.Close()
 
@@ -112,17 +112,17 @@ func TestUserRepository_GetByLogtoID(t *testing.T) {
 
 	_, tenant := testutil.CreateTestTenantWithOwner(tdb.DB)
 
-	logtoID := uuid.New().String()
+	zitadelID := uuid.New().String()
 	user := testutil.CreateTestUser(&tenant.ID, func(u *models.User) {
-		u.LogtoUserID = logtoID
+		u.ZitadelUserID = zitadelID
 	})
 	require.NoError(t, repo.Create(ctx, user))
 
-	t.Run("get user by logto ID", func(t *testing.T) {
-		found, err := repo.GetByLogtoID(ctx, logtoID)
+	t.Run("get user by zitadel ID", func(t *testing.T) {
+		found, err := repo.GetByZitadelID(ctx, zitadelID)
 		require.NoError(t, err)
 		assert.Equal(t, user.ID, found.ID)
-		assert.Equal(t, logtoID, found.LogtoUserID)
+		assert.Equal(t, zitadelID, found.ZitadelUserID)
 	})
 }
 
