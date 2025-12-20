@@ -19,7 +19,7 @@ type UserRepository interface {
 
 	// Authentication & Lookup
 	GetByEmail(ctx context.Context, email string) (*models.User, error)
-	GetByLogtoID(ctx context.Context, logtoUserID string) (*models.User, error)
+	GetByZitadelID(ctx context.Context, zitadelID string) (*models.User, error)
 	GetByEmailWithTenant(ctx context.Context, email string, tenantID uuid.UUID) (*models.User, error)
 	VerifyEmail(ctx context.Context, userID uuid.UUID) error
 	VerifyPhone(ctx context.Context, userID uuid.UUID) error
@@ -216,14 +216,14 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*models.
 	return &user, nil
 }
 
-// GetByLogtoID retrieve a user by Logto user ID
-func (r *userRepository) GetByLogtoID(ctx context.Context, logtoUserID string) (*models.User, error) {
-	if logtoUserID == "" {
-		return nil, errors.NewRepositoryError("INVALID_INPUT", "logto user ID cannot be empty", errors.ErrInvalidInput)
+// GetByZitadelID retrieve a user by Zitadel user ID
+func (r *userRepository) GetByZitadelID(ctx context.Context, zitadelID string) (*models.User, error) {
+	if zitadelID == "" {
+		return nil, errors.NewRepositoryError("INVALID_INPUT", "zitadel user ID cannot be empty", errors.ErrInvalidInput)
 	}
 
 	// try cache first
-	cacheKey := r.getCacheKey("logto", logtoUserID)
+	cacheKey := r.getCacheKey("zitadel", zitadelID)
 	if r.cache != nil {
 		var user models.User
 		if err := r.cache.GetJSON(ctx, cacheKey, user); err == nil {
@@ -233,7 +233,7 @@ func (r *userRepository) GetByLogtoID(ctx context.Context, logtoUserID string) (
 			return &user, nil
 		}
 		if r.metrics != nil {
-			r.metrics.RecordCacheHit("users")
+			r.metrics.RecordCacheMiss("users")
 		}
 	}
 
@@ -242,19 +242,19 @@ func (r *userRepository) GetByLogtoID(ctx context.Context, logtoUserID string) (
 		Preload("Tenant").
 		Preload("ArtisanProfile").
 		Preload("CustomerProfile").
-		Where("logto_user_id = ?", logtoUserID).
+		Where("zitadel_user_id = ?", zitadelID).
 		First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.NewRepositoryError("NOT_FOUND", "user not found", errors.ErrNotFound)
 		}
-		r.logger.Error("failed to get user by logto user ID", "logtoUserID", logtoUserID, "error", err)
+		r.logger.Error("failed to get user by zitadel user ID", "zitadelID", zitadelID, "error", err)
 		return nil, errors.NewRepositoryError("GET_FAILED", "failed to get user", err)
 	}
 
 	// Cache the result
 	if r.cache != nil {
 		if err := r.cache.SetJSON(ctx, cacheKey, user, 5*time.Minute); err != nil {
-			r.logger.Warn("failed to cache user", "logtoUserID", logtoUserID, "error", err)
+			r.logger.Warn("failed to cache user", "zitadelID", zitadelID, "error", err)
 		}
 	}
 
