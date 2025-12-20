@@ -234,18 +234,18 @@ func createIndexes(db *gorm.DB, logger *zap.Logger) error {
 		{"bookings", "idx_bookings_customer", "customer_id"},
 		{"bookings", "idx_bookings_artisan", "artisan_id"},
 		{"bookings", "idx_bookings_status", "status"},
-		{"bookings", "idx_bookings_scheduled_at", "scheduled_at"},
+		{"bookings", "idx_bookings_start_time", "start_time"},
 
 		// Service indexes
 		{"services", "idx_services_tenant", "tenant_id"},
-		{"services", "idx_services_status", "status"},
+		{"services", "idx_services_is_active", "is_active"},
 		{"services", "idx_services_category", "category"},
 
 		// Payment indexes
 		{"payments", "idx_payments_tenant", "tenant_id"},
 		{"payments", "idx_payments_booking", "booking_id"},
 		{"payments", "idx_payments_status", "status"},
-		{"payments", "idx_payments_method", "payment_method"},
+		{"payments", "idx_payments_method", "method"},
 
 		// Project indexes
 		{"projects", "idx_projects_tenant", "tenant_id"},
