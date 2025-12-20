@@ -156,10 +156,17 @@ Krafti_Vibe/
 
 ## 📚 Documentation
 
+### General
 - [Project Specification](PROJECT_SPEC.md) - Complete technical spec
 - [Quick Start Guide](QUICKSTART.md) - Detailed setup instructions
 - [Migration Guide](MIGRATIONS.md) - Database migrations
 - [Zitadel Auth](ZITADEL_AUTH_STATUS.md) - Authentication setup
+
+### API Documentation
+- **[Swagger UI](http://localhost:8080/swagger/)** - Interactive API documentation (requires running server)
+- [API Quick Reference](docs/API_QUICK_REFERENCE.md) - Common endpoints & examples
+- [Swagger Guide](docs/SWAGGER_GUIDE.md) - Complete API documentation guide
+- [OpenAPI Spec](docs/swagger.yaml) - Machine-readable API specification
 
 ## 🔒 Security
 
