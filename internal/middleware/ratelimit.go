@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -238,7 +239,7 @@ func (rl *RateLimiter) determineTier(c *fiber.Ctx) TierLimit {
 	defer rl.mu.RUnlock()
 
 	// Check if user is authenticated
-	authCtx := GetAuthContext(c)
+	authCtx, _ := GetAuthContext(c)
 	if authCtx == nil {
 		// Not authenticated, use default tier
 		if tier, ok := rl.config.TierLimits[rl.config.DefaultTier]; ok {
@@ -297,22 +298,17 @@ func (ac *AuthContext) HasScope(scope string) bool {
 	if ac == nil {
 		return false
 	}
-	for _, s := range ac.Scopes {
-		if s == scope {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(ac.Scopes, scope)
 }
 
 // checkUserRateLimit checks if user has exceeded rate limit
 func (rl *RateLimiter) checkUserRateLimit(c *fiber.Ctx, tier TierLimit) (bool, error) {
-	authCtx := GetAuthContext(c)
+	authCtx, _ := GetAuthContext(c)
 	if authCtx == nil {
 		return false, nil // Not authenticated, skip user rate limit
 	}
 
-	key := fmt.Sprintf("ratelimit:user:%s:%d", authCtx.UserID, time.Now().Unix()/int64(tier.Window.Seconds()))
+	key := fmt.Sprintf("ratelimit:user:%s:%d", authCtx.UserID.String(), time.Now().Unix()/int64(tier.Window.Seconds()))
 	return rl.checkLimit(c.Context(), key, tier)
 }
 
@@ -352,8 +348,8 @@ func (rl *RateLimiter) decrementCounters(c *fiber.Ctx, tier TierLimit) {
 
 	// Decrement user counter
 	if rl.config.EnableUserRateLimit {
-		if authCtx := GetAuthContext(c); authCtx != nil {
-			key := fmt.Sprintf("ratelimit:user:%s:%d", authCtx.UserID, time.Now().Unix()/int64(tier.Window.Seconds()))
+		if authCtx, _ := GetAuthContext(c); authCtx != nil {
+			key := fmt.Sprintf("ratelimit:user:%s:%d", authCtx.UserID.String(), time.Now().Unix()/int64(tier.Window.Seconds()))
 			if _, err := rl.config.Cache.Decrement(ctx, key); err != nil {
 				rl.config.Logger.Warn("failed to decrement user rate limit",
 					zap.String("key", key),
@@ -394,9 +390,9 @@ func RateLimitWithHeaders(config RateLimitConfig) fiber.Handler {
 
 		// Check user rate limit
 		if config.EnableUserRateLimit {
-			if authCtx := GetAuthContext(c); authCtx != nil {
+			if authCtx, _ := GetAuthContext(c); authCtx != nil {
 				windowStart := time.Now().Unix() / int64(tier.Window.Seconds())
-				key := fmt.Sprintf("ratelimit:user:%s:%d", authCtx.UserID, windowStart)
+				key := fmt.Sprintf("ratelimit:user:%s:%d", authCtx.UserID.String(), windowStart)
 
 				// Get current count
 				ctx := c.Context()
@@ -473,7 +469,7 @@ func RateLimitByEndpoint(cache cache.Cache, logger *zap.Logger, limits map[strin
 // RateLimitByScope creates rate limit middleware based on user scopes
 func RateLimitByScope(cache cache.Cache, logger *zap.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		authCtx := GetAuthContext(c)
+		authCtx, _ := GetAuthContext(c)
 		if authCtx == nil {
 			// Not authenticated, use default rate limit
 			config := DefaultRateLimitConfig(cache, logger)
@@ -539,9 +535,9 @@ func TenantRateLimit(cache cache.Cache, logger *zap.Logger, max int, window time
 	config.Max = max
 	config.Window = window
 	config.KeyGenerator = func(c *fiber.Ctx) string {
-		authCtx := GetAuthContext(c)
+		authCtx, _ := GetAuthContext(c)
 		if authCtx != nil && authCtx.TenantID.String() != "" {
-			return fmt.Sprintf("tenant:%s", authCtx.TenantID)
+			return fmt.Sprintf("tenant:%s", authCtx.TenantID.String())
 		}
 		return c.IP()
 	}
@@ -561,7 +557,7 @@ func SlidingWindowRateLimit(cache cache.Cache, logger *zap.Logger, max int, wind
 			return c.Next()
 		}
 
-		authCtx := GetAuthContext(c)
+		authCtx, _ := GetAuthContext(c)
 		var identifier string
 		if authCtx != nil {
 			identifier = authCtx.UserID.String()
@@ -611,7 +607,7 @@ func SlidingWindowRateLimit(cache cache.Cache, logger *zap.Logger, max int, wind
 func BurstRateLimit(cache cache.Cache, logger *zap.Logger, burstMax int, steadyRate int, window time.Duration) fiber.Handler {
 	// Token bucket algorithm
 	return func(c *fiber.Ctx) error {
-		authCtx := GetAuthContext(c)
+		authCtx, _ := GetAuthContext(c)
 		var identifier string
 		if authCtx != nil {
 			identifier = authCtx.UserID.String()
