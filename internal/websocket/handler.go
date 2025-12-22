@@ -43,7 +43,7 @@ func (h *Handler) HandleConnection(c *websocket.Conn) {
 	}
 
 	// Get auth context
-	authCtx := middleware.GetAuthContext(ctx)
+	authCtx, _ := middleware.GetAuthContext(ctx)
 	if authCtx == nil {
 		c.WriteJSON(fiber.Map{
 			"error": "Unauthorized",
@@ -61,7 +61,7 @@ func (h *Handler) HandleConnection(c *websocket.Conn) {
 	// Send welcome message
 	client.SendMessage("connected", map[string]interface{}{
 		"message":   "Successfully connected to WebSocket",
-		"user_id":   authCtx.UserID.String(),
+		"user_id":   authCtx.UserID,
 		"tenant_id": authCtx.TenantID.String(),
 	})
 
