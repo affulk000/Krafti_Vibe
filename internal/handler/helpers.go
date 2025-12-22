@@ -2,6 +2,7 @@ package handler
 
 import (
 	"Krafti_Vibe/internal/middleware"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -10,7 +11,21 @@ import (
 )
 
 // Enterprise-grade helper functions for handlers
-// Note: getIntQuery is defined in user_handler.go to avoid duplication
+
+// getIntQuery retrieves an integer query parameter with a default value
+func getIntQuery(c *fiber.Ctx, key string, defaultValue int) int {
+	value := c.Query(key)
+	if value == "" {
+		return defaultValue
+	}
+
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		return defaultValue
+	}
+
+	return intValue
+}
 
 // getBoolQuery retrieves a boolean query parameter with a default value
 func getBoolQuery(c *fiber.Ctx, key string, defaultValue bool) bool {
@@ -52,9 +67,8 @@ func ValidatePagination(page, pageSize int) (int, int) {
 	// Ensure pageSize is within acceptable range
 	if pageSize < 1 {
 		pageSize = 20 // default
-	} else if pageSize > 100 {
-		pageSize = 100 // max
 	}
+	pageSize = min(pageSize, 100)
 
 	return page, pageSize
 }
@@ -91,15 +105,13 @@ func ParseUUIDQuery(c *fiber.Ctx, paramName string) (*uuid.UUID, error) {
 
 // GetAuthContext retrieves and validates authentication context
 func GetAuthContext(c *fiber.Ctx) (*middleware.AuthContext, error) {
-	authCtx := middleware.GetAuthContext(c)
+	authCtx := middleware.MustGetAuthContext(c)
 	if authCtx == nil {
 		return nil, NewUnauthorizedResponse(c, "Authentication required")
 	}
 
-	// Validate tenant ID
-	if authCtx.TenantID == uuid.Nil {
-		return nil, NewForbiddenResponse(c, "Tenant context required")
-	}
+	// Note: TenantID validation removed - platform users don't have a tenant
+	// Tenant-specific validation should be done in the handler if needed
 
 	return authCtx, nil
 }
@@ -112,7 +124,7 @@ func MustGetAuthContext(c *fiber.Ctx) *middleware.AuthContext {
 }
 
 // ValidateRequiredFields checks if required fields are present in a map
-func ValidateRequiredFields(data map[string]interface{}, requiredFields []string) []ValidationError {
+func ValidateRequiredFields(data map[string]any, requiredFields []string) []ValidationError {
 	var errors []ValidationError
 
 	for _, field := range requiredFields {
@@ -141,10 +153,7 @@ func SanitizeString(input string) string {
 
 // BuildPagination creates pagination metadata
 func BuildPagination(page, pageSize int, totalItems int64) *Pagination {
-	totalPages := int((totalItems + int64(pageSize) - 1) / int64(pageSize))
-	if totalPages < 1 {
-		totalPages = 1
-	}
+	totalPages := max(int((totalItems+int64(pageSize)-1)/int64(pageSize)), 1)
 
 	pagination := &Pagination{
 		Page:        page,
@@ -223,13 +232,7 @@ func ExtractSortParams(c *fiber.Ctx, allowedFields []string) (string, string) {
 	sortOrder := strings.ToLower(c.Query("sort_order", "desc"))
 
 	// Validate sortBy is in allowed fields
-	isValid := false
-	for _, field := range allowedFields {
-		if sortBy == field {
-			isValid = true
-			break
-		}
-	}
+	isValid := slices.Contains(allowedFields, sortBy)
 	if !isValid {
 		sortBy = "created_at" // default
 	}
@@ -278,4 +281,29 @@ func SetSecurityHeaders(c *fiber.Ctx) {
 	c.Set("X-XSS-Protection", "1; mode=block")
 	c.Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 	c.Set("Referrer-Policy", "strict-origin-when-cross-origin")
+}
+
+// GetTenantID retrieves the tenant ID from the auth context
+func GetTenantID(c *fiber.Ctx) (uuid.UUID, error) {
+	authCtx, err := GetAuthContext(c)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return authCtx.TenantID, nil
+}
+
+// GetUserID retrieves the user ID from the auth context
+func GetUserID(c *fiber.Ctx) (uuid.UUID, error) {
+	authCtx, err := GetAuthContext(c)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return authCtx.UserID, nil
+}
+
+// ParsePagination parses and validates pagination parameters from query
+func ParsePagination(c *fiber.Ctx) (page int, pageSize int) {
+	page = getIntQuery(c, "page", 1)
+	pageSize = getIntQuery(c, "page_size", 20)
+	return ValidatePagination(page, pageSize)
 }
