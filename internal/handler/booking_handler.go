@@ -70,7 +70,7 @@ func (h *BookingHandler) CreateBooking(c *fiber.Ctx) error {
 	if hasKey {
 		LogHandlerInfo(c, "create_booking", map[string]interface{}{
 			"idempotency_key": idempotencyKey,
-			"user_id":         authCtx.UserID.String(),
+			"user_id":         authCtx.UserID,
 		})
 	}
 
@@ -91,7 +91,7 @@ func (h *BookingHandler) CreateBooking(c *fiber.Ctx) error {
 
 	// Log the operation
 	LogHandlerInfo(c, "create_booking", map[string]interface{}{
-		"user_id":   authCtx.UserID.String(),
+		"user_id":   authCtx.UserID,
 		"tenant_id": authCtx.TenantID.String(),
 	})
 
@@ -107,7 +107,7 @@ func (h *BookingHandler) CreateBooking(c *fiber.Ctx) error {
 
 	LogHandlerInfo(c, "create_booking.success", map[string]interface{}{
 		"booking_id": booking.ID.String(),
-		"user_id":    authCtx.UserID.String(),
+		"user_id":    authCtx.UserID,
 	})
 
 	return NewCreatedResponse(c, booking, "Booking created successfully")
@@ -149,7 +149,7 @@ func (h *BookingHandler) GetBooking(c *fiber.Ctx) error {
 	// Log the operation
 	LogHandlerInfo(c, "get_booking", map[string]any{
 		"booking_id": bookingID.String(),
-		"user_id":    authCtx.UserID.String(),
+		"user_id":    authCtx.UserID,
 		"tenant_id":  authCtx.TenantID.String(),
 	})
 
@@ -265,10 +265,14 @@ func (h *BookingHandler) ListBookings(c *fiber.Ctx) error {
 	filter := dto.BookingFilter{
 		Page:     page,
 		PageSize: pageSize,
-		TenantID: &authCtx.TenantID, // Enforce tenant isolation
 	}
 
-	// Parse tenant ID if provided (must match authenticated tenant)
+	// Set tenant ID for tenant isolation (if user belongs to a tenant)
+	if authCtx.TenantID != uuid.Nil {
+		filter.TenantID = &authCtx.TenantID
+	}
+
+	// Parse tenant ID if provided
 	if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
 		tenantID, err := uuid.Parse(tenantIDStr)
 		if err != nil {
@@ -277,11 +281,15 @@ func (h *BookingHandler) ListBookings(c *fiber.Ctx) error {
 		}
 
 		// Security: Ensure requested tenant matches authenticated tenant
-		if tenantID != authCtx.TenantID {
+		// Platform users (no tenant) can query any tenant
+		if authCtx.TenantID != uuid.Nil && tenantID != authCtx.TenantID {
 			LogHandlerError(c, "list_bookings.tenant_mismatch",
 				fiber.NewError(fiber.StatusForbidden, "Tenant mismatch"))
 			return NewForbiddenResponse(c, "You can only list bookings for your own tenant")
 		}
+
+		// Platform users can filter by specific tenant
+		filter.TenantID = &tenantID
 	}
 
 	// Parse artisan ID if provided
@@ -322,7 +330,7 @@ func (h *BookingHandler) ListBookings(c *fiber.Ctx) error {
 
 	// Log the operation
 	LogHandlerInfo(c, "list_bookings", map[string]interface{}{
-		"user_id":    authCtx.UserID.String(),
+		"user_id":    authCtx.UserID,
 		"tenant_id":  authCtx.TenantID.String(),
 		"page":       page,
 		"page_size":  pageSize,
