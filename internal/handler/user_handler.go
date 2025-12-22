@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"strconv"
 	"time"
 
 	"Krafti_Vibe/internal/domain/models"
@@ -1223,16 +1222,6 @@ func (h *UserHandler) GetUserGrowth(c *fiber.Ctx) error {
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-// getIntQuery gets an integer query parameter with a default value
-func getIntQuery(c *fiber.Ctx, key string, defaultValue int) int {
-	if val := c.Query(key); val != "" {
-		if intVal, err := strconv.Atoi(val); err == nil {
-			return intVal
-		}
-	}
-	return defaultValue
-}
 
 // Request types for swagger documentation
 type RoleUpdateRequest struct {
