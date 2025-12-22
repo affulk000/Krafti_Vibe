@@ -1387,10 +1387,7 @@ func (r *bookingRepository) Search(ctx context.Context, query string, tenantID u
 }
 
 func (r *bookingRepository) FindByFilters(ctx context.Context, filters BookingFilters, pagination PaginationParams) ([]*models.Booking, PaginationResult, error) {
-	if filters.TenantID == uuid.Nil {
-		return nil, PaginationResult{}, errors.NewRepositoryError("INVALID_INPUT", "tenant_id is required", errors.ErrInvalidInput)
-	}
-
+	// Allow platform admins to query bookings across all tenants (tenant_id can be nil)
 	pagination.Validate()
 
 	query := r.db.WithContext(ctx).Model(&models.Booking{})
@@ -1504,7 +1501,10 @@ func (r *bookingRepository) applyDateRange(query *gorm.DB, column string, startD
 }
 
 func (r *bookingRepository) applyBookingFilters(query *gorm.DB, filters BookingFilters) *gorm.DB {
-	query = query.Where("tenant_id = ?", filters.TenantID)
+	// Only filter by tenant_id if it's not nil (platform admins can query all tenants)
+	if filters.TenantID != uuid.Nil {
+		query = query.Where("tenant_id = ?", filters.TenantID)
+	}
 
 	if len(filters.ArtisanIDs) > 0 {
 		query = query.Where("artisan_id IN ?", filters.ArtisanIDs)
