@@ -31,110 +31,100 @@ func (r *Router) setupTenantRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
+	tenants.Use(r.zitadelMW.RequireAuth())
 
 	// ============================================================================
 	// Core Tenant Operations
 	// ============================================================================
 
-	// Create tenant (authenticated, requires tenant:write scope)
-	tenants.Post("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
-		tenantHandler.CreateTenant,
-	)
-
-	// Get tenant by ID (authenticated, requires tenant:read scope)
-	tenants.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
-		tenantHandler.GetTenant,
-	)
-
-	// Update tenant (authenticated, requires tenant:write scope)
-	tenants.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
-		tenantHandler.UpdateTenant,
-	)
-
-	// Delete tenant (authenticated, requires tenant:write scope)
-	tenants.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
-		tenantHandler.DeleteTenant,
-	)
-
-	// List tenants (authenticated, requires tenant:read scope)
+	// List tenants - platform admin only (must be before /:id)
 	tenants.Get("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		r.zitadelMW.RequireAnyPlatformRole(),
 		tenantHandler.ListTenants,
 	)
 
-	// Search tenants (authenticated, requires tenant:read scope)
+	// Search tenants - platform admin only (must be before /:id)
 	tenants.Post("/search",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		r.zitadelMW.RequireAnyPlatformRole(),
 		tenantHandler.SearchTenants,
 	)
 
+	// Create tenant - any authenticated user can create a tenant (becomes tenant owner)
+	tenants.Post("/",
+		tenantHandler.CreateTenant,
+	)
+
 	// ============================================================================
-	// Tenant Lookup Operations
+	// Tenant Lookup Operations (must be before /:id)
 	// ============================================================================
 
-	// Get tenant by subdomain (authenticated, requires tenant:read scope)
+	// Get tenant by subdomain - any authenticated user (for tenant discovery)
 	tenants.Get("/subdomain/:subdomain",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
 		tenantHandler.GetTenantBySubdomain,
 	)
 
-	// Get tenant by domain (authenticated, requires tenant:read scope)
+	// Get tenant by domain - any authenticated user (for tenant discovery)
 	tenants.Get("/domain/:domain",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
 		tenantHandler.GetTenantByDomain,
 	)
 
-	// Check subdomain availability (authenticated, requires tenant:read scope)
+	// Check subdomain availability - any authenticated user (for signup)
 	tenants.Get("/check-subdomain/:subdomain",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
 		tenantHandler.CheckSubdomainAvailability,
 	)
 
-	// Check domain availability (authenticated, requires tenant:read scope)
+	// Check domain availability - any authenticated user (for signup)
 	tenants.Get("/check-domain/:domain",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
 		tenantHandler.CheckDomainAvailability,
+	)
+
+	// Get expired trials - platform admin only (must be before /:id)
+	tenants.Get("/trials/expired",
+		r.zitadelMW.RequireAnyPlatformRole(),
+		tenantHandler.GetExpiredTrials,
+	)
+
+	// ============================================================================
+	// Parameterized Routes (must be after specific routes)
+	// ============================================================================
+
+	// Get tenant by ID - tenant owner/admin can view their tenant, platform users can view all
+	tenants.Get("/:id",
+		middleware.RequireTenantOwnerOrAdmin(),
+		tenantHandler.GetTenant,
+	)
+
+	// Update tenant - tenant owner/admin only
+	tenants.Put("/:id",
+		middleware.RequireTenantOwnerOrAdmin(),
+		tenantHandler.UpdateTenant,
+	)
+
+	// Delete tenant - platform admin or tenant owner only
+	tenants.Delete("/:id",
+		middleware.RequireTenantOwner(),
+		tenantHandler.DeleteTenant,
 	)
 
 	// ============================================================================
 	// Tenant Status Management
 	// ============================================================================
 
-	// Activate tenant (authenticated, requires tenant:write scope)
+	// Activate tenant - platform admin or tenant owner
 	tenants.Post("/:id/activate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
+		middleware.RequireTenantOwner(),
 		tenantHandler.ActivateTenant,
 	)
 
-	// Suspend tenant (authenticated, requires tenant:write scope)
+	// Suspend tenant - platform admin only
 	tenants.Post("/:id/suspend",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
+		r.zitadelMW.RequireAnyPlatformRole(),
 		tenantHandler.SuspendTenant,
 	)
 
-	// Cancel tenant (authenticated, requires tenant:write scope)
+	// Cancel tenant - tenant owner only
 	tenants.Post("/:id/cancel",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
+		middleware.RequireTenantOwner(),
 		tenantHandler.CancelTenant,
 	)
 
@@ -142,24 +132,21 @@ func (r *Router) setupTenantRoutes(api fiber.Router) {
 	// Tenant Settings & Configuration
 	// ============================================================================
 
-	// Update tenant plan (authenticated, requires tenant:write scope)
+	// Update tenant plan - tenant owner only
 	tenants.Put("/:id/plan",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
+		middleware.RequireTenantOwner(),
 		tenantHandler.UpdateTenantPlan,
 	)
 
-	// Update tenant settings (authenticated, requires tenant:write scope)
+	// Update tenant settings - tenant owner/admin only
 	tenants.Put("/:id/settings",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		tenantHandler.UpdateTenantSettings,
 	)
 
-	// Update tenant features (authenticated, requires tenant:write scope)
+	// Update tenant features - tenant owner only
 	tenants.Put("/:id/features",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
+		middleware.RequireTenantOwner(),
 		tenantHandler.UpdateTenantFeatures,
 	)
 
@@ -167,31 +154,27 @@ func (r *Router) setupTenantRoutes(api fiber.Router) {
 	// Tenant Metrics & Information
 	// ============================================================================
 
-	// Get tenant statistics (authenticated, requires tenant:read scope)
+	// Get tenant statistics - tenant owner/admin only
 	tenants.Get("/:id/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		tenantHandler.GetTenantStats,
 	)
 
-	// Get tenant details (authenticated, requires tenant:read scope)
+	// Get tenant details - tenant owner/admin only
 	tenants.Get("/:id/details",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		tenantHandler.GetTenantDetails,
 	)
 
-	// Get tenant health (authenticated, requires tenant:read scope)
+	// Get tenant health - tenant owner/admin only
 	tenants.Get("/:id/health",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		tenantHandler.GetTenantHealth,
 	)
 
-	// Get tenant limits (authenticated, requires tenant:read scope)
+	// Get tenant limits - tenant owner/admin only
 	tenants.Get("/:id/limits",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		tenantHandler.GetTenantLimits,
 	)
 
@@ -199,17 +182,9 @@ func (r *Router) setupTenantRoutes(api fiber.Router) {
 	// Trial Management
 	// ============================================================================
 
-	// Extend tenant trial (authenticated, requires tenant:write scope)
+	// Extend tenant trial - platform admin only
 	tenants.Post("/:id/extend-trial",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantWrite),
+		r.zitadelMW.RequireAnyPlatformRole(),
 		tenantHandler.ExtendTrial,
-	)
-
-	// Get expired trials (authenticated, requires tenant:read scope)
-	tenants.Get("/trials/expired",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
-		tenantHandler.GetExpiredTrials,
 	)
 }
