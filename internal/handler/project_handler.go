@@ -172,13 +172,20 @@ func (h *ProjectHandler) DeleteProject(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse
 // @Router /projects [get]
 func (h *ProjectHandler) ListProjects(c *fiber.Ctx) error {
+	// Get auth context for tenant isolation
+	authCtx := MustGetAuthContext(c)
+
 	filter := dto.ProjectFilter{
 		Page:     getIntQuery(c, "page", 1),
 		PageSize: getIntQuery(c, "page_size", 20),
 	}
 
-	// Parse tenant ID if provided
-	if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
+	// Use tenant ID from auth context (for tenant isolation)
+	// Platform users can optionally filter by tenant via query param
+	if authCtx.TenantID != uuid.Nil {
+		filter.TenantID = authCtx.TenantID
+	} else if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
+		// Platform users can filter by specific tenant
 		if tenantID, err := uuid.Parse(tenantIDStr); err == nil {
 			filter.TenantID = tenantID
 		}
