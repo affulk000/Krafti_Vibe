@@ -171,15 +171,22 @@ func (h *ArtisanHandler) DeleteArtisan(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse
 // @Router /artisans [get]
 func (h *ArtisanHandler) ListArtisans(c *fiber.Ctx) error {
+	// Get auth context for tenant isolation
+	authCtx := MustGetAuthContext(c)
+
 	filter := dto.ArtisanFilter{
 		Page:     getIntQuery(c, "page", 1),
 		PageSize: getIntQuery(c, "page_size", 20),
 	}
 
-	// Parse tenant ID if provided
-	if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
+	// Use tenant ID from auth context (for tenant isolation)
+	// Platform users can optionally filter by tenant via query param
+	if authCtx.TenantID != uuid.Nil {
+		filter.TenantID = &authCtx.TenantID
+	} else if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
+		// Platform users can filter by specific tenant
 		if tenantID, err := uuid.Parse(tenantIDStr); err == nil {
-			filter.TenantID = tenantID
+			filter.TenantID = &tenantID
 		}
 	}
 
@@ -233,7 +240,7 @@ func (h *ArtisanHandler) SearchArtisans(c *fiber.Ctx) error {
 
 	if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
 		if tid, err := uuid.Parse(tenantIDStr); err == nil {
-			filter.TenantID = tid
+			filter.TenantID = &tid
 		}
 	}
 
