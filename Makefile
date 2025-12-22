@@ -1,4 +1,4 @@
-.PHONY: help build run dev test test-unit test-integration test-coverage clean lint fmt check docker-build docker-run migrate-up migrate-down migrate-create migrate-status deps install-tools
+.PHONY: help build run run-race dev test test-unit test-integration test-coverage clean lint fmt check docker-build docker-run migrate-up migrate-down migrate-create migrate-status deps install-tools
 
 # Variables
 APP_NAME=kraftivibe
@@ -39,6 +39,11 @@ run: build
 dev:
 	@echo "$(GREEN)Starting development server with hot reload...$(NC)"
 	@air -c air.toml
+
+## run-race: Run with race detector
+run-race:
+	@echo "$(GREEN)Running application with race detector...$(NC)"
+	@go run -race $(MAIN_PATH)
 
 ## test: Run all tests
 test:
