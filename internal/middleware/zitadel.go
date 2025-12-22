@@ -164,9 +164,13 @@ func (m *ZitadelAuthMiddleware) RequireAuth(opts ...authorization.CheckOption) f
 				// Log error but don't fail authentication
 				// User can still use the API with Zitadel identity
 				c.Locals("user_sync_error", err.Error())
+				dbUser = nil // Ensure dbUser is nil on error
 				// Continue - authentication succeeded, sync failure is not critical
 			} else if dbUser != nil {
 				c.Locals("user_synced", true)
+			} else {
+				// Sync succeeded but returned nil user - log this unexpected case
+				c.Locals("user_sync_error", "user sync returned nil")
 			}
 		}
 
