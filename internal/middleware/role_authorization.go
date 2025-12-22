@@ -25,15 +25,12 @@ func (m *ZitadelAuthMiddleware) RequirePlatformSupport() fiber.Handler {
 }
 
 // RequireAnyPlatformRole requires any platform-level role
+// NOTE: This expects RequireAuth() to have already been called (usually at group level)
+// It only performs the platform role check, not authentication
 func (m *ZitadelAuthMiddleware) RequireAnyPlatformRole() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// First authenticate
-		authHandler := m.RequireAuth()
-		if err := authHandler(c); err != nil {
-			return err
-		}
-
 		// Check if user is platform user
+		// (auth should have already been done by group-level middleware)
 		dbUser := c.Locals("db_user")
 		if dbUser == nil {
 			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
@@ -104,7 +101,7 @@ func requireDatabaseRole(role models.UserRole) fiber.Handler {
 		}
 
 		user, ok := dbUser.(*models.User)
-		if !ok {
+		if !ok || user == nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"success": false,
 				"error": fiber.Map{
@@ -149,7 +146,7 @@ func requireAnyDatabaseRole(roles ...models.UserRole) fiber.Handler {
 		}
 
 		user, ok := dbUser.(*models.User)
-		if !ok {
+		if !ok || user == nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"success": false,
 				"error": fiber.Map{
@@ -194,7 +191,7 @@ func RequireSelfOrAdmin() fiber.Handler {
 		}
 
 		user, ok := dbUser.(*models.User)
-		if !ok {
+		if !ok || user == nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"success": false,
 				"error": fiber.Map{
@@ -238,7 +235,10 @@ func GetDatabaseUser(c *fiber.Ctx) (*models.User, bool) {
 		return nil, false
 	}
 	user, ok := dbUser.(*models.User)
-	return user, ok
+	if !ok || user == nil {
+		return nil, false
+	}
+	return user, true
 }
 
 // IsPlatformUser checks if the current user is a platform user
