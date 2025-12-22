@@ -971,10 +971,7 @@ func (r *customerRepository) Search(ctx context.Context, query string, tenantID 
 }
 
 func (r *customerRepository) FindByFilters(ctx context.Context, filters CustomerFilters, pagination PaginationParams) ([]*models.Customer, PaginationResult, error) {
-	if filters.TenantID == uuid.Nil {
-		return nil, PaginationResult{}, errors.NewRepositoryError("INVALID_INPUT", "tenant_id is required", errors.ErrInvalidInput)
-	}
-
+	// Allow platform admins to query customers across all tenants (tenant_id can be nil)
 	pagination.Validate()
 
 	query := r.db.WithContext(ctx).Model(&models.Customer{})
@@ -1054,7 +1051,10 @@ func (r *customerRepository) BulkUpdateNotificationPreferences(ctx context.Conte
 //------------------------------------------------------------
 
 func (r *customerRepository) applyCustomerFilters(query *gorm.DB, filters CustomerFilters) *gorm.DB {
-	query = query.Where("tenant_id = ?", filters.TenantID)
+	// Only filter by tenant_id if it's not nil (platform admins can query all tenants)
+	if filters.TenantID != uuid.Nil {
+		query = query.Where("tenant_id = ?", filters.TenantID)
+	}
 
 	if len(filters.UserIDs) > 0 {
 		query = query.Where("user_id IN ?", filters.UserIDs)
