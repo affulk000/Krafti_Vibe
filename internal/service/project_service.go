@@ -284,9 +284,8 @@ func (s *projectService) DeleteProject(ctx context.Context, id uuid.UUID) error 
 
 // ListProjects retrieves a paginated list of projects
 func (s *projectService) ListProjects(ctx context.Context, filter dto.ProjectFilter) (*dto.ProjectListResponse, error) {
-	if filter.TenantID == uuid.Nil {
-		return nil, errors.NewValidationError("tenant_id is required")
-	}
+	// Platform admins can query across all tenants (tenant_id can be nil)
+	// Tenant users will have their tenant_id set by the handler
 
 	pagination := repository.PaginationParams{
 		Page:     filter.Page,
@@ -303,16 +302,33 @@ func (s *projectService) ListProjects(ctx context.Context, filter dto.ProjectFil
 		projects, paginationResult, err = s.repos.Project.FindByArtisanID(ctx, *filter.ArtisanID, pagination)
 	} else if filter.CustomerID != nil {
 		projects, paginationResult, err = s.repos.Project.FindByCustomerID(ctx, *filter.CustomerID, pagination)
-	} else if filter.Status != nil {
-		projects, paginationResult, err = s.repos.Project.FindByStatus(ctx, filter.TenantID, *filter.Status, pagination)
-	} else if filter.Priority != nil {
-		projects, paginationResult, err = s.repos.Project.FindByPriority(ctx, filter.TenantID, *filter.Priority, pagination)
-	} else if len(filter.Tags) > 0 {
-		projects, paginationResult, err = s.repos.Project.FindByTags(ctx, filter.TenantID, filter.Tags, pagination)
-	} else if filter.FromDate != nil && filter.ToDate != nil {
-		projects, paginationResult, err = s.repos.Project.FindByDateRange(ctx, filter.TenantID, *filter.FromDate, *filter.ToDate, pagination)
+	} else if filter.TenantID != uuid.Nil {
+		// Tenant-specific queries
+		if filter.Status != nil {
+			projects, paginationResult, err = s.repos.Project.FindByStatus(ctx, filter.TenantID, *filter.Status, pagination)
+		} else if filter.Priority != nil {
+			projects, paginationResult, err = s.repos.Project.FindByPriority(ctx, filter.TenantID, *filter.Priority, pagination)
+		} else if len(filter.Tags) > 0 {
+			projects, paginationResult, err = s.repos.Project.FindByTags(ctx, filter.TenantID, filter.Tags, pagination)
+		} else if filter.FromDate != nil && filter.ToDate != nil {
+			projects, paginationResult, err = s.repos.Project.FindByDateRange(ctx, filter.TenantID, *filter.FromDate, *filter.ToDate, pagination)
+		} else {
+			projects, paginationResult, err = s.repos.Project.FindByTenantID(ctx, filter.TenantID, pagination)
+		}
 	} else {
-		projects, paginationResult, err = s.repos.Project.FindByTenantID(ctx, filter.TenantID, pagination)
+		// Platform admin querying all projects across all tenants
+		// This would require a new repository method or use an existing one
+		// For now, return empty list as this feature needs to be implemented at repo level
+		s.logger.Warn("platform admin query for all projects not yet implemented at repository level")
+		projects = []*models.Project{}
+		paginationResult = repository.PaginationResult{
+			Page:       pagination.Page,
+			PageSize:   pagination.PageSize,
+			TotalItems: 0,
+			TotalPages: 0,
+			HasNext:    false,
+			HasPrev:    false,
+		}
 	}
 
 	if err != nil {
