@@ -91,16 +91,16 @@ type UpdateAvailabilityRequest struct {
 
 // ArtisanFilter represents filters for artisan queries
 type ArtisanFilter struct {
-	TenantID       uuid.UUID `json:"tenant_id"`
-	IsAvailable    *bool     `json:"is_available,omitempty"`
-	Specialization *string   `json:"specialization,omitempty"`
-	MinRating      *float64  `json:"min_rating,omitempty"`
-	MinExperience  *int      `json:"min_experience,omitempty"`
-	Latitude       *float64  `json:"latitude,omitempty"`
-	Longitude      *float64  `json:"longitude,omitempty"`
-	RadiusKm       *int      `json:"radius_km,omitempty"`
-	Page           int       `json:"page"`
-	PageSize       int       `json:"page_size"`
+	TenantID       *uuid.UUID `json:"tenant_id,omitempty"` // Optional - platform admins can query all tenants
+	IsAvailable    *bool      `json:"is_available,omitempty"`
+	Specialization *string    `json:"specialization,omitempty"`
+	MinRating      *float64   `json:"min_rating,omitempty"`
+	MinExperience  *int       `json:"min_experience,omitempty"`
+	Latitude       *float64   `json:"latitude,omitempty"`
+	Longitude      *float64   `json:"longitude,omitempty"`
+	RadiusKm       *int       `json:"radius_km,omitempty"`
+	Page           int        `json:"page"`
+	PageSize       int        `json:"page_size"`
 }
 
 // SearchArtisanRequest represents search parameters
