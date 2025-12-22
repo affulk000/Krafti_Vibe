@@ -192,13 +192,34 @@ func (s *artisanService) DeleteArtisan(ctx context.Context, id uuid.UUID) error 
 func (s *artisanService) ListArtisans(ctx context.Context, filter dto.ArtisanFilter) (*dto.ArtisanListResponse, error) {
 	pagination := repository.PaginationParams{
 		Page:     filter.Page,
-		PageSize: filter.PageSize,
+		PageSize:     filter.PageSize,
 	}
 	pagination.Validate()
 
-	artisans, paginationResult, err := s.repos.Artisan.FindByTenant(ctx, filter.TenantID, pagination)
-	if err != nil {
-		return nil, errors.NewServiceError("ARTISAN_LIST_FAILED", "failed to list artisans", err)
+	var artisans []*models.Artisan
+	var paginationResult repository.PaginationResult
+	var err error
+
+	// Handle nil tenant_id for platform admins
+	if filter.TenantID == nil || *filter.TenantID == uuid.Nil {
+		// Platform admin querying all artisans across all tenants
+		// For now, return empty list as this feature needs to be implemented at repo level
+		s.logger.Warn("platform admin query for all artisans not yet implemented at repository level")
+		artisans = []*models.Artisan{}
+		paginationResult = repository.PaginationResult{
+			Page:       pagination.Page,
+			PageSize:   pagination.PageSize,
+			TotalItems: 0,
+			TotalPages: 0,
+			HasNext:    false,
+			HasPrev:    false,
+		}
+	} else {
+		// Tenant-specific query
+		artisans, paginationResult, err = s.repos.Artisan.FindByTenant(ctx, *filter.TenantID, pagination)
+		if err != nil {
+			return nil, errors.NewServiceError("ARTISAN_LIST_FAILED", "failed to list artisans", err)
+		}
 	}
 
 	return &dto.ArtisanListResponse{
@@ -220,7 +241,13 @@ func (s *artisanService) SearchArtisans(ctx context.Context, query string, filte
 	}
 	pagination.Validate()
 
-	artisans, paginationResult, err := s.repos.Artisan.Search(ctx, filter.TenantID, query, pagination)
+	// Extract tenant ID from pointer, default to uuid.Nil for platform admins
+	var tenantID uuid.UUID
+	if filter.TenantID != nil {
+		tenantID = *filter.TenantID
+	}
+
+	artisans, paginationResult, err := s.repos.Artisan.Search(ctx, tenantID, query, pagination)
 	if err != nil {
 		return nil, errors.NewServiceError("ARTISAN_SEARCH_FAILED", "failed to search artisans", err)
 	}
