@@ -27,39 +27,32 @@ func (r *Router) setupInvoiceRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
+	invoices.Use(r.zitadelMW.RequireAuth())
 
 	// ============================================================================
 	// Core Invoice Operations
 	// ============================================================================
 
-	// Create invoice (authenticated, requires invoice:write scope)
+	// Create invoice - artisan or tenant owner/admin
 	invoices.Post("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.InvoiceWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		invoiceHandler.CreateInvoice,
 	)
 
-	// Get invoice by ID (authenticated, requires invoice:read scope)
+	// Get invoice by ID - customer (owner) or artisan or tenant owner/admin
 	invoices.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.InvoiceRead),
 		invoiceHandler.GetInvoice,
 	)
 
-	// Update invoice (authenticated, requires invoice:write scope)
+	// Update invoice - artisan or tenant owner/admin
 	invoices.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.InvoiceWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		invoiceHandler.UpdateInvoice,
 	)
 
-	// Delete invoice (authenticated, requires invoice:write scope)
+	// Delete invoice - tenant owner/admin only
 	invoices.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.InvoiceWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		invoiceHandler.DeleteInvoice,
 	)
 
@@ -67,17 +60,14 @@ func (r *Router) setupInvoiceRoutes(api fiber.Router) {
 	// Invoice Actions
 	// ============================================================================
 
-	// Mark invoice as paid (authenticated, requires invoice:write scope)
+	// Mark invoice as paid - tenant owner/admin or customer (self)
 	invoices.Post("/:id/pay",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.InvoiceWrite),
 		invoiceHandler.MarkInvoiceAsPaid,
 	)
 
-	// Send invoice to customer (authenticated, requires invoice:write scope)
+	// Send invoice to customer - artisan or tenant owner/admin
 	invoices.Post("/:id/send",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.InvoiceWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		invoiceHandler.SendInvoice,
 	)
 
@@ -85,17 +75,14 @@ func (r *Router) setupInvoiceRoutes(api fiber.Router) {
 	// Related Resource Queries
 	// ============================================================================
 
-	// Get invoices by booking (authenticated, requires invoice:read scope)
+	// Get invoices by booking - booking owner or tenant owner/admin
 	invoices.Get("/booking/:booking_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.InvoiceRead),
 		invoiceHandler.GetBookingInvoice,
 	)
 
-	// Get invoices by customer (authenticated, requires invoice:read scope)
+	// Get invoices by customer - customer (self) or tenant owner/admin
 	invoices.Get("/customer/:customer_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.InvoiceRead),
+		middleware.RequireSelfOrAdmin(),
 		invoiceHandler.GetCustomerInvoices,
 	)
 }
