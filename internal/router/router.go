@@ -2,7 +2,6 @@ package router
 
 import (
 	"Krafti_Vibe/internal/infrastructure/cache"
-	"Krafti_Vibe/internal/infrastructure/logto"
 	"Krafti_Vibe/internal/middleware"
 	"Krafti_Vibe/internal/repository"
 	ws "Krafti_Vibe/internal/websocket"
@@ -10,31 +9,32 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	swagger "github.com/swaggo/fiber-swagger"
+	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
+	"github.com/zitadel/zitadel-go/v3/pkg/authorization/oauth"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 // Config holds the router configuration
 type Config struct {
-	DB             *gorm.DB
-	Logger         log.AllLogger
-	LogtoConfig    *logto.Config
-	TokenValidator *logto.TokenValidator
-	Cache          cache.Cache            // Optional: for rate limiting
-	ZapLogger      *zap.Logger            // Optional: for rate limiting (zap structured logging)
-	CORSConfig     *middleware.CORSConfig // Optional: for CORS
-	WebhookSecret  string                 // Logto webhook signing secret
+	DB                *gorm.DB
+	Logger            log.AllLogger
+	ZitadelAuthZ      *authorization.Authorizer[*oauth.IntrospectionContext]
+	ZitadelMiddleware *middleware.ZitadelAuthMiddleware
+	Cache             cache.Cache            // Optional: for rate limiting
+	ZapLogger         *zap.Logger            // Optional: for rate limiting (zap structured logging)
+	CORSConfig        *middleware.CORSConfig // Optional: for CORS
+	WebhookSecret     string                 // Webhook signing secret
 }
 
 // Router handles all application routes
 type Router struct {
-	app            *fiber.App
-	config         *Config
-	repos          *repository.Repositories
-	tokenValidator *logto.TokenValidator
-	scopes         *logto.Scopes
-	wsHub          *ws.Hub
-	wsHandler      *ws.Handler
+	app       *fiber.App
+	config    *Config
+	repos     *repository.Repositories
+	zitadelMW *middleware.ZitadelAuthMiddleware
+	wsHub     *ws.Hub
+	wsHandler *ws.Handler
 }
 
 // New creates a new router instance
@@ -44,12 +44,11 @@ func New(app *fiber.App, config *Config) *Router {
 	handler := ws.NewHandler(hub)
 
 	return &Router{
-		app:            app,
-		config:         config,
-		tokenValidator: config.TokenValidator,
-		scopes:         logto.DefaultScopes(),
-		wsHub:          hub,
-		wsHandler:      handler,
+		app:       app,
+		config:    config,
+		zitadelMW: config.ZitadelMiddleware,
+		wsHub:     hub,
+		wsHandler: handler,
 	}
 }
 
@@ -109,6 +108,8 @@ func (r *Router) setupAPIRoutes() {
 	r.setupSubscriptionRoutes(api)
 	r.setupMessageRoutes(api)
 	r.setupNotificationRoutes(api)
+	r.setupDataExportRoutes(api)
+	r.setupTenantUsageRoutes(api)
 	r.setupTenantRoutes(api)
 	r.setupMilestoneRoutes(api)
 	r.setupTaskRoutes(api)
