@@ -27,46 +27,37 @@ func (r *Router) setupArtisanRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
+	artisans.Use(r.zitadelMW.RequireAuth())
 
 	// ============================================================================
 	// Core Artisan Operations
 	// ============================================================================
 
-	// Create artisan (authenticated, requires artisan:write scope)
+	// Create artisan - tenant owner/admin can create artisans
 	artisans.Post("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		artisanHandler.CreateArtisan,
 	)
 
-	// Get artisan by ID (authenticated, requires artisan:read scope)
+	// Get artisan by ID - any authenticated user can view artisan profiles
 	artisans.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
 		artisanHandler.GetArtisan,
 	)
 
-	// Update artisan (authenticated, requires artisan:write scope)
+	// Update artisan - self (artisan) or tenant owner/admin
 	artisans.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanWrite),
+		middleware.RequireSelfOrAdmin(),
 		artisanHandler.UpdateArtisan,
 	)
 
-	// Delete artisan (authenticated, requires artisan:write scope)
+	// Delete artisan - tenant owner/admin only
 	artisans.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		artisanHandler.DeleteArtisan,
 	)
 
-	// List artisans (authenticated, requires artisan:read scope)
+	// List artisans - any authenticated user (for customer discovery)
 	artisans.Get("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
 		artisanHandler.ListArtisans,
 	)
 
@@ -74,17 +65,13 @@ func (r *Router) setupArtisanRoutes(api fiber.Router) {
 	// Artisan Lookup Operations
 	// ============================================================================
 
-	// Get artisan by user ID (authenticated, requires artisan:read scope)
+	// Get artisan by user ID - any authenticated user
 	artisans.Get("/user/:user_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
 		artisanHandler.GetArtisanByUserID,
 	)
 
-	// Search artisans (authenticated, requires artisan:read scope)
+	// Search artisans - any authenticated user
 	artisans.Post("/search",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
 		artisanHandler.SearchArtisans,
 	)
 
@@ -92,31 +79,23 @@ func (r *Router) setupArtisanRoutes(api fiber.Router) {
 	// Artisan Discovery
 	// ============================================================================
 
-	// Get available artisans (authenticated, requires artisan:read scope)
+	// Get available artisans - any authenticated user (for booking)
 	artisans.Get("/available",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
 		artisanHandler.GetAvailableArtisans,
 	)
 
-	// Get artisans by specialization (authenticated, requires artisan:read scope)
+	// Get artisans by specialization - any authenticated user
 	artisans.Get("/specialization/:specialization",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
 		artisanHandler.GetArtisansBySpecialization,
 	)
 
-	// Get top rated artisans (authenticated, requires artisan:read scope)
+	// Get top rated artisans - any authenticated user
 	artisans.Get("/top-rated",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
 		artisanHandler.GetTopRatedArtisans,
 	)
 
-	// Find nearby artisans (authenticated, requires artisan:read scope)
+	// Find nearby artisans - any authenticated user
 	artisans.Post("/nearby",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
 		artisanHandler.FindNearbyArtisans,
 	)
 
@@ -124,17 +103,15 @@ func (r *Router) setupArtisanRoutes(api fiber.Router) {
 	// Availability Management
 	// ============================================================================
 
-	// Update availability (authenticated, requires artisan:write scope)
+	// Update availability - artisan (self) or tenant owner/admin
 	artisans.Put("/:id/availability",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		artisanHandler.UpdateAvailability,
 	)
 
-	// Batch update availability (authenticated, requires artisan:write scope)
+	// Batch update availability - artisan or tenant owner/admin
 	artisans.Post("/availability/batch",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		artisanHandler.BatchUpdateAvailability,
 	)
 
@@ -142,17 +119,15 @@ func (r *Router) setupArtisanRoutes(api fiber.Router) {
 	// Statistics & Analytics
 	// ============================================================================
 
-	// Get artisan statistics (authenticated, requires artisan:read scope)
+	// Get artisan statistics - artisan (self) or tenant owner/admin
 	artisans.Get("/:id/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
+		middleware.RequireArtisanOrTeamMember(),
 		artisanHandler.GetArtisanStats,
 	)
 
-	// Get dashboard statistics (authenticated, requires artisan:read scope)
+	// Get dashboard statistics - artisan (self) or tenant owner/admin
 	artisans.Get("/:id/dashboard",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
+		middleware.RequireArtisanOrTeamMember(),
 		artisanHandler.GetDashboardStats,
 	)
 }

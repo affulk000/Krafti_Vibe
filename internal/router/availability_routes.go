@@ -2,7 +2,6 @@ package router
 
 import (
 	"Krafti_Vibe/internal/handler"
-	"Krafti_Vibe/internal/middleware"
 	"Krafti_Vibe/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,9 +19,6 @@ func (r *Router) setupAvailabilityRoutes(api fiber.Router) {
 	availability := api.Group("/availability")
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// Core CRUD Operations
@@ -30,36 +26,31 @@ func (r *Router) setupAvailabilityRoutes(api fiber.Router) {
 
 	// Create availability
 	availability.Post("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanWrite),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.CreateAvailability,
 	)
 
 	// List availabilities (with filters)
 	availability.Get("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.ListAvailabilities,
 	)
 
 	// Get availability by ID
 	availability.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.GetAvailability,
 	)
 
 	// Update availability
 	availability.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanWrite),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.UpdateAvailability,
 	)
 
 	// Delete availability
 	availability.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanWrite),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.DeleteAvailability,
 	)
 
@@ -69,8 +60,7 @@ func (r *Router) setupAvailabilityRoutes(api fiber.Router) {
 
 	// Check availability for a time slot
 	availability.Post("/check",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.CheckAvailability,
 	)
 
@@ -80,8 +70,7 @@ func (r *Router) setupAvailabilityRoutes(api fiber.Router) {
 
 	// Bulk create availability
 	availability.Post("/bulk",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanWrite),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.BulkCreateAvailability,
 	)
 
@@ -91,29 +80,25 @@ func (r *Router) setupAvailabilityRoutes(api fiber.Router) {
 
 	// Get weekly schedule for artisan
 	availability.Get("/artisan/:artisan_id/weekly",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.GetWeeklySchedule,
 	)
 
 	// Get availability by day of week
 	availability.Get("/artisan/:artisan_id/day/:day",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.GetByDayOfWeek,
 	)
 
 	// Get availability by type
 	availability.Get("/artisan/:artisan_id/type/:type",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanRead),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.ListByType,
 	)
 
 	// Delete availability by type
 	availability.Delete("/artisan/:artisan_id/type/:type",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ArtisanManage),
+		r.zitadelMW.RequireAuth(),
 		availabilityHandler.DeleteByType,
 	)
 }

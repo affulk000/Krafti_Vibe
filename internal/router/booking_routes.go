@@ -31,53 +31,42 @@ func (r *Router) setupBookingRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
+	bookings.Use(r.zitadelMW.RequireAuth())
 
 	// ============================================================================
 	// Core Booking Operations
 	// ============================================================================
 
-	// Create booking (authenticated, requires booking:write scope)
+	// Create booking - any authenticated user can create a booking
 	bookings.Post("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
 		bookingHandler.CreateBooking,
 	)
 
-	// Get booking by ID (authenticated, requires booking:read scope)
+	// Get booking by ID - owner (customer/artisan) or tenant owner/admin
 	bookings.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
 		bookingHandler.GetBooking,
 	)
 
-	// Update booking (authenticated, requires booking:write scope)
+	// Update booking - owner (customer/artisan) or tenant owner/admin
 	bookings.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
 		bookingHandler.UpdateBooking,
 	)
 
-	// Delete booking (authenticated, requires booking:write scope)
+	// Delete booking - tenant owner/admin only
 	bookings.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		bookingHandler.DeleteBooking,
 	)
 
-	// List bookings (authenticated, requires booking:read scope)
+	// List bookings - tenant owner/admin only (filters by tenant)
 	bookings.Get("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		bookingHandler.ListBookings,
 	)
 
-	// Search bookings (authenticated, requires booking:read scope)
+	// Search bookings - tenant owner/admin only
 	bookings.Post("/search",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		bookingHandler.SearchBookings,
 	)
 
@@ -85,31 +74,26 @@ func (r *Router) setupBookingRoutes(api fiber.Router) {
 	// Artisan & Customer Specific Queries
 	// ============================================================================
 
-	// Get bookings by artisan (authenticated, requires booking:read scope)
+	// Get bookings by artisan - artisan (self) or tenant owner/admin
 	bookings.Get("/artisan/:artisan_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
+		middleware.RequireArtisanOrTeamMember(),
 		bookingHandler.GetBookingsByArtisan,
 	)
 
-	// Get artisan schedule (authenticated, requires booking:read scope)
+	// Get artisan schedule - artisan (self) or tenant owner/admin
 	bookings.Get("/artisan/:artisan_id/schedule",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
+		middleware.RequireArtisanOrTeamMember(),
 		bookingHandler.GetArtisanSchedule,
 	)
 
-	// Get artisan booking stats (authenticated, requires booking:read scope)
+	// Get artisan booking stats - artisan (self) or tenant owner/admin
 	bookings.Get("/artisan/:artisan_id/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
+		middleware.RequireArtisanOrTeamMember(),
 		bookingHandler.GetArtisanBookingStats,
 	)
 
-	// Get bookings by customer (authenticated, requires booking:read scope)
+	// Get bookings by customer - customer (self) or tenant owner/admin
 	bookings.Get("/customer/:customer_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
 		bookingHandler.GetBookingsByCustomer,
 	)
 
@@ -117,45 +101,37 @@ func (r *Router) setupBookingRoutes(api fiber.Router) {
 	// Status Management Operations
 	// ============================================================================
 
-	// Confirm booking (authenticated, requires booking:write scope)
+	// Confirm booking - artisan or tenant owner/admin
 	bookings.Post("/:id/confirm",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		bookingHandler.ConfirmBooking,
 	)
 
-	// Start booking (authenticated, requires booking:write scope)
+	// Start booking - artisan or tenant owner/admin
 	bookings.Post("/:id/start",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		bookingHandler.StartBooking,
 	)
 
-	// Complete booking (authenticated, requires booking:write scope)
+	// Complete booking - artisan or tenant owner/admin
 	bookings.Post("/:id/complete",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		bookingHandler.CompleteBooking,
 	)
 
-	// Cancel booking (authenticated, requires booking:write scope)
+	// Cancel booking - customer, artisan, or tenant owner/admin
 	bookings.Post("/:id/cancel",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
 		bookingHandler.CancelBooking,
 	)
 
-	// Mark as no-show (authenticated, requires booking:write scope)
+	// Mark as no-show - artisan or tenant owner/admin
 	bookings.Post("/:id/no-show",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		bookingHandler.MarkAsNoShow,
 	)
 
-	// Reschedule booking (authenticated, requires booking:write scope)
+	// Reschedule booking - customer or artisan
 	bookings.Post("/:id/reschedule",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
 		bookingHandler.RescheduleBooking,
 	)
 
@@ -163,17 +139,13 @@ func (r *Router) setupBookingRoutes(api fiber.Router) {
 	// Scheduling & Availability
 	// ============================================================================
 
-	// Check artisan availability (authenticated, requires booking:read scope)
+	// Check artisan availability - any authenticated user
 	bookings.Post("/check-availability",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
 		bookingHandler.CheckArtisanAvailability,
 	)
 
-	// Get available time slots (authenticated, requires booking:read scope)
+	// Get available time slots - any authenticated user
 	bookings.Get("/available-slots",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
 		bookingHandler.GetAvailableTimeSlots,
 	)
 
@@ -181,24 +153,21 @@ func (r *Router) setupBookingRoutes(api fiber.Router) {
 	// Time-based Queries
 	// ============================================================================
 
-	// Get upcoming bookings (authenticated, requires booking:read scope)
+	// Get upcoming bookings - tenant owner/admin
 	bookings.Get("/upcoming",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		bookingHandler.GetUpcomingBookings,
 	)
 
-	// Get today's bookings (authenticated, requires booking:read scope)
+	// Get today's bookings - tenant owner/admin or artisan
 	bookings.Get("/today",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
+		middleware.RequireArtisanOrTeamMember(),
 		bookingHandler.GetTodayBookings,
 	)
 
-	// Get bookings in date range (authenticated, requires booking:read scope)
+	// Get bookings in date range - tenant owner/admin
 	bookings.Get("/date-range",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		bookingHandler.GetBookingsInDateRange,
 	)
 
@@ -206,17 +175,15 @@ func (r *Router) setupBookingRoutes(api fiber.Router) {
 	// Photo Management
 	// ============================================================================
 
-	// Add before photos (authenticated, requires booking:write scope)
+	// Add before photos - artisan only
 	bookings.Post("/:id/photos/before",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
+		middleware.RequireArtisan(),
 		bookingHandler.AddBeforePhotos,
 	)
 
-	// Add after photos (authenticated, requires booking:write scope)
+	// Add after photos - artisan only
 	bookings.Post("/:id/photos/after",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
+		middleware.RequireArtisan(),
 		bookingHandler.AddAfterPhotos,
 	)
 
@@ -224,10 +191,9 @@ func (r *Router) setupBookingRoutes(api fiber.Router) {
 	// Analytics & Reporting
 	// ============================================================================
 
-	// Get booking statistics (authenticated, requires booking:read scope)
+	// Get booking statistics - tenant owner/admin only
 	bookings.Get("/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		bookingHandler.GetBookingStats,
 	)
 
@@ -235,17 +201,15 @@ func (r *Router) setupBookingRoutes(api fiber.Router) {
 	// Bulk Operations
 	// ============================================================================
 
-	// Bulk confirm bookings (authenticated, requires booking:write scope)
+	// Bulk confirm bookings - tenant owner/admin only
 	bookings.Post("/bulk/confirm",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		bookingHandler.BulkConfirm,
 	)
 
-	// Bulk cancel bookings (authenticated, requires booking:write scope)
+	// Bulk cancel bookings - tenant owner/admin only
 	bookings.Post("/bulk/cancel",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.BookingWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		bookingHandler.BulkCancel,
 	)
 }
