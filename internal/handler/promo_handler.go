@@ -32,9 +32,9 @@ func NewPromoCodeHandler(promoService service.PromoCodeService) *PromoCodeHandle
 // @Produce json
 // @Param request body dto.CreatePromoCodeRequest true "Promo code creation request"
 // @Success 201 {object} dto.PromoCodeResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 401 {object} fiber.Map
-// @Failure 500 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 401 {object} handler.ErrorResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /promo-codes [post]
 func (h *PromoCodeHandler) CreatePromoCode(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -66,8 +66,8 @@ func (h *PromoCodeHandler) CreatePromoCode(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Promo Code ID"
 // @Success 200 {object} dto.PromoCodeResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /promo-codes/{id} [get]
 func (h *PromoCodeHandler) GetPromoCode(c *fiber.Ctx) error {
 	promoID, err := uuid.Parse(c.Params("id"))
@@ -93,8 +93,8 @@ func (h *PromoCodeHandler) GetPromoCode(c *fiber.Ctx) error {
 // @Produce json
 // @Param code path string true "Promo Code"
 // @Success 200 {object} dto.PromoCodeResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /promo-codes/code/{code} [get]
 func (h *PromoCodeHandler) GetPromoCodeByCode(c *fiber.Ctx) error {
 	code := c.Params("code")
@@ -122,8 +122,8 @@ func (h *PromoCodeHandler) GetPromoCodeByCode(c *fiber.Ctx) error {
 // @Param id path string true "Promo Code ID"
 // @Param request body dto.UpdatePromoCodeRequest true "Update request"
 // @Success 200 {object} dto.PromoCodeResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /promo-codes/{id} [put]
 func (h *PromoCodeHandler) UpdatePromoCode(c *fiber.Ctx) error {
 	promoID, err := uuid.Parse(c.Params("id"))
@@ -156,8 +156,8 @@ func (h *PromoCodeHandler) UpdatePromoCode(c *fiber.Ctx) error {
 // @Tags PromoCodes
 // @Param id path string true "Promo Code ID"
 // @Success 204
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /promo-codes/{id} [delete]
 func (h *PromoCodeHandler) DeletePromoCode(c *fiber.Ctx) error {
 	promoID, err := uuid.Parse(c.Params("id"))
@@ -186,7 +186,7 @@ func (h *PromoCodeHandler) DeletePromoCode(c *fiber.Ctx) error {
 // @Param is_active query boolean false "Filter by active status"
 // @Param is_expired query boolean false "Filter by expired status"
 // @Success 200 {object} dto.PromoCodeListResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes [get]
 func (h *PromoCodeHandler) ListPromoCodes(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -237,7 +237,7 @@ func (h *PromoCodeHandler) ListPromoCodes(c *fiber.Ctx) error {
 // @Param page query int false "Page number" default(1)
 // @Param page_size query int false "Page size" default(20)
 // @Success 200 {object} dto.PromoCodeListResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/active [get]
 func (h *PromoCodeHandler) GetActivePromoCodes(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -263,7 +263,7 @@ func (h *PromoCodeHandler) GetActivePromoCodes(c *fiber.Ctx) error {
 // @Tags PromoCodes
 // @Produce json
 // @Success 200 {array} dto.PromoCodeResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/expired [get]
 func (h *PromoCodeHandler) GetExpiredPromoCodes(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -286,7 +286,7 @@ func (h *PromoCodeHandler) GetExpiredPromoCodes(c *fiber.Ctx) error {
 // @Produce json
 // @Param days query int false "Days until expiry" default(7)
 // @Success 200 {array} dto.PromoCodeResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/expiring [get]
 func (h *PromoCodeHandler) GetExpiringPromoCodes(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -313,7 +313,7 @@ func (h *PromoCodeHandler) GetExpiringPromoCodes(c *fiber.Ctx) error {
 // @Param page query int false "Page number" default(1)
 // @Param page_size query int false "Page size" default(20)
 // @Success 200 {object} dto.PromoCodeListResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/search [get]
 func (h *PromoCodeHandler) SearchPromoCodes(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -349,7 +349,7 @@ func (h *PromoCodeHandler) SearchPromoCodes(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body dto.ValidatePromoCodeRequest true "Validation request"
 // @Success 200 {object} dto.PromoCodeValidationResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/validate [post]
 func (h *PromoCodeHandler) ValidatePromoCode(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -382,7 +382,7 @@ func (h *PromoCodeHandler) ValidatePromoCode(c *fiber.Ctx) error {
 // @Produce json
 // @Param body body object true "Apply request"
 // @Success 200 {object} dto.PromoCodeValidationResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/apply [post]
 func (h *PromoCodeHandler) ApplyPromoCode(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -426,8 +426,8 @@ func (h *PromoCodeHandler) ApplyPromoCode(c *fiber.Ctx) error {
 // @Description Activate a promo code
 // @Tags PromoCodes
 // @Param id path string true "Promo Code ID"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/{id}/activate [post]
 func (h *PromoCodeHandler) ActivatePromoCode(c *fiber.Ctx) error {
 	promoID, err := uuid.Parse(c.Params("id"))
@@ -452,8 +452,8 @@ func (h *PromoCodeHandler) ActivatePromoCode(c *fiber.Ctx) error {
 // @Description Deactivate a promo code
 // @Tags PromoCodes
 // @Param id path string true "Promo Code ID"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/{id}/deactivate [post]
 func (h *PromoCodeHandler) DeactivatePromoCode(c *fiber.Ctx) error {
 	promoID, err := uuid.Parse(c.Params("id"))
@@ -480,8 +480,8 @@ func (h *PromoCodeHandler) DeactivatePromoCode(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param body body object true "Bulk activate request"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/bulk/activate [post]
 func (h *PromoCodeHandler) BulkActivate(c *fiber.Ctx) error {
 	var body struct {
@@ -512,8 +512,8 @@ func (h *PromoCodeHandler) BulkActivate(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param body body object true "Bulk deactivate request"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/bulk/deactivate [post]
 func (h *PromoCodeHandler) BulkDeactivate(c *fiber.Ctx) error {
 	var body struct {
@@ -544,8 +544,8 @@ func (h *PromoCodeHandler) BulkDeactivate(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param body body object true "Bulk delete request"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/bulk/delete [delete]
 func (h *PromoCodeHandler) BulkDelete(c *fiber.Ctx) error {
 	var body struct {
@@ -576,7 +576,7 @@ func (h *PromoCodeHandler) BulkDelete(c *fiber.Ctx) error {
 // @Produce json
 // @Param service_id path string true "Service ID"
 // @Success 200 {array} dto.PromoCodeResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/service/{service_id} [get]
 func (h *PromoCodeHandler) GetValidPromoCodesForService(c *fiber.Ctx) error {
 	serviceID, err := uuid.Parse(c.Params("service_id"))
@@ -602,7 +602,7 @@ func (h *PromoCodeHandler) GetValidPromoCodesForService(c *fiber.Ctx) error {
 // @Produce json
 // @Param artisan_id path string true "Artisan ID"
 // @Success 200 {array} dto.PromoCodeResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/artisan/{artisan_id} [get]
 func (h *PromoCodeHandler) GetValidPromoCodesForArtisan(c *fiber.Ctx) error {
 	artisanID, err := uuid.Parse(c.Params("artisan_id"))
@@ -628,7 +628,7 @@ func (h *PromoCodeHandler) GetValidPromoCodesForArtisan(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Promo Code ID"
 // @Success 200 {object} dto.PromoCodeStatsResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/{id}/stats [get]
 func (h *PromoCodeHandler) GetPromoCodeStats(c *fiber.Ctx) error {
 	promoID, err := uuid.Parse(c.Params("id"))
@@ -656,7 +656,7 @@ func (h *PromoCodeHandler) GetPromoCodeStats(c *fiber.Ctx) error {
 // @Param start_date query string false "Start date (YYYY-MM-DD)"
 // @Param end_date query string false "End date (YYYY-MM-DD)"
 // @Success 200 {array} repository.PromoCodePerformance
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /promo-codes/analytics/top-performing [get]
 func (h *PromoCodeHandler) GetTopPerformingPromoCodes(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)

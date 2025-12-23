@@ -30,8 +30,8 @@ func NewAvailabilityHandler(service service.AvailabilityService) *AvailabilityHa
 // @Produce json
 // @Param availability body dto.CreateAvailabilitySlotRequest true "Availability details"
 // @Success 201 {object} dto.AvailabilitySlotResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 401 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 401 {object} handler.ErrorResponse
 // @Router /api/v1/availability [post]
 func (h *AvailabilityHandler) CreateAvailability(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -61,7 +61,7 @@ func (h *AvailabilityHandler) CreateAvailability(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Availability ID"
 // @Success 200 {object} dto.AvailabilitySlotResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/availability/{id} [get]
 func (h *AvailabilityHandler) GetAvailability(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -93,7 +93,7 @@ func (h *AvailabilityHandler) GetAvailability(c *fiber.Ctx) error {
 // @Param id path string true "Availability ID"
 // @Param availability body dto.UpdateAvailabilitySlotRequest true "Updated availability details"
 // @Success 200 {object} dto.AvailabilitySlotResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/availability/{id} [put]
 func (h *AvailabilityHandler) UpdateAvailability(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -130,8 +130,8 @@ func (h *AvailabilityHandler) UpdateAvailability(c *fiber.Ctx) error {
 // @Tags Availability
 // @Produce json
 // @Param id path string true "Availability ID"
-// @Success 200 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/availability/{id} [delete]
 func (h *AvailabilityHandler) DeleteAvailability(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -361,7 +361,7 @@ func (h *AvailabilityHandler) GetWeeklySchedule(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body dto.CheckAvailabilitySlotRequest true "Availability check request"
 // @Success 200 {object} dto.AvailabilitySlotCheckResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/availability/check [post]
 func (h *AvailabilityHandler) CheckAvailability(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -392,7 +392,7 @@ func (h *AvailabilityHandler) CheckAvailability(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body dto.BulkCreateAvailabilitySlotRequest true "Bulk availability request"
 // @Success 201 {object} []dto.AvailabilitySlotResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/availability/bulk [post]
 func (h *AvailabilityHandler) BulkCreateAvailability(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -422,7 +422,7 @@ func (h *AvailabilityHandler) BulkCreateAvailability(c *fiber.Ctx) error {
 // @Produce json
 // @Param artisan_id path string true "Artisan ID"
 // @Param type path string true "Availability type"
-// @Success 200 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
 // @Router /api/v1/availability/artisan/{artisan_id}/type/{type} [delete]
 func (h *AvailabilityHandler) DeleteByType(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)

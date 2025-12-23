@@ -195,7 +195,7 @@ func (h *CustomerHandler) ListCustomers(c *fiber.Ctx) error {
 
 // SearchCustomers godoc
 // @Summary Search customers
-// @Description Search for customers
+// @Description Search for customers in the authenticated tenant
 // @Tags customers
 // @Accept json
 // @Produce json
@@ -205,9 +205,27 @@ func (h *CustomerHandler) ListCustomers(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse
 // @Router /customers/search [post]
 func (h *CustomerHandler) SearchCustomers(c *fiber.Ctx) error {
+	// Get auth context for tenant isolation
+	authCtx := MustGetAuthContext(c)
+
 	var req dto.CustomerSearchRequest
 	if err := c.BodyParser(&req); err != nil {
 		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_REQUEST", "Invalid request body", err)
+	}
+
+	// Use tenant ID from auth context if not provided in request
+	if req.TenantID == uuid.Nil {
+		req.TenantID = authCtx.TenantID
+	}
+
+	// Platform users can search across tenants if tenant_id is provided in body
+	if authCtx.TenantID != uuid.Nil && req.TenantID != authCtx.TenantID {
+		// Tenant users can only search within their own tenant
+		req.TenantID = authCtx.TenantID
+	}
+
+	if req.TenantID == uuid.Nil {
+		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_TENANT_ID", "Tenant ID is required", nil)
 	}
 
 	customers, err := h.customerService.SearchCustomers(c.Context(), &req)
@@ -220,10 +238,9 @@ func (h *CustomerHandler) SearchCustomers(c *fiber.Ctx) error {
 
 // GetActiveCustomers godoc
 // @Summary Get active customers
-// @Description Get all active customers
+// @Description Get all active customers for the authenticated tenant
 // @Tags customers
 // @Produce json
-// @Param tenant_id query string true "Tenant ID"
 // @Param page query int false "Page number" default(1)
 // @Param page_size query int false "Page size" default(20)
 // @Success 200 {object} dto.CustomerListResponse
@@ -231,14 +248,27 @@ func (h *CustomerHandler) SearchCustomers(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse
 // @Router /customers/active [get]
 func (h *CustomerHandler) GetActiveCustomers(c *fiber.Ctx) error {
-	tenantID, err := uuid.Parse(c.Query("tenant_id"))
-	if err != nil {
-		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_TENANT_ID", "Invalid tenant ID", err)
-	}
+	// Get auth context for tenant isolation
+	authCtx := MustGetAuthContext(c)
 
 	filter := dto.CustomerFilter{
 		Page:     getIntQuery(c, "page", 1),
 		PageSize: getIntQuery(c, "page_size", 20),
+	}
+
+	// Use tenant ID from auth context
+	tenantID := authCtx.TenantID
+	if tenantID == uuid.Nil {
+		// Platform users can optionally filter by tenant via query param
+		if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
+			if parsedTenantID, err := uuid.Parse(tenantIDStr); err == nil {
+				tenantID = parsedTenantID
+			}
+		}
+	}
+
+	if tenantID == uuid.Nil {
+		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_TENANT_ID", "Tenant ID is required", nil)
 	}
 
 	customers, err := h.customerService.GetActiveCustomers(c.Context(), tenantID, filter)
@@ -315,10 +345,9 @@ func (h *CustomerHandler) GetLoyaltyPointsHistory(c *fiber.Ctx) error {
 
 // GetTopCustomers godoc
 // @Summary Get top customers
-// @Description Get top customers by various criteria
+// @Description Get top customers by various criteria for the authenticated tenant
 // @Tags customers
 // @Produce json
-// @Param tenant_id query string true "Tenant ID"
 // @Param criteria query string false "Criteria (spending, bookings, loyalty)" default("spending")
 // @Param limit query int false "Limit" default(10)
 // @Success 200 {object} SuccessResponse
@@ -326,9 +355,22 @@ func (h *CustomerHandler) GetLoyaltyPointsHistory(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse
 // @Router /customers/top [get]
 func (h *CustomerHandler) GetTopCustomers(c *fiber.Ctx) error {
-	tenantID, err := uuid.Parse(c.Query("tenant_id"))
-	if err != nil {
-		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_TENANT_ID", "Invalid tenant ID", err)
+	// Get auth context for tenant isolation
+	authCtx := MustGetAuthContext(c)
+
+	// Use tenant ID from auth context
+	tenantID := authCtx.TenantID
+	if tenantID == uuid.Nil {
+		// Platform users can optionally filter by tenant via query param
+		if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
+			if parsedTenantID, err := uuid.Parse(tenantIDStr); err == nil {
+				tenantID = parsedTenantID
+			}
+		}
+	}
+
+	if tenantID == uuid.Nil {
+		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_TENANT_ID", "Tenant ID is required", nil)
 	}
 
 	criteria := c.Query("criteria", "spending")
@@ -474,37 +516,59 @@ func (h *CustomerHandler) UpdatePrimaryLocation(c *fiber.Ctx) error {
 
 // GetCustomerStats godoc
 // @Summary Get customer statistics
-// @Description Get customer statistics for a tenant
+// @Description Get customer statistics for the authenticated tenant
 // @Tags customers
 // @Produce json
-// @Param tenant_id query string true "Tenant ID"
-// @Param start_date query string true "Start date (RFC3339)"
-// @Param end_date query string true "End date (RFC3339)"
+// @Param id path string true "Customer ID or 'stats' for tenant-wide stats"
+// @Param start_date query string false "Start date (RFC3339)" default("30 days ago")
+// @Param end_date query string false "End date (RFC3339)" default("now")
 // @Success 200 {object} dto.CustomerStatsResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /customers/stats [get]
+// @Router /customers/{id}/stats [get]
 func (h *CustomerHandler) GetCustomerStats(c *fiber.Ctx) error {
-	tenantID, err := uuid.Parse(c.Query("tenant_id"))
-	if err != nil {
-		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_TENANT_ID", "Invalid tenant ID", err)
+	// Get auth context for tenant isolation
+	authCtx := MustGetAuthContext(c)
+
+	// Use tenant ID from auth context
+	tenantID := authCtx.TenantID
+	if tenantID == uuid.Nil {
+		// Platform users can optionally filter by tenant via query param
+		if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
+			if parsedTenantID, err := uuid.Parse(tenantIDStr); err == nil {
+				tenantID = parsedTenantID
+			}
+		}
 	}
+
+	if tenantID == uuid.Nil {
+		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_TENANT_ID", "Tenant ID is required", nil)
+	}
+
+	// Parse dates with defaults
+	var startDate, endDate time.Time
+	var err error
 
 	startDateStr := c.Query("start_date")
+	if startDateStr == "" {
+		// Default to 30 days ago
+		startDate = time.Now().AddDate(0, 0, -30)
+	} else {
+		startDate, err = time.Parse(time.RFC3339, startDateStr)
+		if err != nil {
+			return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_DATE", "Invalid start_date format (use RFC3339)", err)
+		}
+	}
+
 	endDateStr := c.Query("end_date")
-
-	if startDateStr == "" || endDateStr == "" {
-		return NewErrorResponse(c, fiber.StatusBadRequest, "MISSING_DATES", "start_date and end_date are required", nil)
-	}
-
-	startDate, err := time.Parse(time.RFC3339, startDateStr)
-	if err != nil {
-		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_DATE", "Invalid start_date format", err)
-	}
-
-	endDate, err := time.Parse(time.RFC3339, endDateStr)
-	if err != nil {
-		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_DATE", "Invalid end_date format", err)
+	if endDateStr == "" {
+		// Default to now
+		endDate = time.Now()
+	} else {
+		endDate, err = time.Parse(time.RFC3339, endDateStr)
+		if err != nil {
+			return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_DATE", "Invalid end_date format (use RFC3339)", err)
+		}
 	}
 
 	stats, err := h.customerService.GetCustomerStats(c.Context(), tenantID, startDate, endDate)
@@ -517,18 +581,30 @@ func (h *CustomerHandler) GetCustomerStats(c *fiber.Ctx) error {
 
 // GetCustomerSegments godoc
 // @Summary Get customer segments
-// @Description Get customer segmentation data
+// @Description Get customer segmentation data for the authenticated tenant
 // @Tags customers
 // @Produce json
-// @Param tenant_id query string true "Tenant ID"
 // @Success 200 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /customers/segments [get]
 func (h *CustomerHandler) GetCustomerSegments(c *fiber.Ctx) error {
-	tenantID, err := uuid.Parse(c.Query("tenant_id"))
-	if err != nil {
-		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_TENANT_ID", "Invalid tenant ID", err)
+	// Get auth context for tenant isolation
+	authCtx := MustGetAuthContext(c)
+
+	// Use tenant ID from auth context
+	tenantID := authCtx.TenantID
+	if tenantID == uuid.Nil {
+		// Platform users can optionally filter by tenant via query param
+		if tenantIDStr := c.Query("tenant_id"); tenantIDStr != "" {
+			if parsedTenantID, err := uuid.Parse(tenantIDStr); err == nil {
+				tenantID = parsedTenantID
+			}
+		}
+	}
+
+	if tenantID == uuid.Nil {
+		return NewErrorResponse(c, fiber.StatusBadRequest, "INVALID_TENANT_ID", "Tenant ID is required", nil)
 	}
 
 	segments, err := h.customerService.GetCustomerSegments(c.Context(), tenantID)

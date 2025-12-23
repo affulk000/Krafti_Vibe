@@ -32,9 +32,9 @@ func NewReportHandler(reportService service.ReportService) *ReportHandler {
 // @Produce json
 // @Param request body dto.CreateReportRequest true "Report creation request"
 // @Success 201 {object} dto.ReportResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 401 {object} fiber.Map
-// @Failure 500 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 401 {object} handler.ErrorResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /reports [post]
 func (h *ReportHandler) CreateReport(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -65,8 +65,8 @@ func (h *ReportHandler) CreateReport(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Report ID"
 // @Success 200 {object} dto.ReportResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /reports/{id} [get]
 func (h *ReportHandler) GetReport(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -99,8 +99,8 @@ func (h *ReportHandler) GetReport(c *fiber.Ctx) error {
 // @Param id path string true "Report ID"
 // @Param request body dto.UpdateReportRequest true "Update request"
 // @Success 200 {object} dto.ReportResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /reports/{id} [put]
 func (h *ReportHandler) UpdateReport(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -138,8 +138,8 @@ func (h *ReportHandler) UpdateReport(c *fiber.Ctx) error {
 // @Tags Reports
 // @Param id path string true "Report ID"
 // @Success 204
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /reports/{id} [delete]
 func (h *ReportHandler) DeleteReport(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -173,7 +173,7 @@ func (h *ReportHandler) DeleteReport(c *fiber.Ctx) error {
 // @Param status query string false "Report status"
 // @Param is_scheduled query boolean false "Filter by scheduled"
 // @Success 200 {object} dto.ReportListResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports [get]
 func (h *ReportHandler) ListReports(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -221,7 +221,7 @@ func (h *ReportHandler) ListReports(c *fiber.Ctx) error {
 // @Tags Reports
 // @Produce json
 // @Success 200 {array} dto.ReportResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/pending [get]
 func (h *ReportHandler) GetPendingReports(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -243,7 +243,7 @@ func (h *ReportHandler) GetPendingReports(c *fiber.Ctx) error {
 // @Tags Reports
 // @Produce json
 // @Success 200 {array} dto.ReportResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/scheduled [get]
 func (h *ReportHandler) GetScheduledReports(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -267,7 +267,7 @@ func (h *ReportHandler) GetScheduledReports(c *fiber.Ctx) error {
 // @Param page query int false "Page number" default(1)
 // @Param page_size query int false "Page size" default(20)
 // @Success 200 {object} dto.ReportListResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/failed [get]
 func (h *ReportHandler) GetFailedReports(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -291,8 +291,8 @@ func (h *ReportHandler) GetFailedReports(c *fiber.Ctx) error {
 // @Description Mark a report as currently being generated
 // @Tags Reports
 // @Param id path string true "Report ID"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/{id}/generating [post]
 func (h *ReportHandler) MarkAsGenerating(c *fiber.Ctx) error {
 	reportID, err := uuid.Parse(c.Params("id"))
@@ -320,8 +320,8 @@ func (h *ReportHandler) MarkAsGenerating(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Report ID"
 // @Param body body object true "Completion data"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/{id}/completed [post]
 func (h *ReportHandler) MarkAsCompleted(c *fiber.Ctx) error {
 	reportID, err := uuid.Parse(c.Params("id"))
@@ -360,8 +360,8 @@ func (h *ReportHandler) MarkAsCompleted(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Report ID"
 // @Param body body object true "Failure data"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/{id}/failed [post]
 func (h *ReportHandler) MarkAsFailed(c *fiber.Ctx) error {
 	reportID, err := uuid.Parse(c.Params("id"))
@@ -397,8 +397,8 @@ func (h *ReportHandler) MarkAsFailed(c *fiber.Ctx) error {
 // @Description Retry generation of a failed report
 // @Tags Reports
 // @Param id path string true "Report ID"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/{id}/retry [post]
 func (h *ReportHandler) RetryFailedReport(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -428,8 +428,8 @@ func (h *ReportHandler) RetryFailedReport(c *fiber.Ctx) error {
 // @Description Enable automatic scheduling for a report
 // @Tags Reports
 // @Param id path string true "Report ID"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/{id}/schedule/enable [post]
 func (h *ReportHandler) EnableSchedule(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -459,8 +459,8 @@ func (h *ReportHandler) EnableSchedule(c *fiber.Ctx) error {
 // @Description Disable automatic scheduling for a report
 // @Tags Reports
 // @Param id path string true "Report ID"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/{id}/schedule/disable [post]
 func (h *ReportHandler) DisableSchedule(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -493,8 +493,8 @@ func (h *ReportHandler) DisableSchedule(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Report ID"
 // @Param body body object true "Cron data"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/{id}/schedule/cron [put]
 func (h *ReportHandler) UpdateScheduleCron(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -536,7 +536,7 @@ func (h *ReportHandler) UpdateScheduleCron(c *fiber.Ctx) error {
 // @Tags Reports
 // @Produce json
 // @Success 200 {object} dto.ReportStatsResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/stats [get]
 func (h *ReportHandler) GetReportStats(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -559,7 +559,7 @@ func (h *ReportHandler) GetReportStats(c *fiber.Ctx) error {
 // @Produce json
 // @Param days query int false "Number of days" default(30)
 // @Success 200 {array} repository.ReportTypeUsage
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/analytics/type-usage [get]
 func (h *ReportHandler) GetReportTypeUsage(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -583,7 +583,7 @@ func (h *ReportHandler) GetReportTypeUsage(c *fiber.Ctx) error {
 // @Tags Reports
 // @Produce json
 // @Success 200 {object} repository.UserReportActivity
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/analytics/user-activity [get]
 func (h *ReportHandler) GetUserReportActivity(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -606,7 +606,7 @@ func (h *ReportHandler) GetUserReportActivity(c *fiber.Ctx) error {
 // @Produce json
 // @Param days query int false "Number of days" default(30)
 // @Success 200 {object} repository.ReportGenerationMetrics
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/analytics/generation-metrics [get]
 func (h *ReportHandler) GetReportGenerationMetrics(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -629,8 +629,8 @@ func (h *ReportHandler) GetReportGenerationMetrics(c *fiber.Ctx) error {
 // @Description Delete reports older than specified days
 // @Tags Reports
 // @Param days query int false "Days old" default(90)
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/cleanup/old [delete]
 func (h *ReportHandler) DeleteOldReports(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -656,8 +656,8 @@ func (h *ReportHandler) DeleteOldReports(c *fiber.Ctx) error {
 // @Description Delete failed reports older than specified days
 // @Tags Reports
 // @Param days query int false "Days old" default(30)
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/cleanup/failed [delete]
 func (h *ReportHandler) DeleteFailedReports(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -687,7 +687,7 @@ func (h *ReportHandler) DeleteFailedReports(c *fiber.Ctx) error {
 // @Param page query int false "Page number" default(1)
 // @Param page_size query int false "Page size" default(20)
 // @Success 200 {object} dto.ReportListResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /reports/search [get]
 func (h *ReportHandler) SearchReports(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)

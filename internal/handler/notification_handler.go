@@ -102,8 +102,8 @@ func (h *NotificationHandler) GetUnreadCount(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Notification ID"
 // @Success 200 {object} dto.NotificationResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /notifications/{id} [get]
 func (h *NotificationHandler) GetNotification(c *fiber.Ctx) error {
 	notificationID, err := uuid.Parse(c.Params("id"))
@@ -129,7 +129,7 @@ func (h *NotificationHandler) GetNotification(c *fiber.Ctx) error {
 // @Param is_read query bool false "Filter by read status"
 // @Param notification_type query string false "Filter by notification type"
 // @Success 200 {object} dto.NotificationListResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /notifications [get]
 func (h *NotificationHandler) ListNotifications(c *fiber.Ctx) error {
 	authCtx := middleware.MustGetAuthContext(c)
@@ -169,9 +169,9 @@ func (h *NotificationHandler) ListNotifications(c *fiber.Ctx) error {
 // @Description Delete a notification by ID
 // @Tags notifications
 // @Param id path string true "Notification ID"
-// @Success 200 {object} SuccessResponse
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /notifications/{id} [delete]
 func (h *NotificationHandler) DeleteNotification(c *fiber.Ctx) error {
 	notificationID, err := uuid.Parse(c.Params("id"))
@@ -194,10 +194,10 @@ func (h *NotificationHandler) DeleteNotification(c *fiber.Ctx) error {
 // @Tags notifications
 // @Accept json
 // @Produce json
-// @Param ids body dto.MarkMultipleReadRequest true "Notification IDs"
-// @Success 200 {object} SuccessResponse
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Param ids body dto.MarkAsReadRequest true "Notification IDs"
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /notifications/mark-multiple-read [post]
 func (h *NotificationHandler) MarkMultipleAsRead(c *fiber.Ctx) error {
 	var req struct {
@@ -230,8 +230,8 @@ func (h *NotificationHandler) MarkMultipleAsRead(c *fiber.Ctx) error {
 // @Produce json
 // @Param notification body dto.BulkNotificationRequest true "Bulk notification data"
 // @Success 201 {object} dto.BulkNotificationResponse
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /notifications/bulk [post]
 func (h *NotificationHandler) SendBulkNotification(c *fiber.Ctx) error {
 	var req dto.BulkNotificationRequest
@@ -252,8 +252,8 @@ func (h *NotificationHandler) SendBulkNotification(c *fiber.Ctx) error {
 // @Description Delete all read notifications for the current user older than specified days
 // @Tags notifications
 // @Param older_than_days query int false "Delete read notifications older than days (default: 30)"
-// @Success 200 {object} SuccessResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /notifications/cleanup/read [delete]
 func (h *NotificationHandler) DeleteReadNotifications(c *fiber.Ctx) error {
 	authCtx := middleware.MustGetAuthContext(c)
@@ -275,8 +275,8 @@ func (h *NotificationHandler) DeleteReadNotifications(c *fiber.Ctx) error {
 // @Description Delete all notifications older than specified days (admin only)
 // @Tags notifications
 // @Param older_than_days query int false "Delete notifications older than days (default: 90)"
-// @Success 200 {object} SuccessResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /notifications/cleanup/old [delete]
 func (h *NotificationHandler) DeleteOldNotifications(c *fiber.Ctx) error {
 	olderThanDays := c.QueryInt("older_than_days", 90)

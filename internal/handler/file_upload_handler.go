@@ -32,9 +32,9 @@ func NewFileUploadHandler(fileService service.FileUploadService) *FileUploadHand
 // @Produce json
 // @Param request body dto.UploadFileRequest true "File upload request"
 // @Success 201 {object} dto.FileUploadResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 401 {object} fiber.Map
-// @Failure 500 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 401 {object} handler.ErrorResponse
+// @Failure 500 {object} handler.ErrorResponse
 // @Router /files [post]
 func (h *FileUploadHandler) UploadFile(c *fiber.Ctx) error {
 	// Get authentication context
@@ -71,8 +71,8 @@ func (h *FileUploadHandler) UploadFile(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "File ID"
 // @Success 200 {object} dto.FileUploadResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /files/{id} [get]
 func (h *FileUploadHandler) GetFile(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -106,8 +106,8 @@ func (h *FileUploadHandler) GetFile(c *fiber.Ctx) error {
 // @Param id path string true "File ID"
 // @Param request body dto.UpdateFileRequest true "Update request"
 // @Success 200 {object} dto.FileUploadResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /files/{id} [put]
 func (h *FileUploadHandler) UpdateFile(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -146,8 +146,8 @@ func (h *FileUploadHandler) UpdateFile(c *fiber.Ctx) error {
 // @Tags Files
 // @Param id path string true "File ID"
 // @Success 204
-// @Failure 400 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /files/{id} [delete]
 func (h *FileUploadHandler) DeleteFile(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -184,7 +184,7 @@ func (h *FileUploadHandler) DeleteFile(c *fiber.Ctx) error {
 // @Param entity_id query string false "Related entity ID"
 // @Param search query string false "Search query"
 // @Success 200 {object} dto.FileUploadListResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /files [get]
 func (h *FileUploadHandler) ListFiles(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -253,7 +253,7 @@ func (h *FileUploadHandler) ListFiles(c *fiber.Ctx) error {
 // @Produce json
 // @Param uploader_id path string true "Uploader ID"
 // @Success 200 {array} dto.FileUploadResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /files/uploader/{uploader_id} [get]
 func (h *FileUploadHandler) ListFilesByUploader(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -286,7 +286,7 @@ func (h *FileUploadHandler) ListFilesByUploader(c *fiber.Ctx) error {
 // @Param entity_type path string true "Entity type"
 // @Param entity_id path string true "Entity ID"
 // @Success 200 {array} dto.FileUploadResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /files/entity/{entity_type}/{entity_id} [get]
 func (h *FileUploadHandler) ListFilesByEntity(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -319,7 +319,7 @@ func (h *FileUploadHandler) ListFilesByEntity(c *fiber.Ctx) error {
 // @Produce json
 // @Param file_type path string true "File type" Enums(image, document, video, other)
 // @Success 200 {array} dto.FileUploadResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /files/type/{file_type} [get]
 func (h *FileUploadHandler) ListFilesByType(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -347,7 +347,7 @@ func (h *FileUploadHandler) ListFilesByType(c *fiber.Ctx) error {
 // @Param page query int false "Page number" default(1)
 // @Param page_size query int false "Page size" default(20)
 // @Success 200 {object} dto.FileUploadListResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /files/search [get]
 func (h *FileUploadHandler) SearchFiles(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -381,7 +381,7 @@ func (h *FileUploadHandler) SearchFiles(c *fiber.Ctx) error {
 // @Tags Files
 // @Produce json
 // @Success 200 {object} dto.FileStatsResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /files/stats [get]
 func (h *FileUploadHandler) GetFileStats(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -403,8 +403,8 @@ func (h *FileUploadHandler) GetFileStats(c *fiber.Ctx) error {
 // @Description Get total storage used by the tenant
 // @Tags Files
 // @Produce json
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /files/storage/usage [get]
 func (h *FileUploadHandler) GetStorageUsage(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -432,8 +432,8 @@ func (h *FileUploadHandler) GetStorageUsage(c *fiber.Ctx) error {
 // @Tags Files
 // @Produce json
 // @Param days query int false "Days old" default(30)
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /files/cleanup [post]
 func (h *FileUploadHandler) CleanupOrphanedFiles(c *fiber.Ctx) error {
 	days, _ := strconv.Atoi(c.Query("days", "30"))
@@ -463,8 +463,8 @@ func (h *FileUploadHandler) CleanupOrphanedFiles(c *fiber.Ctx) error {
 // @Description Update last accessed timestamp for a file
 // @Tags Files
 // @Param id path string true "File ID"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /files/{id}/access [post]
 func (h *FileUploadHandler) UpdateFileAccess(c *fiber.Ctx) error {
 	fileID, err := uuid.Parse(c.Params("id"))

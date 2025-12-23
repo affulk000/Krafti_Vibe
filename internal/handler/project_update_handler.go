@@ -28,8 +28,8 @@ func NewProjectUpdateHandler(service service.ProjectUpdateService) *ProjectUpdat
 // @Produce json
 // @Param update body dto.CreateProjectUpdateRequest true "Update details"
 // @Success 201 {object} dto.ProjectUpdateResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 401 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 401 {object} handler.ErrorResponse
 // @Router /api/v1/project-updates [post]
 func (h *ProjectUpdateHandler) CreateProjectUpdate(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -62,7 +62,7 @@ func (h *ProjectUpdateHandler) CreateProjectUpdate(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Update ID"
 // @Success 200 {object} dto.ProjectUpdateResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/project-updates/{id} [get]
 func (h *ProjectUpdateHandler) GetProjectUpdate(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -94,7 +94,7 @@ func (h *ProjectUpdateHandler) GetProjectUpdate(c *fiber.Ctx) error {
 // @Param id path string true "Update ID"
 // @Param update body dto.UpdateProjectUpdateRequest true "Updated update details"
 // @Success 200 {object} dto.ProjectUpdateResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/project-updates/{id} [put]
 func (h *ProjectUpdateHandler) UpdateProjectUpdate(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -131,8 +131,8 @@ func (h *ProjectUpdateHandler) UpdateProjectUpdate(c *fiber.Ctx) error {
 // @Tags Project Updates
 // @Produce json
 // @Param id path string true "Update ID"
-// @Success 200 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/project-updates/{id} [delete]
 func (h *ProjectUpdateHandler) DeleteProjectUpdate(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -290,7 +290,7 @@ func (h *ProjectUpdateHandler) ListCustomerVisible(c *fiber.Ctx) error {
 // @Produce json
 // @Param project_id path string true "Project ID"
 // @Success 200 {object} dto.ProjectUpdateResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/project-updates/project/{project_id}/latest [get]
 func (h *ProjectUpdateHandler) GetLatestUpdate(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
