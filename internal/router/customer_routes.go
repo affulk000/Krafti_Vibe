@@ -27,96 +27,88 @@ func (r *Router) setupCustomerRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
+	customers.Use(r.zitadelMW.RequireAuth())
 
 	// ============================================================================
 	// Core Customer Operations
 	// ============================================================================
 
-	// Create customer (authenticated, requires customer:write scope)
+	// Create customer - any authenticated user can become a customer
 	customers.Post("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerWrite),
 		customerHandler.CreateCustomer,
 	)
 
-	// Get customer by ID (authenticated, requires customer:read scope)
-	customers.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerRead),
-		customerHandler.GetCustomer,
-	)
-
-	// Update customer (authenticated, requires customer:write scope)
-	customers.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerWrite),
-		customerHandler.UpdateCustomer,
-	)
-
-	// Delete customer (authenticated, requires customer:write scope)
-	customers.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerWrite),
-		customerHandler.DeleteCustomer,
-	)
-
-	// List customers (authenticated, requires customer:read scope)
+	// List customers - tenant owner/admin only
 	customers.Get("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		customerHandler.ListCustomers,
 	)
 
 	// ============================================================================
-	// Customer Lookup Operations
+	// Customer Lookup Operations (specific routes before parameterized routes)
 	// ============================================================================
 
-	// Get customer by user ID (authenticated, requires customer:read scope)
+	// Get customer by user ID - self or tenant owner/admin
 	customers.Get("/user/:user_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerRead),
+		middleware.RequireSelfOrAdmin(),
 		customerHandler.GetCustomerByUserID,
 	)
 
-	// Search customers (authenticated, requires customer:read scope)
+	// Search customers - tenant owner/admin only
 	customers.Post("/search",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		customerHandler.SearchCustomers,
 	)
 
-	// Get active customers (authenticated, requires customer:read scope)
+	// Get active customers - tenant owner/admin only
 	customers.Get("/active",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		customerHandler.GetActiveCustomers,
 	)
 
-	// Get top customers (authenticated, requires customer:read scope)
+	// Get top customers - tenant owner/admin only
 	customers.Get("/top",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		customerHandler.GetTopCustomers,
+	)
+
+	// Get customer segments - tenant owner/admin only (must be before /:id)
+	customers.Get("/segments",
+		middleware.RequireTenantOwnerOrAdmin(),
+		customerHandler.GetCustomerSegments,
+	)
+
+	// Get customer by ID - self or tenant owner/admin
+	customers.Get("/:id",
+		middleware.RequireSelfOrAdmin(),
+		customerHandler.GetCustomer,
+	)
+
+	// Update customer - self or tenant owner/admin
+	customers.Put("/:id",
+		middleware.RequireSelfOrAdmin(),
+		customerHandler.UpdateCustomer,
+	)
+
+	// Delete customer - tenant owner/admin only
+	customers.Delete("/:id",
+		middleware.RequireTenantOwnerOrAdmin(),
+		customerHandler.DeleteCustomer,
 	)
 
 	// ============================================================================
 	// Loyalty Program
 	// ============================================================================
 
-	// Update loyalty points (authenticated, requires customer:write scope)
+	// Update loyalty points - tenant owner/admin only
 	customers.Put("/:id/loyalty-points",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		customerHandler.UpdateLoyaltyPoints,
 	)
 
-	// Get loyalty points history (authenticated, requires customer:read scope)
+	// Get loyalty points history - self or tenant owner/admin
 	customers.Get("/:id/loyalty-history",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerRead),
+		middleware.RequireSelfOrAdmin(),
 		customerHandler.GetLoyaltyPointsHistory,
 	)
 
@@ -124,31 +116,27 @@ func (r *Router) setupCustomerRoutes(api fiber.Router) {
 	// Preferences & Settings
 	// ============================================================================
 
-	// Add preferred artisan (authenticated, requires customer:write scope)
+	// Add preferred artisan - self or tenant owner/admin
 	customers.Post("/:id/preferred-artisans",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerWrite),
+		middleware.RequireSelfOrAdmin(),
 		customerHandler.AddPreferredArtisan,
 	)
 
-	// Remove preferred artisan (authenticated, requires customer:write scope)
+	// Remove preferred artisan - self or tenant owner/admin
 	customers.Delete("/:id/preferred-artisans/:artisan_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerWrite),
+		middleware.RequireSelfOrAdmin(),
 		customerHandler.RemovePreferredArtisan,
 	)
 
-	// Update notification preferences (authenticated, requires customer:write scope)
+	// Update notification preferences - self or tenant owner/admin
 	customers.Put("/:id/notification-preferences",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerWrite),
+		middleware.RequireSelfOrAdmin(),
 		customerHandler.UpdateNotificationPreferences,
 	)
 
-	// Update primary location (authenticated, requires customer:write scope)
+	// Update primary location - self or tenant owner/admin
 	customers.Put("/:id/primary-location",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerWrite),
+		middleware.RequireSelfOrAdmin(),
 		customerHandler.UpdatePrimaryLocation,
 	)
 
@@ -156,17 +144,9 @@ func (r *Router) setupCustomerRoutes(api fiber.Router) {
 	// Analytics & Segmentation
 	// ============================================================================
 
-	// Get customer statistics (authenticated, requires customer:read scope)
+	// Get customer statistics - self or tenant owner/admin
 	customers.Get("/:id/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerRead),
+		middleware.RequireSelfOrAdmin(),
 		customerHandler.GetCustomerStats,
-	)
-
-	// Get customer segments (authenticated, requires customer:read scope)
-	customers.Get("/segments",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.CustomerRead),
-		customerHandler.GetCustomerSegments,
 	)
 }
