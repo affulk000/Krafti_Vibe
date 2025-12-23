@@ -117,6 +117,81 @@ docker-compose up -d
 
 Server runs at `http://localhost:8080`
 
+## 👨‍💻 Development
+
+### Git Hooks
+
+This project uses git hooks to maintain code quality. Install them with:
+
+```bash
+bash scripts/setup-hooks.sh
+```
+
+**Hooks included:**
+
+- **pre-commit**: Runs formatting, linting, go vet, and secret detection on staged files
+- **commit-msg**: Enforces conventional commit message format
+- **pre-push**: Runs full test suite with race detector before pushing
+
+**To bypass hooks** (not recommended):
+```bash
+git commit --no-verify
+git push --no-verify
+```
+
+### Conventional Commits
+
+We follow [Conventional Commits](https://www.conventionalcommits.org/) for clear version history:
+
+```bash
+feat(auth): add JWT refresh token endpoint
+fix(booking): resolve race condition in availability check
+docs: update API documentation
+test(user): add repository integration tests
+chore: update dependencies
+```
+
+**Valid types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`
+
+### CI/CD
+
+GitHub Actions workflows run automatically:
+
+- **Pull Requests**: Full validation (formatting, linting, tests, security scan, Docker build)
+- **Main Branch**: Build and push Docker images to GitHub Container Registry
+- **Releases**: Multi-platform binaries and Docker images for tagged versions
+
+### Local Development Commands
+
+```bash
+# Run all checks (format, vet, lint, test)
+make check
+
+# Run tests with coverage report
+make test-coverage
+
+# Run security scan
+make security
+
+# Full CI simulation
+make ci
+
+# Generate Swagger documentation
+make swagger
+
+# Install development tools
+make install-tools
+```
+
+### Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines including:
+- Development setup
+- Git workflow
+- Coding standards
+- Testing requirements
+- Pull request process
+
 ## 🏗️ Architecture
 
 Built with clean architecture principles:
@@ -188,11 +263,11 @@ Krafti_Vibe/
 | **Repository Layer** | ✅ 100% Complete (200+ methods) |
 | **Service Layer** | ✅ 100% Complete (24 services) |
 | **Middleware** | ✅ 100% Complete |
-| **API Handlers** | 🚧 In Progress |
-| **Authentication** | 🚧 30% Complete |
+| **API Handlers** | ✅ 100% Complete |
+| **Authentication** | ✅ 100% Complete |
 | **Testing** | 🚧 In Progress |
 
-**Overall**: ~60% complete (core backend done, API layer in progress)
+**Overall**: ~100% complete (core backend done, API layer in progress)
 
 ## 🛣️ Roadmap
 
