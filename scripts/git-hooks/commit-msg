@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# Commit message hook for Krafti_Vibe
+# Enforces conventional commits format
+# See: https://www.conventionalcommits.org/
+
+set -e
+
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Skip merge commits
+if echo "$COMMIT_MSG" | grep -qE "^Merge"; then
+    exit 0
+fi
+
+# Skip revert commits
+if echo "$COMMIT_MSG" | grep -qE "^Revert"; then
+    exit 0
+fi
+
+# Conventional commit pattern
+# Format: type(scope?): subject
+# type: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert
+PATTERN="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .{1,100}"
+
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+    echo -e "${RED}❌ Invalid commit message format${NC}"
+    echo ""
+    echo -e "${YELLOW}Your commit message:${NC}"
+    echo "$COMMIT_MSG"
+    echo ""
+    echo -e "${YELLOW}Expected format:${NC}"
+    echo "  ${BLUE}type(scope): subject${NC}"
+    echo ""
+    echo -e "${YELLOW}Valid types:${NC}"
+    echo "  ${GREEN}feat${NC}:     A new feature"
+    echo "  ${GREEN}fix${NC}:      A bug fix"
+    echo "  ${GREEN}docs${NC}:     Documentation only changes"
+    echo "  ${GREEN}style${NC}:    Code style changes (formatting, missing semi colons, etc.)"
+    echo "  ${GREEN}refactor${NC}: Code refactoring (neither fixes a bug nor adds a feature)"
+    echo "  ${GREEN}test${NC}:     Adding or updating tests"
+    echo "  ${GREEN}chore${NC}:    Maintenance tasks, dependency updates"
+    echo "  ${GREEN}perf${NC}:     Performance improvements"
+    echo "  ${GREEN}ci${NC}:       CI/CD configuration changes"
+    echo "  ${GREEN}build${NC}:    Build system changes (Makefile, Docker, etc.)"
+    echo "  ${GREEN}revert${NC}:   Revert previous commit"
+    echo ""
+    echo -e "${YELLOW}Examples:${NC}"
+    echo "  ${BLUE}feat(auth): add JWT token refresh endpoint${NC}"
+    echo "  ${BLUE}fix(booking): resolve double-booking race condition${NC}"
+    echo "  ${BLUE}docs: update API documentation for v2 endpoints${NC}"
+    echo "  ${BLUE}test(user): add integration tests for user service${NC}"
+    echo "  ${BLUE}chore: update dependencies${NC}"
+    echo ""
+    echo -e "${YELLOW}Notes:${NC}"
+    echo "  - Scope is optional but recommended (e.g., 'auth', 'booking', 'user')"
+    echo "  - Use imperative mood: 'add' not 'added', 'fix' not 'fixed'"
+    echo "  - Keep subject line under 100 characters"
+    echo "  - Separate subject from body with a blank line"
+    echo ""
+    exit 1
+fi
+
+# Check subject length (first line)
+SUBJECT=$(echo "$COMMIT_MSG" | head -n 1)
+SUBJECT_LENGTH=${#SUBJECT}
+
+if [ $SUBJECT_LENGTH -gt 100 ]; then
+    echo -e "${RED}❌ Commit subject too long${NC}"
+    echo "  Length: ${RED}$SUBJECT_LENGTH${NC} characters (max ${GREEN}100${NC})"
+    echo ""
+    echo -e "${YELLOW}Your subject:${NC}"
+    echo "$SUBJECT"
+    echo ""
+    exit 1
+fi
+
+# Check for imperative mood (common mistakes)
+if echo "$SUBJECT" | grep -qiE ": (added|updated|fixed|created|deleted|changed|removed|renamed)"; then
+    echo -e "${YELLOW}⚠️  Consider using imperative mood in subject line${NC}"
+    echo ""
+    echo "  Instead of: 'added', 'fixed', 'updated'"
+    echo "  Use: 'add', 'fix', 'update'"
+    echo ""
+    echo "  Example:"
+    echo "    ${RED}❌ feat: added user authentication${NC}"
+    echo "    ${GREEN}✓  feat: add user authentication${NC}"
+    echo ""
+    echo -e "${BLUE}This is a recommendation, not a hard requirement.${NC}"
+    echo -e "${BLUE}Your commit will still be accepted.${NC}"
+    echo ""
+fi
+
+echo -e "${GREEN}✅ Commit message valid${NC}"
+exit 0

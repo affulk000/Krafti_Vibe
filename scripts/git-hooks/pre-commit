@@ -1,0 +1,209 @@
+#!/bin/bash
+
+# Pre-commit hook for Krafti_Vibe
+# Runs: formatting, linting, tests on changed files, secret detection
+
+set -e
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+echo -e "${BLUE}========================================${NC}"
+echo -e "${BLUE}  Krafti Vibe Pre-Commit Checks${NC}"
+echo -e "${BLUE}========================================${NC}"
+echo ""
+
+# Get the project root
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_ROOT"
+
+# Get list of staged Go files
+STAGED_GO_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$' || true)
+
+if [ -z "$STAGED_GO_FILES" ]; then
+    echo -e "${YELLOW}No Go files staged, skipping Go-specific checks${NC}"
+    echo ""
+
+    # Still check for secrets in all staged files
+    STAGED_ALL_FILES=$(git diff --cached --name-only --diff-filter=ACM || true)
+    if [ -n "$STAGED_ALL_FILES" ]; then
+        echo -e "${GREEN}[1/1] Checking for secrets...${NC}"
+
+        SECRET_PATTERNS=(
+            "password.*=.*['\"].*['\"]"
+            "api[_-]?key.*=.*['\"].*['\"]"
+            "secret.*=.*['\"].*['\"]"
+            "token.*=.*['\"].*['\"]"
+            "BEGIN RSA PRIVATE KEY"
+            "BEGIN PRIVATE KEY"
+            "BEGIN OPENSSH PRIVATE KEY"
+        )
+
+        SECRETS_FOUND=false
+        for pattern in "${SECRET_PATTERNS[@]}"; do
+            if echo "$STAGED_ALL_FILES" | xargs git diff --cached | grep -iE "$pattern" 2>/dev/null; then
+                SECRETS_FOUND=true
+                break
+            fi
+        done
+
+        if [ "$SECRETS_FOUND" = true ]; then
+            echo -e "${RED}✗ Potential secrets detected in staged files!${NC}"
+            echo -e "${YELLOW}Review your changes and remove sensitive data${NC}"
+            echo -e "${YELLOW}Common patterns: passwords, API keys, tokens, private keys${NC}"
+            echo ""
+            exit 1
+        fi
+        echo -e "${GREEN}✓ No secrets detected${NC}"
+    fi
+
+    echo ""
+    echo -e "${GREEN}✅ All checks passed!${NC}"
+    exit 0
+fi
+
+echo -e "${YELLOW}Staged Go files:${NC}"
+echo "$STAGED_GO_FILES" | sed 's/^/  - /'
+echo ""
+
+# 1. Format check
+echo -e "${GREEN}[1/5] Checking formatting with gofmt...${NC}"
+UNFORMATTED=$(echo "$STAGED_GO_FILES" | xargs gofmt -l 2>/dev/null || true)
+if [ -n "$UNFORMATTED" ]; then
+    echo -e "${RED}✗ The following files are not formatted:${NC}"
+    echo "$UNFORMATTED" | sed 's/^/  - /'
+    echo ""
+    echo -e "${YELLOW}Run: make fmt${NC}"
+    echo -e "${YELLOW}Or:  gofmt -w $UNFORMATTED${NC}"
+    echo ""
+    exit 1
+fi
+echo -e "${GREEN}✓ All files formatted correctly${NC}"
+echo ""
+
+# 2. goimports check
+echo -e "${GREEN}[2/5] Checking imports with goimports...${NC}"
+if ! command -v goimports &> /dev/null; then
+    echo -e "${YELLOW}goimports not found, installing...${NC}"
+    go install golang.org/x/tools/cmd/goimports@latest
+    # Add GOPATH/bin to PATH if not already there
+    export PATH="$PATH:$(go env GOPATH)/bin"
+fi
+
+GOIMPORTS_ISSUES=$(echo "$STAGED_GO_FILES" | xargs goimports -l 2>/dev/null || true)
+if [ -n "$GOIMPORTS_ISSUES" ]; then
+    echo -e "${RED}✗ Import issues found in:${NC}"
+    echo "$GOIMPORTS_ISSUES" | sed 's/^/  - /'
+    echo ""
+    echo -e "${YELLOW}Run: make fmt${NC}"
+    echo -e "${YELLOW}Or:  goimports -w $GOIMPORTS_ISSUES${NC}"
+    echo ""
+    exit 1
+fi
+echo -e "${GREEN}✓ Imports organized correctly${NC}"
+echo ""
+
+# 3. Go vet
+echo -e "${GREEN}[3/5] Running go vet...${NC}"
+if ! go vet ./... 2>&1; then
+    echo -e "${RED}✗ go vet found issues${NC}"
+    echo ""
+    exit 1
+fi
+echo -e "${GREEN}✓ go vet passed${NC}"
+echo ""
+
+# 4. Linting (on changed packages only for speed)
+echo -e "${GREEN}[4/5] Running linter on changed packages...${NC}"
+if ! command -v golangci-lint &> /dev/null; then
+    echo -e "${YELLOW}golangci-lint not found${NC}"
+    echo -e "${YELLOW}Install with: make install-tools${NC}"
+    echo -e "${YELLOW}Or: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin${NC}"
+    echo -e "${YELLOW}Skipping linter checks...${NC}"
+    echo ""
+else
+    # Get unique package paths from staged files
+    PACKAGES=$(echo "$STAGED_GO_FILES" | xargs -n1 dirname | sort -u | sed 's|^|./|' | tr '\n' ' ')
+
+    if [ -n "$PACKAGES" ]; then
+        if ! golangci-lint run --timeout=3m $PACKAGES 2>&1; then
+            echo -e "${RED}✗ Linting failed${NC}"
+            echo ""
+            echo -e "${YELLOW}Fix the issues above or run with --no-verify to skip checks${NC}"
+            echo -e "${YELLOW}(Not recommended - issues will be caught in CI)${NC}"
+            echo ""
+            exit 1
+        fi
+    fi
+    echo -e "${GREEN}✓ Linting passed${NC}"
+    echo ""
+fi
+
+# 5. Secret detection (basic)
+echo -e "${GREEN}[5/5] Checking for secrets...${NC}"
+SECRET_PATTERNS=(
+    "password.*=.*['\"].*['\"]"
+    "api[_-]?key.*=.*['\"].*['\"]"
+    "secret.*=.*['\"].*['\"]"
+    "token.*=.*['\"].*['\"]"
+    "BEGIN RSA PRIVATE KEY"
+    "BEGIN PRIVATE KEY"
+    "BEGIN OPENSSH PRIVATE KEY"
+)
+
+SECRETS_FOUND=false
+for pattern in "${SECRET_PATTERNS[@]}"; do
+    if echo "$STAGED_GO_FILES" | xargs git diff --cached | grep -iE "$pattern" 2>/dev/null; then
+        SECRETS_FOUND=true
+        break
+    fi
+done
+
+if [ "$SECRETS_FOUND" = true ]; then
+    echo -e "${RED}✗ Potential secrets detected in staged files!${NC}"
+    echo ""
+    echo -e "${YELLOW}Detected patterns that look like sensitive data:${NC}"
+    echo "  - Passwords"
+    echo "  - API keys"
+    echo "  - Secret tokens"
+    echo "  - Private keys"
+    echo ""
+    echo -e "${YELLOW}Please review your changes and:${NC}"
+    echo "  1. Remove any hardcoded secrets"
+    echo "  2. Use environment variables instead"
+    echo "  3. Add sensitive files to .gitignore"
+    echo ""
+    echo -e "${YELLOW}If this is a false positive, you can bypass with:${NC}"
+    echo -e "${BLUE}  git commit --no-verify${NC}"
+    echo ""
+    exit 1
+fi
+echo -e "${GREEN}✓ No secrets detected${NC}"
+echo ""
+
+# Optional: Run tests for changed packages (commented out by default - can be slow)
+# Uncomment the following section to enable testing in pre-commit hook
+#
+# echo -e "${GREEN}[6/6] Running tests for changed packages...${NC}"
+# PACKAGES=$(echo "$STAGED_GO_FILES" | xargs -n1 dirname | sort -u | sed 's|^|./|' | tr '\n' ' ')
+# if [ -n "$PACKAGES" ]; then
+#     if ! go test -short $PACKAGES 2>&1; then
+#         echo -e "${RED}✗ Tests failed${NC}"
+#         echo ""
+#         exit 1
+#     fi
+#     echo -e "${GREEN}✓ Tests passed${NC}"
+#     echo ""
+# fi
+
+echo ""
+echo -e "${BLUE}========================================${NC}"
+echo -e "${GREEN}✅ All pre-commit checks passed!${NC}"
+echo -e "${BLUE}========================================${NC}"
+echo ""
+
+exit 0

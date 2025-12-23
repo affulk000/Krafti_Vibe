@@ -1,0 +1,129 @@
+#!/bin/bash
+
+# Pre-push hook for Krafti_Vibe
+# Runs full test suite to ensure quality before pushing
+
+set -e
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+echo -e "${BLUE}========================================${NC}"
+echo -e "${BLUE}  Krafti Vibe Pre-Push Checks${NC}"
+echo -e "${BLUE}========================================${NC}"
+echo ""
+
+# Get the project root
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_ROOT"
+
+# Get current branch
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo -e "${YELLOW}Branch: ${BLUE}$BRANCH${NC}"
+echo ""
+
+# Protect main branch from direct push (encourage PR workflow)
+if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
+    echo -e "${YELLOW}⚠️  You're pushing directly to ${RED}$BRANCH${YELLOW} branch${NC}"
+    echo ""
+    echo -e "${YELLOW}Best practice is to:${NC}"
+    echo "  1. Create a feature branch"
+    echo "  2. Push your changes to that branch"
+    echo "  3. Open a Pull Request for code review"
+    echo ""
+    echo -e "${YELLOW}This ensures:${NC}"
+    echo "  - Code review by team members"
+    echo "  - CI/CD validation before merge"
+    echo "  - Better git history and collaboration"
+    echo ""
+    read -p "$(echo -e ${YELLOW}Continue pushing to $BRANCH? [y/N]:${NC} )" -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${RED}Push cancelled${NC}"
+        echo ""
+        echo -e "${GREEN}Tip: Create a feature branch with:${NC}"
+        echo -e "${BLUE}  git checkout -b feat/your-feature-name${NC}"
+        echo ""
+        exit 1
+    fi
+    echo ""
+fi
+
+# 1. Ensure code is formatted
+echo -e "${GREEN}[1/4] Checking formatting across entire codebase...${NC}"
+UNFORMATTED=$(gofmt -l . | grep -v vendor || true)
+if [ -n "$UNFORMATTED" ]; then
+    echo -e "${RED}✗ Unformatted files found:${NC}"
+    echo "$UNFORMATTED" | sed 's/^/  - /'
+    echo ""
+    echo -e "${YELLOW}Run: make fmt${NC}"
+    echo ""
+    exit 1
+fi
+echo -e "${GREEN}✓ All code formatted correctly${NC}"
+echo ""
+
+# 2. Run go vet
+echo -e "${GREEN}[2/4] Running go vet...${NC}"
+if ! go vet ./... 2>&1; then
+    echo -e "${RED}✗ go vet failed${NC}"
+    echo ""
+    echo -e "${YELLOW}Fix the issues above before pushing${NC}"
+    echo ""
+    exit 1
+fi
+echo -e "${GREEN}✓ go vet passed${NC}"
+echo ""
+
+# 3. Run linter
+echo -e "${GREEN}[3/4] Running full linter...${NC}"
+if command -v golangci-lint &> /dev/null; then
+    if ! golangci-lint run --timeout=5m ./... 2>&1; then
+        echo -e "${RED}✗ Linting failed${NC}"
+        echo ""
+        echo -e "${YELLOW}Fix the linting issues before pushing${NC}"
+        echo -e "${YELLOW}Or run 'make lint' to see all issues${NC}"
+        echo ""
+        exit 1
+    fi
+    echo -e "${GREEN}✓ Linting passed${NC}"
+    echo ""
+else
+    echo -e "${YELLOW}golangci-lint not found${NC}"
+    echo -e "${YELLOW}Install with: make install-tools${NC}"
+    echo -e "${YELLOW}Skipping linter checks...${NC}"
+    echo ""
+fi
+
+# 4. Run full test suite
+echo -e "${GREEN}[4/4] Running full test suite with race detector...${NC}"
+echo -e "${YELLOW}This may take a few minutes...${NC}"
+echo ""
+
+if ! go test -v -race ./... 2>&1; then
+    echo ""
+    echo -e "${RED}✗ Tests failed${NC}"
+    echo ""
+    echo -e "${YELLOW}Fix failing tests before pushing${NC}"
+    echo -e "${YELLOW}Run 'make test' locally to see detailed output${NC}"
+    echo ""
+    exit 1
+fi
+
+echo ""
+echo -e "${GREEN}✓ All tests passed${NC}"
+echo ""
+
+echo ""
+echo -e "${BLUE}========================================${NC}"
+echo -e "${GREEN}✅ All pre-push checks passed!${NC}"
+echo -e "${BLUE}========================================${NC}"
+echo ""
+echo -e "${YELLOW}Pushing to remote...${NC}"
+echo ""
+
+exit 0
