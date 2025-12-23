@@ -27,9 +27,6 @@ func (r *Router) setupMilestoneRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// Core Milestone Operations
@@ -37,29 +34,25 @@ func (r *Router) setupMilestoneRoutes(api fiber.Router) {
 
 	// Create milestone (authenticated, requires milestone:write scope)
 	milestones.Post("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.MilestoneWrite),
+		r.zitadelMW.RequireAuth(),
 		milestoneHandler.CreateMilestone,
 	)
 
 	// Get milestone by ID (authenticated, requires milestone:read scope)
 	milestones.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.MilestoneRead),
+		r.zitadelMW.RequireAuth(),
 		milestoneHandler.GetMilestone,
 	)
 
 	// Update milestone (authenticated, requires milestone:write scope)
 	milestones.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.MilestoneWrite),
+		r.zitadelMW.RequireAuth(),
 		milestoneHandler.UpdateMilestone,
 	)
 
 	// Delete milestone (authenticated, requires milestone:write scope)
 	milestones.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.MilestoneWrite),
+		r.zitadelMW.RequireAuth(),
 		milestoneHandler.DeleteMilestone,
 	)
 
@@ -69,8 +62,7 @@ func (r *Router) setupMilestoneRoutes(api fiber.Router) {
 
 	// Complete milestone (authenticated, requires milestone:write scope)
 	milestones.Post("/:id/complete",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.MilestoneWrite),
+		r.zitadelMW.RequireAuth(),
 		milestoneHandler.CompleteMilestone,
 	)
 
@@ -80,8 +72,7 @@ func (r *Router) setupMilestoneRoutes(api fiber.Router) {
 
 	// Get milestones by project (authenticated, requires milestone:read scope)
 	milestones.Get("/project/:project_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.MilestoneRead),
+		r.zitadelMW.RequireAuth(),
 		milestoneHandler.GetProjectMilestones,
 	)
 }
