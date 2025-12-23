@@ -192,7 +192,7 @@ func (s *artisanService) DeleteArtisan(ctx context.Context, id uuid.UUID) error 
 func (s *artisanService) ListArtisans(ctx context.Context, filter dto.ArtisanFilter) (*dto.ArtisanListResponse, error) {
 	pagination := repository.PaginationParams{
 		Page:     filter.Page,
-		PageSize:     filter.PageSize,
+		PageSize: filter.PageSize,
 	}
 	pagination.Validate()
 

@@ -732,7 +732,7 @@ func (s *customerService) convertToRepoFilter(filter dto.CustomerFilter) reposit
 	if filter.TenantID != nil {
 		tenantID = *filter.TenantID
 	}
-	
+
 	return repository.CustomerFilters{
 		TenantID:            tenantID,
 		LoyaltyTiers:        filter.LoyaltyTiers,
