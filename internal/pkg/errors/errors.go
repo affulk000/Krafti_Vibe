@@ -11,12 +11,12 @@ type ErrorCode string
 
 const (
 	// General errors
-	ErrCodeInternal      ErrorCode = "INTERNAL_ERROR"
-	ErrCodeNotFound      ErrorCode = "NOT_FOUND"
-	ErrCodeInvalidInput  ErrorCode = "INVALID_INPUT"
-	ErrCodeUnauthorized  ErrorCode = "UNAUTHORIZED"
-	ErrCodeForbidden     ErrorCode = "FORBIDDEN"
-	ErrCodeConflict      ErrorCode = "CONFLICT"
+	ErrCodeInternal        ErrorCode = "INTERNAL_ERROR"
+	ErrCodeNotFound        ErrorCode = "NOT_FOUND"
+	ErrCodeInvalidInput    ErrorCode = "INVALID_INPUT"
+	ErrCodeUnauthorized    ErrorCode = "UNAUTHORIZED"
+	ErrCodeForbidden       ErrorCode = "FORBIDDEN"
+	ErrCodeConflict        ErrorCode = "CONFLICT"
 	ErrCodeTooManyRequests ErrorCode = "TOO_MANY_REQUESTS"
 
 	// Repository errors

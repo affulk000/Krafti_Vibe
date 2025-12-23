@@ -225,4 +225,3 @@ func (l *FiberLogger) WithContext(ctx context.Context) log.CommonLogger {
 	// In a more advanced implementation, you could extract trace IDs from context
 	return l
 }
-

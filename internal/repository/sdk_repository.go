@@ -510,10 +510,10 @@ func (r *sdkUsageRepository) ListByTenant(ctx context.Context, tenantID uuid.UUI
 
 func (r *sdkUsageRepository) GetStats(ctx context.Context, clientID uuid.UUID, startDate, endDate time.Time) (map[string]interface{}, error) {
 	var result struct {
-		TotalRequests    int64
-		TotalErrors      int64
-		AvgResponseTime  float64
-		TotalDataSent    int64
+		TotalRequests     int64
+		TotalErrors       int64
+		AvgResponseTime   float64
+		TotalDataSent     int64
 		TotalDataReceived int64
 	}
 
@@ -528,10 +528,10 @@ func (r *sdkUsageRepository) GetStats(ctx context.Context, clientID uuid.UUID, s
 	}
 
 	err := query.
-		Select("COUNT(*) as total_requests, "+
-			"SUM(CASE WHEN is_error THEN 1 ELSE 0 END) as total_errors, "+
-			"AVG(response_time) as avg_response_time, "+
-			"SUM(request_size) as total_data_sent, "+
+		Select("COUNT(*) as total_requests, " +
+			"SUM(CASE WHEN is_error THEN 1 ELSE 0 END) as total_errors, " +
+			"AVG(response_time) as avg_response_time, " +
+			"SUM(request_size) as total_data_sent, " +
 			"SUM(response_size) as total_data_received").
 		Scan(&result).Error
 
@@ -545,11 +545,11 @@ func (r *sdkUsageRepository) GetStats(ctx context.Context, clientID uuid.UUID, s
 	}
 
 	return map[string]interface{}{
-		"total_requests":     result.TotalRequests,
-		"total_errors":       result.TotalErrors,
-		"error_rate":         errorRate,
-		"avg_response_time":  result.AvgResponseTime,
-		"total_data_sent":    result.TotalDataSent,
+		"total_requests":      result.TotalRequests,
+		"total_errors":        result.TotalErrors,
+		"error_rate":          errorRate,
+		"avg_response_time":   result.AvgResponseTime,
+		"total_data_sent":     result.TotalDataSent,
 		"total_data_received": result.TotalDataReceived,
 	}, nil
 }
@@ -568,9 +568,9 @@ func (r *sdkUsageRepository) GetTopEndpoints(ctx context.Context, clientID uuid.
 	}
 
 	err := query.
-		Select("endpoint, "+
-			"COUNT(*) as request_count, "+
-			"SUM(CASE WHEN is_error THEN 1 ELSE 0 END) as error_count, "+
+		Select("endpoint, " +
+			"COUNT(*) as request_count, " +
+			"SUM(CASE WHEN is_error THEN 1 ELSE 0 END) as error_count, " +
 			"AVG(response_time) as avg_response_time").
 		Group("endpoint").
 		Order("request_count DESC").
@@ -628,8 +628,8 @@ func (r *sdkUsageRepository) GetRequestsByDay(ctx context.Context, clientID uuid
 	}
 
 	err := query.
-		Select("DATE(timestamp) as date, "+
-			"COUNT(*) as requests, "+
+		Select("DATE(timestamp) as date, " +
+			"COUNT(*) as requests, " +
 			"SUM(CASE WHEN is_error THEN 1 ELSE 0 END) as errors").
 		Group("DATE(timestamp)").
 		Order("date ASC").

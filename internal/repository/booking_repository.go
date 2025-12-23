@@ -1548,4 +1548,3 @@ func (r *bookingRepository) applyBookingFilters(query *gorm.DB, filters BookingF
 
 	return query
 }
-

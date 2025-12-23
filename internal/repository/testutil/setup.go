@@ -300,29 +300,29 @@ func NewMockLogger() *MockLogger {
 	return &MockLogger{}
 }
 
-func (m *MockLogger) Trace(v ...any)                           {}
-func (m *MockLogger) Debug(v ...any)                           {}
-func (m *MockLogger) Info(v ...any)                            {}
-func (m *MockLogger) Warn(v ...any)                            {}
-func (m *MockLogger) Error(v ...any)                           {}
-func (m *MockLogger) Fatal(v ...any)                           {}
-func (m *MockLogger) Panic(v ...any)                           {}
-func (m *MockLogger) Tracef(format string, v ...any)           {}
-func (m *MockLogger) Debugf(format string, v ...any)           {}
-func (m *MockLogger) Infof(format string, v ...any)            {}
-func (m *MockLogger) Warnf(format string, v ...any)            {}
-func (m *MockLogger) Errorf(format string, v ...any)           {}
-func (m *MockLogger) Fatalf(format string, v ...any)           {}
-func (m *MockLogger) Panicf(format string, v ...any)           {}
-func (m *MockLogger) Tracew(msg string, keysAndValues ...any)  {}
-func (m *MockLogger) Debugw(msg string, keysAndValues ...any)  {}
-func (m *MockLogger) Infow(msg string, keysAndValues ...any)   {}
-func (m *MockLogger) Warnw(msg string, keysAndValues ...any)   {}
-func (m *MockLogger) Errorw(msg string, keysAndValues ...any)  {}
-func (m *MockLogger) Fatalw(msg string, keysAndValues ...any)  {}
-func (m *MockLogger) Panicw(msg string, keysAndValues ...any)  {}
-func (m *MockLogger) SetLevel(level log.Level)         {}
-func (m *MockLogger) SetOutput(writer io.Writer)       {}
+func (m *MockLogger) Trace(v ...any)                          {}
+func (m *MockLogger) Debug(v ...any)                          {}
+func (m *MockLogger) Info(v ...any)                           {}
+func (m *MockLogger) Warn(v ...any)                           {}
+func (m *MockLogger) Error(v ...any)                          {}
+func (m *MockLogger) Fatal(v ...any)                          {}
+func (m *MockLogger) Panic(v ...any)                          {}
+func (m *MockLogger) Tracef(format string, v ...any)          {}
+func (m *MockLogger) Debugf(format string, v ...any)          {}
+func (m *MockLogger) Infof(format string, v ...any)           {}
+func (m *MockLogger) Warnf(format string, v ...any)           {}
+func (m *MockLogger) Errorf(format string, v ...any)          {}
+func (m *MockLogger) Fatalf(format string, v ...any)          {}
+func (m *MockLogger) Panicf(format string, v ...any)          {}
+func (m *MockLogger) Tracew(msg string, keysAndValues ...any) {}
+func (m *MockLogger) Debugw(msg string, keysAndValues ...any) {}
+func (m *MockLogger) Infow(msg string, keysAndValues ...any)  {}
+func (m *MockLogger) Warnw(msg string, keysAndValues ...any)  {}
+func (m *MockLogger) Errorw(msg string, keysAndValues ...any) {}
+func (m *MockLogger) Fatalw(msg string, keysAndValues ...any) {}
+func (m *MockLogger) Panicw(msg string, keysAndValues ...any) {}
+func (m *MockLogger) SetLevel(level log.Level)                {}
+func (m *MockLogger) SetOutput(writer io.Writer)              {}
 func (m *MockLogger) WithContext(ctx context.Context) log.CommonLogger {
 	return m
 }

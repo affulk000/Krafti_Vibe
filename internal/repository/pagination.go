@@ -48,7 +48,7 @@ func (p *PaginationParams) Limit() int {
 // CalculatePagination calculates pagination metadata
 func CalculatePagination(params PaginationParams, totalItems int64) PaginationResult {
 	params.Validate()
-	
+
 	totalPages := int(math.Ceil(float64(totalItems) / float64(params.PageSize)))
 	if totalPages == 0 {
 		totalPages = 1
@@ -63,4 +63,3 @@ func CalculatePagination(params PaginationParams, totalItems int64) PaginationRe
 		HasPrev:    params.Page > 1,
 	}
 }
-

@@ -119,4 +119,3 @@ func (qb *QueryBuilder) Preload(associations ...string) *QueryBuilder {
 func (qb *QueryBuilder) Build() *gorm.DB {
 	return qb.db
 }
-
