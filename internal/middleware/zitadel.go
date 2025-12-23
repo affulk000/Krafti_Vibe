@@ -37,7 +37,7 @@ type UserSyncer interface {
 
 // ZitadelAuthMiddleware wraps the official Zitadel HTTP middleware for Fiber
 type ZitadelAuthMiddleware struct {
-	mw        *zitadelhttp.Interceptor[*oauth.IntrospectionContext]
+	mw         *zitadelhttp.Interceptor[*oauth.IntrospectionContext]
 	userSyncer UserSyncer
 }
 
@@ -47,7 +47,7 @@ func NewZitadelAuthMiddleware(
 	userSyncer UserSyncer,
 ) *ZitadelAuthMiddleware {
 	return &ZitadelAuthMiddleware{
-		mw:        zitadelhttp.New(authZ),
+		mw:         zitadelhttp.New(authZ),
 		userSyncer: userSyncer,
 	}
 }
