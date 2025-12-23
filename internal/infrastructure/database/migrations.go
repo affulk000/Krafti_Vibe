@@ -214,7 +214,6 @@ func autoMigrate(db *gorm.DB, logger *zap.Logger) error {
 	return nil
 }
 
-
 // createIndexes creates additional database indexes for performance
 func createIndexes(db *gorm.DB, logger *zap.Logger) error {
 	logger.Info("creating additional indexes")

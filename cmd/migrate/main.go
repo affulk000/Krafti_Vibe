@@ -16,10 +16,10 @@ import (
 func main() {
 	// Define command-line flags
 	var (
-		action       = flag.String("action", "up", "Migration action: up, down, status, seed")
-		dryRun       = flag.Bool("dry-run", false, "Perform a dry run without applying changes")
-		force        = flag.Bool("force", false, "Force migration even if risky")
-		skipSeed     = flag.Bool("skip-seed", false, "Skip data seeding")
+		action         = flag.String("action", "up", "Migration action: up, down, status, seed")
+		dryRun         = flag.Bool("dry-run", false, "Perform a dry run without applying changes")
+		force          = flag.Bool("force", false, "Force migration even if risky")
+		skipSeed       = flag.Bool("skip-seed", false, "Skip data seeding")
 		skipExtensions = flag.Bool("skip-extensions", false, "Skip PostgreSQL extension creation")
 	)
 	flag.Parse()

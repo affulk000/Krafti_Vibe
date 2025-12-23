@@ -230,7 +230,7 @@ func (h *DataExportHandler) DeleteExpiredExports(c *fiber.Ctx) error {
 	}
 
 	return NewSuccessResponse(c, fiber.Map{
-		"message":        "Expired exports deleted successfully",
-		"deleted_count":  count,
+		"message":       "Expired exports deleted successfully",
+		"deleted_count": count,
 	})
 }

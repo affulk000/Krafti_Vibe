@@ -532,9 +532,9 @@ func (h *WebhookHandler) CleanupOldWebhooks(c *fiber.Ctx) error {
 	}
 
 	return NewSuccessResponse(c, fiber.Map{
-		"deleted_count":    count,
-		"older_than_days":  olderThanDays,
-		"message":          "Old webhooks cleaned up successfully",
+		"deleted_count":   count,
+		"older_than_days": olderThanDays,
+		"message":         "Old webhooks cleaned up successfully",
 	})
 }
 
