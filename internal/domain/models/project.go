@@ -50,24 +50,21 @@ type Project struct {
 	Currency     string  `json:"currency,omitempty" gorm:"size:3;default:'USD'"`
 
 	// Progress snapshot (denormalized for quick dashboard reads)
-	ProgressPercent       int `json:"progress_percent" gorm:"default:0"`  // 0-100
-	TasksTotal            int `json:"tasks_total" gorm:"default:0"`
-	TasksCompleted        int `json:"tasks_completed" gorm:"default:0"`
-	TasksOverdue          int `json:"tasks_overdue" gorm:"default:0"`
-	ActiveBlockedTasks    int `json:"active_blocked_tasks" gorm:"default:0"`
+	ProgressPercent    int `json:"progress_percent" gorm:"default:0"` // 0-100
+	TasksTotal         int `json:"tasks_total" gorm:"default:0"`
+	TasksCompleted     int `json:"tasks_completed" gorm:"default:0"`
+	TasksOverdue       int `json:"tasks_overdue" gorm:"default:0"`
+	ActiveBlockedTasks int `json:"active_blocked_tasks" gorm:"default:0"`
 
 	// Tags and metadata
 	Tags     []string `json:"tags,omitempty" gorm:"type:text[]"`
 	Metadata JSONB    `json:"metadata,omitempty" gorm:"type:jsonb"`
 
 	// Relationships
-	Tenant   *Tenant         `json:"tenant,omitempty" gorm:"foreignKey:TenantID"`
-	Artisan  *Artisan        `json:"artisan,omitempty" gorm:"foreignKey:ArtisanID"`
-	Customer *Customer       `json:"customer,omitempty" gorm:"foreignKey:CustomerID"`
-	Tasks    []ProjectTask   `json:"tasks,omitempty" gorm:"foreignKey:ProjectID"`
+	Tenant     *Tenant            `json:"tenant,omitempty" gorm:"foreignKey:TenantID"`
+	Artisan    *Artisan           `json:"artisan,omitempty" gorm:"foreignKey:ArtisanID"`
+	Customer   *Customer          `json:"customer,omitempty" gorm:"foreignKey:CustomerID"`
+	Tasks      []ProjectTask      `json:"tasks,omitempty" gorm:"foreignKey:ProjectID"`
 	Milestones []ProjectMilestone `json:"milestones,omitempty" gorm:"foreignKey:ProjectID"`
-	Updates  []ProjectUpdate `json:"updates,omitempty" gorm:"foreignKey:ProjectID"`
+	Updates    []ProjectUpdate    `json:"updates,omitempty" gorm:"foreignKey:ProjectID"`
 }
-
-
-

@@ -7,12 +7,12 @@ import (
 type UpdateType string
 
 const (
-	UpdateTypeStatusChange  UpdateType = "status_change"
-	UpdateTypeMilestone     UpdateType = "milestone"
-	UpdateTypeComment       UpdateType = "comment"
-	UpdateTypeFile          UpdateType = "file"
-	UpdateTypePayment       UpdateType = "payment"
-	UpdateTypeSchedule      UpdateType = "schedule"
+	UpdateTypeStatusChange UpdateType = "status_change"
+	UpdateTypeMilestone    UpdateType = "milestone"
+	UpdateTypeComment      UpdateType = "comment"
+	UpdateTypeFile         UpdateType = "file"
+	UpdateTypePayment      UpdateType = "payment"
+	UpdateTypeSchedule     UpdateType = "schedule"
 )
 
 type ProjectUpdate struct {

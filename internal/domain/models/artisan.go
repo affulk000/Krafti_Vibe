@@ -32,40 +32,40 @@ type Artisan struct {
 	// Certifications & Portfolio
 	Certifications CertificationArray `json:"certifications,omitempty" gorm:"type:jsonb"`
 	Portfolio      PortfolioArray     `json:"portfolio,omitempty" gorm:"type:jsonb"`
-	
+
 	// Ratings & Reviews
-	Rating       float64 `json:"rating" gorm:"type:decimal(3,2);default:0"`
-	ReviewCount  int     `json:"review_count" gorm:"default:0"`
-	TotalBookings int    `json:"total_bookings" gorm:"default:0"`
-	
+	Rating        float64 `json:"rating" gorm:"type:decimal(3,2);default:0"`
+	ReviewCount   int     `json:"review_count" gorm:"default:0"`
+	TotalBookings int     `json:"total_bookings" gorm:"default:0"`
+
 	// Availability
-	IsAvailable     bool   `json:"is_available" gorm:"default:true;index:idx_artisan_tenant_status"`
+	IsAvailable      bool   `json:"is_available" gorm:"default:true;index:idx_artisan_tenant_status"`
 	AvailabilityNote string `json:"availability_note,omitempty" gorm:"size:500"`
-	
+
 	// Commission & Payment
 	CommissionRate   float64 `json:"commission_rate" gorm:"type:decimal(5,2);default:0"` // Percentage
 	PaymentAccountID string  `json:"payment_account_id,omitempty" gorm:"size:255"`
-	
+
 	// Settings
 	AutoAcceptBookings   bool `json:"auto_accept_bookings" gorm:"default:false"`
-	BookingLeadTime      int  `json:"booking_lead_time" gorm:"default:60"` // minutes
+	BookingLeadTime      int  `json:"booking_lead_time" gorm:"default:60"`   // minutes
 	MaxAdvanceBooking    int  `json:"max_advance_booking" gorm:"default:90"` // days
 	SimultaneousBookings int  `json:"simultaneous_bookings" gorm:"default:1"`
-	
+
 	// Location
-	Location     Location `json:"location,omitempty" gorm:"type:jsonb"`
-	ServiceRadius int     `json:"service_radius" gorm:"default:0"` // km, 0 = no travel
-	
+	Location      Location `json:"location,omitempty" gorm:"type:jsonb"`
+	ServiceRadius int      `json:"service_radius" gorm:"default:0"` // km, 0 = no travel
+
 	// Metadata
 	Metadata JSONB `json:"metadata,omitempty" gorm:"type:jsonb"`
-	
+
 	// Relationships
 	User         *User          `json:"user,omitempty" gorm:"foreignKey:UserID"`
-	Availability []Availability  `json:"availability,omitempty" gorm:"foreignKey:ArtisanID"`
-	Services     []Service       `json:"services,omitempty" gorm:"foreignKey:ArtisanID"`
-	Projects     []Project       `json:"projects,omitempty" gorm:"foreignKey:ArtisanID"`
-	Bookings     []Booking       `json:"bookings,omitempty" gorm:"foreignKey:ArtisanID"`
-	Reviews      []Review        `json:"reviews,omitempty" gorm:"foreignKey:ArtisanID"`
+	Availability []Availability `json:"availability,omitempty" gorm:"foreignKey:ArtisanID"`
+	Services     []Service      `json:"services,omitempty" gorm:"foreignKey:ArtisanID"`
+	Projects     []Project      `json:"projects,omitempty" gorm:"foreignKey:ArtisanID"`
+	Bookings     []Booking      `json:"bookings,omitempty" gorm:"foreignKey:ArtisanID"`
+	Reviews      []Review       `json:"reviews,omitempty" gorm:"foreignKey:ArtisanID"`
 
 	// Dashboard (computed/embedded, not persisted)
 	DashboardProjectsActive int        `json:"dashboard_projects_active,omitempty" gorm:"-"`
@@ -75,29 +75,29 @@ type Artisan struct {
 }
 
 type Certification struct {
-	Name       string    `json:"name" validate:"required"`
-	IssuedBy   string    `json:"issued_by" validate:"required"`
-	IssuedDate time.Time `json:"issued_date"`
+	Name       string     `json:"name" validate:"required"`
+	IssuedBy   string     `json:"issued_by" validate:"required"`
+	IssuedDate time.Time  `json:"issued_date"`
 	ExpiryDate *time.Time `json:"expiry_date,omitempty"`
-	FileURL    string    `json:"file_url,omitempty"`
+	FileURL    string     `json:"file_url,omitempty"`
 }
 
 type PortfolioItem struct {
-	Title       string   `json:"title" validate:"required"`
-	Description string   `json:"description"`
-	ImageURLs   []string `json:"image_urls"`
+	Title       string    `json:"title" validate:"required"`
+	Description string    `json:"description"`
+	ImageURLs   []string  `json:"image_urls"`
 	Date        time.Time `json:"date"`
-	Tags        []string `json:"tags,omitempty"`
+	Tags        []string  `json:"tags,omitempty"`
 }
 
 type Location struct {
-	Address     string  `json:"address"`
-	City        string  `json:"city"`
-	State       string  `json:"state"`
-	PostalCode  string  `json:"postal_code"`
-	Country     string  `json:"country"`
-	Latitude    float64 `json:"latitude" validate:"latitude"`
-	Longitude   float64 `json:"longitude" validate:"longitude"`
+	Address    string  `json:"address"`
+	City       string  `json:"city"`
+	State      string  `json:"state"`
+	PostalCode string  `json:"postal_code"`
+	Country    string  `json:"country"`
+	Latitude   float64 `json:"latitude" validate:"latitude"`
+	Longitude  float64 `json:"longitude" validate:"longitude"`
 }
 
 // Scan and Value methods for JSONB types
