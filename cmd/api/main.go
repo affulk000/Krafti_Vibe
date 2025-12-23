@@ -20,7 +20,7 @@ import (
 	"Krafti_Vibe/internal/router"
 	"Krafti_Vibe/internal/service"
 
-	_ "Krafti_Vibe/docs" // Import generated swagger docs
+	_ "Krafti_Vibe/docs/swagger" // Import swagger docs for API documentation
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
