@@ -34,4 +34,3 @@ func Recovery(logger *zap.Logger) fiber.Handler {
 		return c.Next()
 	}
 }
-
