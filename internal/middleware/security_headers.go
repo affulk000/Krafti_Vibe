@@ -29,15 +29,15 @@ type SecurityHeadersConfig struct {
 // DefaultSecurityHeadersConfig returns default security headers configuration
 func DefaultSecurityHeadersConfig() SecurityHeadersConfig {
 	return SecurityHeadersConfig{
-		XSSProtection:      true,
-		ContentTypeNosniff: true,
-		XFrameOptions:      "SAMEORIGIN",
-		HSTSMaxAge:         31536000, // 1 year
+		XSSProtection:         true,
+		ContentTypeNosniff:    true,
+		XFrameOptions:         "SAMEORIGIN",
+		HSTSMaxAge:            31536000, // 1 year
 		HSTSExcludeSubdomains: false,
 		ContentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'",
-		CSPReportOnly: false,
-		ReferrerPolicy: "strict-origin-when-cross-origin",
-		PermissionsPolicy: "geolocation=(), microphone=(), camera=()",
+		CSPReportOnly:         false,
+		ReferrerPolicy:        "strict-origin-when-cross-origin",
+		PermissionsPolicy:     "geolocation=(), microphone=(), camera=()",
 	}
 }
 
