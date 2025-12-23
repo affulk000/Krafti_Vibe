@@ -1,0 +1,219 @@
+# golangci-lint configuration for Krafti_Vibe
+# Documentation: https://golangci-lint.run/usage/configuration/
+
+run:
+  timeout: 5m
+  go: "1.24"
+  modules-download-mode: readonly
+
+  # Directories to skip
+  skip-dirs:
+    - docs/swagger
+    - scripts
+    - bin
+    - migrations
+    - vendor
+
+  # Files to skip
+  skip-files:
+    - ".*\\.pb\\.go$"
+    - ".*\\.gen\\.go$"
+
+linters:
+  enable:
+    # Essential linters
+    - errcheck       # Check for unchecked errors
+    - gosimple       # Simplify code
+    - govet          # Go vet
+    - ineffassign    # Detect ineffectual assignments
+    - staticcheck    # Advanced static analysis
+    - unused         # Check for unused code
+
+    # Code quality
+    - gocyclo        # Cyclomatic complexity
+    - gofmt          # Gofmt checks
+    - goimports      # Goimports checks
+    - misspell       # Spell checker
+    - unconvert      # Unnecessary type conversions
+    - unparam        # Unused function parameters
+    - bodyclose      # HTTP response body closed
+    - gosec          # Security issues
+
+    # Style & best practices
+    - stylecheck     # Style violations
+    - revive         # Fast, configurable linter
+    - gocritic       # Opinionated linter
+    - prealloc       # Slice preallocation
+    - nolintlint     # Ill-formed nolint directives
+    - exportloopref  # Pointers to enclosing loop variables
+    - gofumpt        # Stricter gofmt
+
+  disable:
+    - typecheck  # Handled by go build
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    exclude-functions:
+      - (*database/sql.Rows).Close
+      - (*github.com/gofiber/fiber/v2.Ctx).SendStatus
+
+  gocyclo:
+    min-complexity: 15
+
+  govet:
+    enable-all: true
+    disable:
+      - shadow  # Can be too strict
+
+  revive:
+    severity: warning
+    enable-all-rules: false
+    rules:
+      - name: exported
+        severity: warning
+        disabled: false
+      - name: unexported-return
+        severity: warning
+        disabled: false
+      - name: blank-imports
+        severity: warning
+        disabled: false
+      - name: context-as-argument
+        severity: warning
+        disabled: false
+      - name: dot-imports
+        severity: warning
+        disabled: false
+      - name: error-return
+        severity: warning
+        disabled: false
+      - name: error-strings
+        severity: warning
+        disabled: false
+      - name: error-naming
+        severity: warning
+        disabled: false
+      - name: if-return
+        severity: warning
+        disabled: false
+      - name: increment-decrement
+        severity: warning
+        disabled: false
+      - name: var-naming
+        severity: warning
+        disabled: false
+      - name: package-comments
+        severity: warning
+        disabled: true  # Not all packages need comments
+      - name: range
+        severity: warning
+        disabled: false
+      - name: receiver-naming
+        severity: warning
+        disabled: false
+      - name: indent-error-flow
+        severity: warning
+        disabled: false
+      - name: superfluous-else
+        severity: warning
+        disabled: false
+
+  gosec:
+    severity: medium
+    confidence: medium
+    excludes:
+      - G104  # Audit errors not checked - too noisy
+      - G114  # Use of net/http serve function that has no support for setting timeouts
+    exclude-generated: true
+
+  stylecheck:
+    checks: ["all", "-ST1000", "-ST1003"]
+    # ST1000: package comment
+    # ST1003: underscores in names
+
+  gocritic:
+    enabled-checks:
+      - appendAssign
+      - assignOp
+      - boolExprSimplify
+      - captLocal
+      - commentFormatting
+      - commentedOutCode
+      - deprecatedComment
+      - dupArg
+      - dupBranchBody
+      - dupCase
+      - dupSubExpr
+      - elseif
+      - emptyFallthrough
+      - emptyStringTest
+      - hexLiteral
+      - indexAlloc
+      - initClause
+      - methodExprCall
+      - nilValReturn
+      - rangeExprCopy
+      - rangeValCopy
+      - regexpMust
+      - sloppyLen
+      - stringXbytes
+      - switchTrue
+      - typeAssertChain
+      - typeSwitchVar
+      - underef
+      - unlabelStmt
+      - unslice
+      - valSwap
+      - weakCond
+      - wrapperFunc
+      - yodaStyleExpr
+
+  gofumpt:
+    extra-rules: true
+    module-path: Krafti_Vibe
+
+issues:
+  exclude-rules:
+    # Exclude certain linters for test files
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+        - gocyclo
+        - funlen
+        - dupl
+
+    # Exclude generated files
+    - path: docs/swagger/.*\.go
+      linters:
+        - all
+
+    # Exclude scripts
+    - path: scripts/.*\.go
+      linters:
+        - errcheck
+        - gosec
+
+    # Allow complex main function
+    - path: cmd/api/main\.go
+      linters:
+        - gocyclo
+        - funlen
+
+  # Maximum issues count per linter
+  max-issues-per-linter: 0
+
+  # Maximum count of issues with the same text
+  max-same-issues: 0
+
+  # Show only new issues
+  new: false
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
+  sort-results: true
