@@ -2,7 +2,6 @@ package router
 
 import (
 	"Krafti_Vibe/internal/handler"
-	"Krafti_Vibe/internal/middleware"
 	"Krafti_Vibe/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,9 +19,6 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 	promos := api.Group("/promo-codes")
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// Core CRUD Operations
@@ -30,50 +26,43 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Create promo code
 	promos.Post("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoWrite),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.CreatePromoCode,
 	)
 
 	// List promo codes
 	promos.Get("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.ListPromoCodes,
 	)
 
 	// Search promo codes
 	promos.Get("/search",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.SearchPromoCodes,
 	)
 
 	// Get promo code by ID
 	promos.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.GetPromoCode,
 	)
 
 	// Get promo code by code
 	promos.Get("/code/:code",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.GetPromoCodeByCode,
 	)
 
 	// Update promo code
 	promos.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoWrite),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.UpdatePromoCode,
 	)
 
 	// Delete promo code
 	promos.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoDelete),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.DeletePromoCode,
 	)
 
@@ -83,22 +72,19 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Get active promo codes
 	promos.Get("/active",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.GetActivePromoCodes,
 	)
 
 	// Get expired promo codes
 	promos.Get("/expired",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.GetExpiredPromoCodes,
 	)
 
 	// Get expiring promo codes
 	promos.Get("/expiring",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.GetExpiringPromoCodes,
 	)
 
@@ -108,15 +94,13 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Validate promo code
 	promos.Post("/validate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoApply),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.ValidatePromoCode,
 	)
 
 	// Apply promo code
 	promos.Post("/apply",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoApply),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.ApplyPromoCode,
 	)
 
@@ -126,15 +110,13 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Activate promo code
 	promos.Post("/:id/activate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoWrite),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.ActivatePromoCode,
 	)
 
 	// Deactivate promo code
 	promos.Post("/:id/deactivate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoWrite),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.DeactivatePromoCode,
 	)
 
@@ -144,22 +126,19 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Bulk activate promo codes
 	promos.Post("/bulk/activate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoWrite),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.BulkActivate,
 	)
 
 	// Bulk deactivate promo codes
 	promos.Post("/bulk/deactivate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoWrite),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.BulkDeactivate,
 	)
 
 	// Bulk delete promo codes
 	promos.Delete("/bulk",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoDelete),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.BulkDelete,
 	)
 
@@ -169,15 +148,13 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Get valid promo codes for service
 	promos.Get("/service/:service_id/valid",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.GetValidPromoCodesForService,
 	)
 
 	// Get valid promo codes for artisan
 	promos.Get("/artisan/:artisan_id/valid",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.GetValidPromoCodesForArtisan,
 	)
 
@@ -187,15 +164,13 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Get promo code statistics
 	promos.Get("/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.GetPromoCodeStats,
 	)
 
 	// Get top performing promo codes
 	promos.Get("/analytics/top-performing",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PromoRead),
+		r.zitadelMW.RequireAuth(),
 		promoHandler.GetTopPerformingPromoCodes,
 	)
 }

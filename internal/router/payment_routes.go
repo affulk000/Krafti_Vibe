@@ -27,25 +27,19 @@ func (r *Router) setupPaymentRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
+	payments.Use(r.zitadelMW.RequireAuth())
 
 	// ============================================================================
 	// Core Payment Operations
 	// ============================================================================
 
-	// Create payment (authenticated, requires payment:write scope)
+	// Create payment - customer when paying for booking
 	payments.Post("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentWrite),
 		paymentHandler.CreatePayment,
 	)
 
-	// Get payment by ID (authenticated, requires payment:read scope)
+	// Get payment by ID - owner (customer/artisan) or tenant owner/admin
 	payments.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
 		paymentHandler.GetPayment,
 	)
 
@@ -53,38 +47,32 @@ func (r *Router) setupPaymentRoutes(api fiber.Router) {
 	// Payment Queries by Resource
 	// ============================================================================
 
-	// Get payments by booking (authenticated, requires payment:read scope)
+	// Get payments by booking - booking owner or tenant owner/admin
 	payments.Get("/booking/:booking_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
 		paymentHandler.GetPaymentsByBooking,
 	)
 
-	// Get payments by customer (authenticated, requires payment:read scope)
+	// Get payments by customer - customer (self) or tenant owner/admin
 	payments.Get("/customer/:customer_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		middleware.RequireSelfOrAdmin(),
 		paymentHandler.GetPaymentsByCustomer,
 	)
 
-	// Get payments by artisan (authenticated, requires payment:read scope)
+	// Get payments by artisan - artisan (self) or tenant owner/admin
 	payments.Get("/artisan/:artisan_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		middleware.RequireArtisanOrTeamMember(),
 		paymentHandler.GetPaymentsByArtisan,
 	)
 
-	// Get payments by tenant (authenticated, requires payment:read scope)
+	// Get payments by tenant - tenant owner/admin only
 	payments.Get("/tenant/:tenant_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		paymentHandler.GetPaymentsByTenant,
 	)
 
-	// Get payments by method (authenticated, requires payment:read scope)
+	// Get payments by method - tenant owner/admin only
 	payments.Get("/method/:payment_method",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		paymentHandler.GetPaymentsByMethod,
 	)
 
@@ -92,24 +80,21 @@ func (r *Router) setupPaymentRoutes(api fiber.Router) {
 	// Payment Status Management
 	// ============================================================================
 
-	// Mark payment as paid (authenticated, requires payment:process scope)
+	// Mark payment as paid - tenant owner/admin only
 	payments.Post("/:id/mark-paid",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentProcess),
+		middleware.RequireTenantOwnerOrAdmin(),
 		paymentHandler.MarkPaymentAsPaid,
 	)
 
-	// Mark payment as failed (authenticated, requires payment:process scope)
+	// Mark payment as failed - tenant owner/admin only
 	payments.Post("/:id/mark-failed",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentProcess),
+		middleware.RequireTenantOwnerOrAdmin(),
 		paymentHandler.MarkPaymentAsFailed,
 	)
 
-	// Get pending payments (authenticated, requires payment:read scope)
+	// Get pending payments - tenant owner/admin only
 	payments.Get("/pending",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		paymentHandler.GetPendingPayments,
 	)
 
@@ -117,17 +102,15 @@ func (r *Router) setupPaymentRoutes(api fiber.Router) {
 	// Refunds
 	// ============================================================================
 
-	// Process refund (authenticated, requires payment:process scope)
+	// Process refund - tenant owner/admin only
 	payments.Post("/:id/refund",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentProcess),
+		middleware.RequireTenantOwnerOrAdmin(),
 		paymentHandler.ProcessRefund,
 	)
 
-	// Get refundable payments (authenticated, requires payment:read scope)
+	// Get refundable payments - tenant owner/admin only
 	payments.Get("/refundable",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		paymentHandler.GetRefundablePayments,
 	)
 
@@ -135,31 +118,27 @@ func (r *Router) setupPaymentRoutes(api fiber.Router) {
 	// Financial Analytics
 	// ============================================================================
 
-	// Get artisan earnings (authenticated, requires payment:read scope)
+	// Get artisan earnings - artisan (self) or tenant owner/admin
 	payments.Get("/earnings/artisan/:artisan_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		middleware.RequireArtisanOrTeamMember(),
 		paymentHandler.GetArtisanEarnings,
 	)
 
-	// Get platform revenue (authenticated, requires payment:read scope)
+	// Get platform revenue - platform admin only
 	payments.Get("/revenue/platform",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		r.zitadelMW.RequireAnyPlatformRole(),
 		paymentHandler.GetPlatformRevenue,
 	)
 
-	// Get payment statistics (authenticated, requires payment:read scope)
+	// Get payment statistics - tenant owner/admin only
 	payments.Get("/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		paymentHandler.GetPaymentStats,
 	)
 
-	// Get payment trends (authenticated, requires payment:read scope)
+	// Get payment trends - tenant owner/admin only
 	payments.Get("/trends",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.PaymentRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		paymentHandler.GetPaymentTrends,
 	)
 }

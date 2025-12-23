@@ -2,7 +2,6 @@ package router
 
 import (
 	"Krafti_Vibe/internal/handler"
-	"Krafti_Vibe/internal/middleware"
 	"Krafti_Vibe/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,9 +19,6 @@ func (r *Router) setupTenantInvitationRoutes(api fiber.Router) {
 	invitations := api.Group("/invitations")
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// Core Invitation Operations
@@ -30,22 +26,19 @@ func (r *Router) setupTenantInvitationRoutes(api fiber.Router) {
 
 	// Create invitation
 	invitations.Post("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		invitationHandler.CreateInvitation,
 	)
 
 	// List invitations
 	invitations.Get("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		r.zitadelMW.RequireAuth(),
 		invitationHandler.ListInvitations,
 	)
 
 	// Get invitation by ID
 	invitations.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		r.zitadelMW.RequireAuth(),
 		invitationHandler.GetInvitation,
 	)
 
@@ -64,15 +57,13 @@ func (r *Router) setupTenantInvitationRoutes(api fiber.Router) {
 
 	// Get pending invitations
 	invitations.Get("/pending",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		r.zitadelMW.RequireAuth(),
 		invitationHandler.GetPendingInvitations,
 	)
 
 	// Get invitations by email
 	invitations.Get("/by-email",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		r.zitadelMW.RequireAuth(),
 		invitationHandler.GetInvitationsByEmail,
 	)
 
@@ -87,15 +78,13 @@ func (r *Router) setupTenantInvitationRoutes(api fiber.Router) {
 
 	// Revoke invitation
 	invitations.Post("/:id/revoke",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		invitationHandler.RevokeInvitation,
 	)
 
 	// Resend invitation
 	invitations.Post("/:id/resend",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		invitationHandler.ResendInvitation,
 	)
 
@@ -105,8 +94,7 @@ func (r *Router) setupTenantInvitationRoutes(api fiber.Router) {
 
 	// Delete expired invitations
 	invitations.Delete("/cleanup/expired",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantAdmin),
+		r.zitadelMW.RequireAuth(),
 		invitationHandler.DeleteExpiredInvitations,
 	)
 }

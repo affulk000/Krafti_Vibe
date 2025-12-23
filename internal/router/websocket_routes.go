@@ -1,7 +1,6 @@
 package router
 
 import (
-	"Krafti_Vibe/internal/middleware"
 	ws "Krafti_Vibe/internal/websocket"
 
 	"github.com/gofiber/contrib/websocket"
@@ -13,9 +12,6 @@ func (r *Router) setupWebSocketRoutes(api fiber.Router, wsHandler *ws.Handler) {
 	wsGroup := api.Group("/ws")
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// WebSocket Connection Endpoint
@@ -34,7 +30,7 @@ func (r *Router) setupWebSocketRoutes(api fiber.Router, wsHandler *ws.Handler) {
 
 	// WebSocket connection endpoint (authenticated)
 	wsGroup.Get("/connect",
-		authMiddleware,
+		r.zitadelMW.RequireAuth(),
 		websocket.New(wsHandler.HandleConnection, websocket.Config{
 			EnableCompression: true,
 		}),
@@ -46,14 +42,13 @@ func (r *Router) setupWebSocketRoutes(api fiber.Router, wsHandler *ws.Handler) {
 
 	// Get WebSocket statistics (authenticated, requires admin scope)
 	wsGroup.Get("/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.AdminRead),
+		r.zitadelMW.RequireAuth(),
 		wsHandler.GetStats,
 	)
 
 	// Check if a user is online (authenticated)
 	wsGroup.Get("/users/:user_id/online",
-		authMiddleware,
+		r.zitadelMW.RequireAuth(),
 		wsHandler.CheckUserOnline,
 	)
 
@@ -63,22 +58,19 @@ func (r *Router) setupWebSocketRoutes(api fiber.Router, wsHandler *ws.Handler) {
 
 	// Broadcast message to a specific user (authenticated, requires admin scope)
 	wsGroup.Post("/broadcast/user",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.AdminWrite),
+		r.zitadelMW.RequireAuth(),
 		wsHandler.BroadcastToUser,
 	)
 
 	// Broadcast message to a tenant (authenticated, requires admin scope)
 	wsGroup.Post("/broadcast/tenant",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.AdminWrite),
+		r.zitadelMW.RequireAuth(),
 		wsHandler.BroadcastToTenant,
 	)
 
 	// Broadcast message to all users (authenticated, requires admin scope)
 	wsGroup.Post("/broadcast/all",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.AdminFull),
+		r.zitadelMW.RequireAuth(),
 		wsHandler.BroadcastToAll,
 	)
 }

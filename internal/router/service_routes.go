@@ -2,7 +2,6 @@ package router
 
 import (
 	"Krafti_Vibe/internal/handler"
-	"Krafti_Vibe/internal/middleware"
 	"Krafti_Vibe/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,9 +16,6 @@ func (r *Router) setupServiceRoutes(api fiber.Router) {
 	services := api.Group("/services")
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// CRUD Operations
@@ -27,29 +23,25 @@ func (r *Router) setupServiceRoutes(api fiber.Router) {
 
 	// Create service
 	services.Post("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceWrite),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.CreateService,
 	)
 
 	// Get service by ID (read-only)
 	services.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceRead),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.GetServiceByID,
 	)
 
 	// Update service
 	services.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceWrite),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.UpdateService,
 	)
 
 	// Delete service
 	services.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceWrite),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.DeleteService,
 	)
 
@@ -59,15 +51,13 @@ func (r *Router) setupServiceRoutes(api fiber.Router) {
 
 	// List services (with pagination)
 	services.Post("/list",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceRead),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.ListServices,
 	)
 
 	// Search services
 	services.Get("/search",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceRead),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.SearchServices,
 	)
 
@@ -77,15 +67,13 @@ func (r *Router) setupServiceRoutes(api fiber.Router) {
 
 	// Activate service
 	services.Post("/:id/activate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceWrite),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.ActivateService,
 	)
 
 	// Deactivate service
 	services.Post("/:id/deactivate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceWrite),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.DeactivateService,
 	)
 
@@ -95,15 +83,13 @@ func (r *Router) setupServiceRoutes(api fiber.Router) {
 
 	// Get service statistics
 	services.Get("/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceRead),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.GetServiceStatistics,
 	)
 
 	// Get popular services
 	services.Get("/popular",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ServiceRead),
+		r.zitadelMW.RequireAuth(),
 		serviceHandler.GetPopularServices,
 	)
 }

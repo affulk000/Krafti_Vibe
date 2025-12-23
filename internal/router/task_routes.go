@@ -27,9 +27,6 @@ func (r *Router) setupTaskRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// Core Task Operations
@@ -37,29 +34,25 @@ func (r *Router) setupTaskRoutes(api fiber.Router) {
 
 	// Create task (authenticated, requires task:write scope)
 	tasks.Post("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TaskWrite),
+		r.zitadelMW.RequireAuth(),
 		taskHandler.CreateTask,
 	)
 
 	// Get task by ID (authenticated, requires task:read scope)
 	tasks.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TaskRead),
+		r.zitadelMW.RequireAuth(),
 		taskHandler.GetTask,
 	)
 
 	// Update task (authenticated, requires task:write scope)
 	tasks.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TaskWrite),
+		r.zitadelMW.RequireAuth(),
 		taskHandler.UpdateTask,
 	)
 
 	// Delete task (authenticated, requires task:write scope)
 	tasks.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TaskWrite),
+		r.zitadelMW.RequireAuth(),
 		taskHandler.DeleteTask,
 	)
 
@@ -69,8 +62,7 @@ func (r *Router) setupTaskRoutes(api fiber.Router) {
 
 	// Complete task (authenticated, requires task:write scope)
 	tasks.Post("/:id/complete",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TaskWrite),
+		r.zitadelMW.RequireAuth(),
 		taskHandler.CompleteTask,
 	)
 
@@ -80,8 +72,7 @@ func (r *Router) setupTaskRoutes(api fiber.Router) {
 
 	// Get tasks by milestone (authenticated, requires task:read scope)
 	tasks.Get("/milestone/:milestone_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TaskRead),
+		r.zitadelMW.RequireAuth(),
 		taskHandler.GetMilestoneTasks,
 	)
 }

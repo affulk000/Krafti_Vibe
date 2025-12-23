@@ -2,7 +2,6 @@ package router
 
 import (
 	"Krafti_Vibe/internal/handler"
-	"Krafti_Vibe/internal/middleware"
 	"Krafti_Vibe/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,9 +19,6 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 	settings := api.Group("/settings")
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// Core CRUD Operations
@@ -30,43 +26,37 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Create setting
 	settings.Post("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsWrite),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.CreateSetting,
 	)
 
 	// List settings
 	settings.Get("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.ListSettings,
 	)
 
 	// Search settings
 	settings.Get("/search",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.SearchSettings,
 	)
 
 	// Get setting by ID
 	settings.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.GetSetting,
 	)
 
 	// Update setting
 	settings.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsWrite),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.UpdateSetting,
 	)
 
 	// Delete setting
 	settings.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsDelete),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.DeleteSetting,
 	)
 
@@ -76,15 +66,13 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Get setting by key
 	settings.Get("/key/:key",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.GetSettingByKey,
 	)
 
 	// Delete setting by key
 	settings.Delete("/key/:key",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsDelete),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.DeleteSettingByKey,
 	)
 
@@ -94,36 +82,31 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Get all categories
 	settings.Get("/categories",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.GetSettingCategories,
 	)
 
 	// Get categories with counts
 	settings.Get("/categories/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.GetCategoriesWithCount,
 	)
 
 	// Get all groups
 	settings.Get("/groups",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.GetSettingGroups,
 	)
 
 	// Get settings by category
 	settings.Get("/category/:category",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.GetSettingsByCategory,
 	)
 
 	// Get settings by group
 	settings.Get("/group/:group",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.GetSettingsByGroup,
 	)
 
@@ -133,15 +116,13 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Get public settings
 	settings.Get("/public",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsRead),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.GetPublicSettings,
 	)
 
 	// Get private settings
 	settings.Get("/private",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsManage),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.GetPrivateSettings,
 	)
 
@@ -151,15 +132,13 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Bulk set settings
 	settings.Post("/bulk",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsWrite),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.BulkSetSettings,
 	)
 
 	// Bulk delete settings
 	settings.Post("/bulk/delete",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SettingsDelete),
+		r.zitadelMW.RequireAuth(),
 		settingsHandler.BulkDeleteSettings,
 	)
 }

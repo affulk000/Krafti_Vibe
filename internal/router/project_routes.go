@@ -17,46 +17,36 @@ func (r *Router) setupProjectRoutes(api fiber.Router) {
 	projects := api.Group("/projects")
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
+	projects.Use(r.zitadelMW.RequireAuth())
 
 	// ============================================================================
 	// CRUD Operations
 	// ============================================================================
 
-	// Create project
+	// Create project - artisan, customer, or tenant owner/admin
 	projects.Post("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
 		projectHandler.CreateProject,
 	)
 
-	// Get project (basic info)
+	// Get project (basic info) - owner (artisan/customer) or tenant owner/admin
 	projects.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
 		projectHandler.GetProject,
 	)
 
-	// Get project with full details
+	// Get project with full details - owner (artisan/customer) or tenant owner/admin
 	projects.Get("/:id/details",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
 		projectHandler.GetProjectWithDetails,
 	)
 
-	// Update project
+	// Update project - artisan (assigned) or tenant owner/admin
 	projects.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		projectHandler.UpdateProject,
 	)
 
-	// Delete project
+	// Delete project - tenant owner/admin only
 	projects.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		projectHandler.DeleteProject,
 	)
 
@@ -64,45 +54,38 @@ func (r *Router) setupProjectRoutes(api fiber.Router) {
 	// Query Operations
 	// ============================================================================
 
-	// List projects (with pagination and filters)
+	// List projects - tenant owner/admin only
 	projects.Get("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		projectHandler.ListProjects,
 	)
 
-	// Search projects
+	// Search projects - tenant owner/admin only
 	projects.Get("/search",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		projectHandler.SearchProjects,
 	)
 
-	// Get projects by artisan
+	// Get projects by artisan - artisan (self) or tenant owner/admin
 	projects.Get("/artisan/:artisan_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
+		middleware.RequireArtisanOrTeamMember(),
 		projectHandler.GetProjectsByArtisan,
 	)
 
-	// Get projects by customer
+	// Get projects by customer - customer (self) or tenant owner/admin
 	projects.Get("/customer/:customer_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
 		projectHandler.GetProjectsByCustomer,
 	)
 
-	// Get overdue projects
+	// Get overdue projects - tenant owner/admin only
 	projects.Get("/overdue",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		projectHandler.GetOverdueProjects,
 	)
 
-	// Get active projects
+	// Get active projects - tenant owner/admin only
 	projects.Get("/active",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		projectHandler.GetActiveProjects,
 	)
 
@@ -110,38 +93,32 @@ func (r *Router) setupProjectRoutes(api fiber.Router) {
 	// Status Management
 	// ============================================================================
 
-	// Start project
+	// Start project - artisan (assigned) or tenant owner/admin
 	projects.Post("/:id/start",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		projectHandler.StartProject,
 	)
 
-	// Pause project
+	// Pause project - artisan (assigned) or tenant owner/admin
 	projects.Post("/:id/pause",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		projectHandler.PauseProject,
 	)
 
-	// Resume project
+	// Resume project - artisan (assigned) or tenant owner/admin
 	projects.Post("/:id/resume",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		projectHandler.ResumeProject,
 	)
 
-	// Complete project
+	// Complete project - artisan (assigned) or tenant owner/admin
 	projects.Post("/:id/complete",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
+		middleware.RequireArtisanOrTeamMember(),
 		projectHandler.CompleteProject,
 	)
 
-	// Cancel project
+	// Cancel project - artisan (assigned), customer (owner), or tenant owner/admin
 	projects.Post("/:id/cancel",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
 		projectHandler.CancelProject,
 	)
 
@@ -149,31 +126,25 @@ func (r *Router) setupProjectRoutes(api fiber.Router) {
 	// Analytics & Statistics
 	// ============================================================================
 
-	// Get project statistics
+	// Get project statistics - tenant owner/admin only
 	projects.Get("/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		projectHandler.GetProjectStats,
 	)
 
-	// Get artisan project statistics
+	// Get artisan project statistics - artisan (self) or tenant owner/admin
 	projects.Get("/artisan/:artisan_id/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
+		middleware.RequireArtisanOrTeamMember(),
 		projectHandler.GetArtisanProjectStats,
 	)
 
-	// Get project health
+	// Get project health - owner (artisan/customer) or tenant owner/admin
 	projects.Get("/:id/health",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
 		projectHandler.GetProjectHealth,
 	)
 
-	// Get project timeline
+	// Get project timeline - owner (artisan/customer) or tenant owner/admin
 	projects.Get("/:id/timeline",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
 		projectHandler.GetProjectTimeline,
 	)
 
@@ -181,17 +152,15 @@ func (r *Router) setupProjectRoutes(api fiber.Router) {
 	// Dashboard
 	// ============================================================================
 
-	// Get artisan dashboard
+	// Get artisan dashboard - artisan (self) or tenant owner/admin
 	projects.Get("/artisan/:artisan_id/dashboard",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
+		middleware.RequireArtisanOrTeamMember(),
 		projectHandler.GetArtisanDashboard,
 	)
 
-	// Get tenant dashboard
+	// Get tenant dashboard - tenant owner/admin only
 	projects.Get("/dashboard",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectRead),
+		middleware.RequireTenantOwnerOrAdmin(),
 		projectHandler.GetTenantDashboard,
 	)
 
@@ -199,17 +168,15 @@ func (r *Router) setupProjectRoutes(api fiber.Router) {
 	// Bulk Operations
 	// ============================================================================
 
-	// Bulk update project status
+	// Bulk update project status - tenant owner/admin only
 	projects.Put("/bulk/status",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		projectHandler.BulkUpdateStatus,
 	)
 
-	// Archive completed projects
+	// Archive completed projects - tenant owner/admin only
 	projects.Post("/archive",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ProjectWrite),
+		middleware.RequireTenantOwnerOrAdmin(),
 		projectHandler.ArchiveCompletedProjects,
 	)
 }

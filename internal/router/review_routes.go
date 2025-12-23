@@ -16,87 +16,49 @@ func (r *Router) setupReviewRoutes(api fiber.Router) {
 	// Create review routes
 	reviews := api.Group("/reviews")
 
-	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
+	// Apply authentication to all review routes
+	reviews.Use(r.zitadelMW.RequireAuth())
 
 	// ============================================================================
 	// CRUD Operations
 	// ============================================================================
 
-	// Create review
-	reviews.Post("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ReviewWrite),
-		reviewHandler.CreateReview,
-	)
+	// Create review - customer (after booking completion)
+	reviews.Post("", reviewHandler.CreateReview)
 
-	// Get review by ID
-	reviews.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ReviewRead),
-		reviewHandler.GetReview,
-	)
+	// Get review by ID - any authenticated user
+	reviews.Get("/:id", reviewHandler.GetReview)
 
-	// Update review
-	reviews.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ReviewWrite),
-		reviewHandler.UpdateReview,
-	)
+	// Update review - review author or tenant owner/admin
+	reviews.Put("/:id", reviewHandler.UpdateReview)
 
-	// Delete review
-	reviews.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ReviewWrite),
-		reviewHandler.DeleteReview,
-	)
+	// Delete review - review author or tenant owner/admin
+	reviews.Delete("/:id", reviewHandler.DeleteReview)
 
 	// ============================================================================
 	// Query Operations
 	// ============================================================================
 
-	// List reviews (with pagination and filters)
-	reviews.Post("/list",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ReviewRead),
-		reviewHandler.ListReviews,
-	)
+	// List reviews - any authenticated user
+	reviews.Post("/list", reviewHandler.ListReviews)
 
-	// Get artisan reviews
-	reviews.Get("/artisan/:artisan_id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ReviewRead),
-		reviewHandler.GetArtisanReviews,
-	)
+	// Get artisan reviews - any authenticated user
+	reviews.Get("/artisan/:artisan_id", reviewHandler.GetArtisanReviews)
 
 	// ============================================================================
 	// Review Interaction
 	// ============================================================================
 
-	// Respond to review (artisan response)
-	reviews.Post("/:id/respond",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ReviewWrite),
-		reviewHandler.RespondToReview,
-	)
+	// Respond to review - artisan (reviewed) or tenant owner/admin
+	reviews.Post("/:id/respond", middleware.RequireArtisanOrTeamMember(), reviewHandler.RespondToReview)
 
-	// Mark review as helpful
-	reviews.Post("/:id/helpful",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ReviewRead),
-		reviewHandler.MarkHelpful,
-	)
+	// Mark review as helpful - any authenticated user
+	reviews.Post("/:id/helpful", reviewHandler.MarkHelpful)
 
 	// ============================================================================
 	// Analytics & Statistics
 	// ============================================================================
 
-	// Get review statistics for artisan
-	reviews.Get("/artisan/:artisan_id/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.ReviewRead),
-		reviewHandler.GetReviewStats,
-	)
+	// Get review statistics for artisan - artisan (self) or tenant owner/admin
+	reviews.Get("/artisan/:artisan_id/stats", middleware.RequireArtisanOrTeamMember(), reviewHandler.GetReviewStats)
 }

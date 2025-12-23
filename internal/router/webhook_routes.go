@@ -2,7 +2,6 @@ package router
 
 import (
 	"Krafti_Vibe/internal/handler"
-	"Krafti_Vibe/internal/middleware"
 	"Krafti_Vibe/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,9 +16,6 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 	webhooks := api.Group("/webhooks")
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// Webhook Event Management
@@ -27,22 +23,19 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Create webhook event
 	webhooks.Post("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookWrite),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.CreateWebhookEvent,
 	)
 
 	// Get webhook event by ID
 	webhooks.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.GetWebhookEvent,
 	)
 
 	// List webhook events
 	webhooks.Post("/list",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.ListWebhookEvents,
 	)
 
@@ -52,29 +45,25 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Deliver webhook (manual trigger)
 	webhooks.Post("/:id/deliver",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookWrite),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.DeliverWebhook,
 	)
 
 	// Retry webhook
 	webhooks.Post("/:id/retry",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookWrite),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.RetryWebhook,
 	)
 
 	// Retry failed webhooks for a tenant
 	webhooks.Post("/tenant/:tenantId/retry-failed",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookManage),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.RetryFailedWebhooks,
 	)
 
 	// Bulk retry webhooks
 	webhooks.Post("/bulk-retry",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookManage),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.BulkRetryWebhooks,
 	)
 
@@ -84,29 +73,25 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Get pending webhooks
 	webhooks.Get("/pending",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.GetPendingWebhooks,
 	)
 
 	// Get failed webhooks
 	webhooks.Get("/failed",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.GetFailedWebhooks,
 	)
 
 	// Get delivered webhooks
 	webhooks.Get("/delivered",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.GetDeliveredWebhooks,
 	)
 
 	// Get recent webhooks
 	webhooks.Get("/recent",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.GetRecentWebhooks,
 	)
 
@@ -116,22 +101,19 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Get webhook statistics
 	webhooks.Get("/stats",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.GetWebhookStats,
 	)
 
 	// Get webhook analytics
 	webhooks.Get("/analytics",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.GetWebhookAnalytics,
 	)
 
 	// Get failure reasons
 	webhooks.Get("/failure-reasons",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.GetFailureReasons,
 	)
 
@@ -141,22 +123,19 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Cleanup old webhooks
 	webhooks.Post("/cleanup/old",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookManage),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.CleanupOldWebhooks,
 	)
 
 	// Cleanup delivered webhooks
 	webhooks.Post("/cleanup/delivered",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookManage),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.CleanupDeliveredWebhooks,
 	)
 
 	// Purge failed webhooks
 	webhooks.Post("/cleanup/purge",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookManage),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.PurgeFailedWebhooks,
 	)
 
@@ -166,8 +145,7 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Process pending webhooks
 	webhooks.Post("/process-pending",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookManage),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.ProcessPendingWebhooks,
 	)
 
@@ -177,52 +155,15 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Health check (read access)
 	webhooks.Get("/health",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.HealthCheck,
 	)
 
 	// Service metrics (read access)
 	webhooks.Get("/metrics",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.WebhookRead),
+		r.zitadelMW.RequireAuth(),
 		webhookHandler.GetServiceMetrics,
 	)
 
-	// ============================================================================
-	// External Webhook Endpoints (No Auth Required - Verified by Signature)
-	// ============================================================================
-
-	// Logto webhook endpoint for user sync
-	r.setupLogtoWebhookRoutes(webhooks)
-
 	r.config.Logger.Info("webhook routes registered successfully")
-}
-
-// setupLogtoWebhookRoutes configures Logto webhook endpoints
-func (r *Router) setupLogtoWebhookRoutes(webhooks fiber.Router) {
-	// Initialize Logto webhook handler
-	userService := service.NewUserService(r.repos, r.config.Logger)
-	logtoWebhookHandler := handler.NewLogtoWebhookHandler(userService)
-
-	// Get webhook signing secret from config
-	webhookSecret := r.config.WebhookSecret
-	skipVerification := webhookSecret == ""
-
-	if skipVerification {
-		r.config.Logger.Warn("Logto webhook signature verification is DISABLED - set LOGTO_WEBHOOK_SECRET to enable")
-	}
-
-	// Logto webhook endpoint - public endpoint with signature verification
-	webhooks.Post("/logto",
-		middleware.LogWebhookRequest(),
-		middleware.VerifyLogtoWebhook(middleware.WebhookConfig{
-			SigningSecret:    webhookSecret,
-			SignatureHeader:  "Logto-Signature-Sha-256",
-			SkipVerification: skipVerification,
-		}),
-		logtoWebhookHandler.HandleWebhook,
-	)
-
-	r.config.Logger.Info("Logto webhook endpoint registered at /api/v1/webhooks/logto")
 }

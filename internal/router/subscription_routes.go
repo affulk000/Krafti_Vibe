@@ -30,9 +30,6 @@ func (r *Router) setupSubscriptionRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// Core Subscription Operations
@@ -40,29 +37,25 @@ func (r *Router) setupSubscriptionRoutes(api fiber.Router) {
 
 	// Create subscription (authenticated, requires subscription:write scope)
 	subscriptions.Post("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SubscriptionWrite),
+		r.zitadelMW.RequireAuth(),
 		subscriptionHandler.CreateSubscription,
 	)
 
 	// Get subscription by ID (authenticated, requires subscription:read scope)
 	subscriptions.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SubscriptionRead),
+		r.zitadelMW.RequireAuth(),
 		subscriptionHandler.GetSubscription,
 	)
 
 	// Update subscription (authenticated, requires subscription:write scope)
 	subscriptions.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SubscriptionWrite),
+		r.zitadelMW.RequireAuth(),
 		subscriptionHandler.UpdateSubscription,
 	)
 
 	// List subscriptions (authenticated, requires subscription:read scope)
 	subscriptions.Get("/",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SubscriptionRead),
+		r.zitadelMW.RequireAuth(),
 		subscriptionHandler.ListSubscriptions,
 	)
 
@@ -72,8 +65,7 @@ func (r *Router) setupSubscriptionRoutes(api fiber.Router) {
 
 	// Cancel subscription (authenticated, requires subscription:write scope)
 	subscriptions.Post("/:id/cancel",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.SubscriptionWrite),
+		r.zitadelMW.RequireAuth(),
 		subscriptionHandler.CancelSubscription,
 	)
 }

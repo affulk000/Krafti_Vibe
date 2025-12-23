@@ -2,7 +2,6 @@ package router
 
 import (
 	"Krafti_Vibe/internal/handler"
-	"Krafti_Vibe/internal/middleware"
 	"Krafti_Vibe/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,9 +19,6 @@ func (r *Router) setupWhiteLabelRoutes(api fiber.Router) {
 	whitelabel := api.Group("/whitelabel")
 
 	// Auth middleware configuration
-	authMiddleware := middleware.AuthMiddleware(r.tokenValidator, middleware.MiddlewareConfig{
-		RequiredAudience: r.config.LogtoConfig.APIResourceIndicator,
-	})
 
 	// ============================================================================
 	// Public Routes (no auth required)
@@ -44,36 +40,31 @@ func (r *Router) setupWhiteLabelRoutes(api fiber.Router) {
 
 	// Get my whitelabel configuration
 	whitelabel.Get("/me",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.GetMyWhiteLabel,
 	)
 
 	// Create whitelabel configuration
 	whitelabel.Post("",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.CreateWhiteLabel,
 	)
 
 	// Get whitelabel by ID
 	whitelabel.Get("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.GetWhiteLabel,
 	)
 
 	// Update whitelabel configuration
 	whitelabel.Put("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.UpdateWhiteLabel,
 	)
 
 	// Delete whitelabel configuration
 	whitelabel.Delete("/:id",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.DeleteWhiteLabel,
 	)
 
@@ -83,22 +74,19 @@ func (r *Router) setupWhiteLabelRoutes(api fiber.Router) {
 
 	// Update color scheme only
 	whitelabel.Put("/colors",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.UpdateColorScheme,
 	)
 
 	// Update branding assets only
 	whitelabel.Put("/branding",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.UpdateBranding,
 	)
 
 	// Update custom domain only
 	whitelabel.Put("/domain",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.UpdateDomain,
 	)
 
@@ -108,15 +96,13 @@ func (r *Router) setupWhiteLabelRoutes(api fiber.Router) {
 
 	// Activate whitelabel
 	whitelabel.Post("/activate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.ActivateWhiteLabel,
 	)
 
 	// Deactivate whitelabel
 	whitelabel.Post("/deactivate",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantManage),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.DeactivateWhiteLabel,
 	)
 
@@ -126,8 +112,7 @@ func (r *Router) setupWhiteLabelRoutes(api fiber.Router) {
 
 	// Check domain availability
 	whitelabel.Get("/check-domain",
-		authMiddleware,
-		middleware.RequireScopes(r.scopes.TenantRead),
+		r.zitadelMW.RequireAuth(),
 		whiteLabelHandler.CheckDomainAvailability,
 	)
 }
