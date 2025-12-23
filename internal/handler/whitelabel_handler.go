@@ -27,8 +27,8 @@ func NewWhiteLabelHandler(service service.WhiteLabelService) *WhiteLabelHandler 
 // @Produce json
 // @Param whitelabel body dto.CreateWhiteLabelRequest true "WhiteLabel details"
 // @Success 201 {object} dto.WhiteLabelResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 401 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 401 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel [post]
 func (h *WhiteLabelHandler) CreateWhiteLabel(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -58,7 +58,7 @@ func (h *WhiteLabelHandler) CreateWhiteLabel(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "WhiteLabel ID"
 // @Success 200 {object} dto.WhiteLabelResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/{id} [get]
 func (h *WhiteLabelHandler) GetWhiteLabel(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -87,7 +87,7 @@ func (h *WhiteLabelHandler) GetWhiteLabel(c *fiber.Ctx) error {
 // @Tags WhiteLabel
 // @Produce json
 // @Success 200 {object} dto.WhiteLabelResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/me [get]
 func (h *WhiteLabelHandler) GetMyWhiteLabel(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -109,7 +109,7 @@ func (h *WhiteLabelHandler) GetMyWhiteLabel(c *fiber.Ctx) error {
 // @Produce json
 // @Param tenant_id query string true "Tenant ID"
 // @Success 200 {object} dto.PublicWhiteLabelResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/public [get]
 func (h *WhiteLabelHandler) GetPublicWhiteLabel(c *fiber.Ctx) error {
 	tenantIDStr := c.Query("tenant_id")
@@ -142,7 +142,7 @@ func (h *WhiteLabelHandler) GetPublicWhiteLabel(c *fiber.Ctx) error {
 // @Produce json
 // @Param domain query string true "Custom domain"
 // @Success 200 {object} dto.PublicWhiteLabelResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/domain [get]
 func (h *WhiteLabelHandler) GetPublicWhiteLabelByDomain(c *fiber.Ctx) error {
 	domain := c.Query("domain")
@@ -169,7 +169,7 @@ func (h *WhiteLabelHandler) GetPublicWhiteLabelByDomain(c *fiber.Ctx) error {
 // @Param id path string true "WhiteLabel ID"
 // @Param whitelabel body dto.UpdateWhiteLabelRequest true "Updated whitelabel details"
 // @Success 200 {object} dto.WhiteLabelResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/{id} [put]
 func (h *WhiteLabelHandler) UpdateWhiteLabel(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -206,8 +206,8 @@ func (h *WhiteLabelHandler) UpdateWhiteLabel(c *fiber.Ctx) error {
 // @Tags WhiteLabel
 // @Produce json
 // @Param id path string true "WhiteLabel ID"
-// @Success 200 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/{id} [delete]
 func (h *WhiteLabelHandler) DeleteWhiteLabel(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -239,7 +239,7 @@ func (h *WhiteLabelHandler) DeleteWhiteLabel(c *fiber.Ctx) error {
 // @Produce json
 // @Param colors body dto.UpdateColorSchemeRequest true "Color scheme"
 // @Success 200 {object} dto.WhiteLabelResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/colors [put]
 func (h *WhiteLabelHandler) UpdateColorScheme(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -270,7 +270,7 @@ func (h *WhiteLabelHandler) UpdateColorScheme(c *fiber.Ctx) error {
 // @Produce json
 // @Param branding body dto.UpdateBrandingRequest true "Branding assets"
 // @Success 200 {object} dto.WhiteLabelResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/branding [put]
 func (h *WhiteLabelHandler) UpdateBranding(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -301,7 +301,7 @@ func (h *WhiteLabelHandler) UpdateBranding(c *fiber.Ctx) error {
 // @Produce json
 // @Param domain body dto.UpdateDomainRequest true "Domain configuration"
 // @Success 200 {object} dto.WhiteLabelResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/domain [put]
 func (h *WhiteLabelHandler) UpdateDomain(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -329,8 +329,8 @@ func (h *WhiteLabelHandler) UpdateDomain(c *fiber.Ctx) error {
 // @Summary Activate whitelabel
 // @Tags WhiteLabel
 // @Produce json
-// @Success 200 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/activate [post]
 func (h *WhiteLabelHandler) ActivateWhiteLabel(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -351,8 +351,8 @@ func (h *WhiteLabelHandler) ActivateWhiteLabel(c *fiber.Ctx) error {
 // @Summary Deactivate whitelabel
 // @Tags WhiteLabel
 // @Produce json
-// @Success 200 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/deactivate [post]
 func (h *WhiteLabelHandler) DeactivateWhiteLabel(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -374,8 +374,8 @@ func (h *WhiteLabelHandler) DeactivateWhiteLabel(c *fiber.Ctx) error {
 // @Tags WhiteLabel
 // @Produce json
 // @Param domain query string true "Domain to check"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/whitelabel/check-domain [get]
 func (h *WhiteLabelHandler) CheckDomainAvailability(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)

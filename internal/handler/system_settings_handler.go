@@ -27,8 +27,8 @@ func NewSystemSettingsHandler(service service.SystemSettingService) *SystemSetti
 // @Produce json
 // @Param setting body dto.CreateSettingRequest true "Setting details"
 // @Success 201 {object} dto.SystemSettingResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 401 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 401 {object} handler.ErrorResponse
 // @Router /api/v1/settings [post]
 func (h *SystemSettingsHandler) CreateSetting(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -58,7 +58,7 @@ func (h *SystemSettingsHandler) CreateSetting(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Setting ID"
 // @Success 200 {object} dto.SystemSettingResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/settings/{id} [get]
 func (h *SystemSettingsHandler) GetSetting(c *fiber.Ctx) error {
 	id, err := uuid.Parse(c.Params("id"))
@@ -83,7 +83,7 @@ func (h *SystemSettingsHandler) GetSetting(c *fiber.Ctx) error {
 // @Produce json
 // @Param key path string true "Setting key"
 // @Success 200 {object} dto.SystemSettingResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/settings/key/{key} [get]
 func (h *SystemSettingsHandler) GetSettingByKey(c *fiber.Ctx) error {
 	key := c.Params("key")
@@ -110,7 +110,7 @@ func (h *SystemSettingsHandler) GetSettingByKey(c *fiber.Ctx) error {
 // @Param id path string true "Setting ID"
 // @Param setting body dto.UpdateSettingRequest true "Updated setting details"
 // @Success 200 {object} dto.SystemSettingResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/settings/{id} [put]
 func (h *SystemSettingsHandler) UpdateSetting(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -147,8 +147,8 @@ func (h *SystemSettingsHandler) UpdateSetting(c *fiber.Ctx) error {
 // @Tags System Settings
 // @Produce json
 // @Param id path string true "Setting ID"
-// @Success 200 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/settings/{id} [delete]
 func (h *SystemSettingsHandler) DeleteSetting(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -269,8 +269,8 @@ func (h *SystemSettingsHandler) GetSettingsByGroup(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param settings body dto.BulkSetSettingsRequest true "Settings to set"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/settings/bulk [post]
 func (h *SystemSettingsHandler) BulkSetSettings(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -302,8 +302,8 @@ func (h *SystemSettingsHandler) BulkSetSettings(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param keys body []string true "Setting keys to delete"
-// @Success 200 {object} fiber.Map
-// @Failure 400 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/settings/bulk/delete [post]
 func (h *SystemSettingsHandler) BulkDeleteSettings(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -438,8 +438,8 @@ func (h *SystemSettingsHandler) GetCategoriesWithCount(c *fiber.Ctx) error {
 // @Tags System Settings
 // @Produce json
 // @Param key path string true "Setting key"
-// @Success 200 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/settings/key/{key} [delete]
 func (h *SystemSettingsHandler) DeleteSettingByKey(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)

@@ -27,8 +27,8 @@ func NewTenantInvitationHandler(service service.TenantInvitationService) *Tenant
 // @Produce json
 // @Param invitation body dto.CreateInvitationRequest true "Invitation details"
 // @Success 201 {object} dto.InvitationResponse
-// @Failure 400 {object} fiber.Map
-// @Failure 401 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
+// @Failure 401 {object} handler.ErrorResponse
 // @Router /api/v1/invitations [post]
 func (h *TenantInvitationHandler) CreateInvitation(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -67,7 +67,7 @@ func (h *TenantInvitationHandler) CreateInvitation(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Invitation ID"
 // @Success 200 {object} dto.InvitationResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/invitations/{id} [get]
 func (h *TenantInvitationHandler) GetInvitation(c *fiber.Ctx) error {
 	id, err := uuid.Parse(c.Params("id"))
@@ -92,7 +92,7 @@ func (h *TenantInvitationHandler) GetInvitation(c *fiber.Ctx) error {
 // @Produce json
 // @Param token path string true "Invitation token"
 // @Success 200 {object} dto.InvitationResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/invitations/token/{token} [get]
 func (h *TenantInvitationHandler) GetInvitationByToken(c *fiber.Ctx) error {
 	token := c.Params("token")
@@ -197,7 +197,7 @@ func (h *TenantInvitationHandler) GetInvitationsByEmail(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body dto.AcceptInvitationRequest true "Accept invitation request"
 // @Success 200 {object} dto.AcceptInvitationResponse
-// @Failure 400 {object} fiber.Map
+// @Failure 400 {object} handler.ErrorResponse
 // @Router /api/v1/invitations/accept [post]
 func (h *TenantInvitationHandler) AcceptInvitation(c *fiber.Ctx) error {
 	var req dto.AcceptInvitationRequest
@@ -228,8 +228,8 @@ func (h *TenantInvitationHandler) AcceptInvitation(c *fiber.Ctx) error {
 // @Tags Tenant Invitations
 // @Produce json
 // @Param id path string true "Invitation ID"
-// @Success 200 {object} fiber.Map
-// @Failure 404 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/invitations/{id}/revoke [post]
 func (h *TenantInvitationHandler) RevokeInvitation(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -260,7 +260,7 @@ func (h *TenantInvitationHandler) RevokeInvitation(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Invitation ID"
 // @Success 200 {object} dto.InvitationResponse
-// @Failure 404 {object} fiber.Map
+// @Failure 404 {object} handler.ErrorResponse
 // @Router /api/v1/invitations/{id}/resend [post]
 func (h *TenantInvitationHandler) ResendInvitation(c *fiber.Ctx) error {
 	authCtx, err := GetAuthContext(c)
@@ -288,7 +288,7 @@ func (h *TenantInvitationHandler) ResendInvitation(c *fiber.Ctx) error {
 // @Summary Delete expired invitations
 // @Tags Tenant Invitations
 // @Produce json
-// @Success 200 {object} fiber.Map
+// @Success 200 {object} handler.SuccessResponse
 // @Router /api/v1/invitations/cleanup/expired [delete]
 func (h *TenantInvitationHandler) DeleteExpiredInvitations(c *fiber.Ctx) error {
 	count, err := h.service.DeleteExpiredInvitations(c.Context())
