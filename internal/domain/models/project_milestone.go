@@ -34,22 +34,22 @@ type ProjectMilestone struct {
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 
 	// Payment tied to milestone
-	PaymentAmount      float64 `json:"payment_amount" gorm:"type:decimal(12,2);default:0"`
-	PaymentPercentage  float64 `json:"payment_percentage" gorm:"type:decimal(5,2);default:0"`
-	IsPaymentMilestone bool    `json:"is_payment_milestone" gorm:"default:false"`
-	PaymentReceived    bool    `json:"payment_received" gorm:"default:false"`
+	PaymentAmount      float64    `json:"payment_amount" gorm:"type:decimal(12,2);default:0"`
+	PaymentPercentage  float64    `json:"payment_percentage" gorm:"type:decimal(5,2);default:0"`
+	IsPaymentMilestone bool       `json:"is_payment_milestone" gorm:"default:false"`
+	PaymentReceived    bool       `json:"payment_received" gorm:"default:false"`
 	PaymentReceivedAt  *time.Time `json:"payment_received_at,omitempty"`
 
 	// Deliverables
-	Deliverables      []string `json:"deliverables,omitempty" gorm:"type:text[]"`
-	AttachmentURLs    []string `json:"attachment_urls,omitempty" gorm:"type:text[]"`
-	CompletionProof   []string `json:"completion_proof,omitempty" gorm:"type:text[]"`
+	Deliverables    []string `json:"deliverables,omitempty" gorm:"type:text[]"`
+	AttachmentURLs  []string `json:"attachment_urls,omitempty" gorm:"type:text[]"`
+	CompletionProof []string `json:"completion_proof,omitempty" gorm:"type:text[]"`
 
 	// Customer approval
-	RequiresApproval  bool       `json:"requires_approval" gorm:"default:false"`
-	ApprovedByCustomer bool      `json:"approved_by_customer" gorm:"default:false"`
-	ApprovedAt        *time.Time `json:"approved_at,omitempty"`
-	RejectionReason   string     `json:"rejection_reason,omitempty" gorm:"type:text"`
+	RequiresApproval   bool       `json:"requires_approval" gorm:"default:false"`
+	ApprovedByCustomer bool       `json:"approved_by_customer" gorm:"default:false"`
+	ApprovedAt         *time.Time `json:"approved_at,omitempty"`
+	RejectionReason    string     `json:"rejection_reason,omitempty" gorm:"type:text"`
 
 	// Notes
 	ArtisanNotes  string `json:"artisan_notes,omitempty" gorm:"type:text"`
