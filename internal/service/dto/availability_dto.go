@@ -14,15 +14,15 @@ import (
 
 // CreateAvailabilitySlotRequest represents a request to create an availability slot
 type CreateAvailabilitySlotRequest struct {
-	ArtisanID   uuid.UUID                `json:"artisan_id" validate:"required"`
-	Type        models.AvailabilityType  `json:"type" validate:"required"`
-	DayOfWeek   *int                     `json:"day_of_week,omitempty"`
-	Date        *time.Time               `json:"date,omitempty"`
-	StartTime   time.Time                `json:"start_time" validate:"required"`
-	EndTime     time.Time                `json:"end_time" validate:"required,gtfield=StartTime"`
-	IsRecurring bool                     `json:"is_recurring"`
-	RecurUntil  *time.Time               `json:"recur_until,omitempty"`
-	Notes       string                   `json:"notes,omitempty"`
+	ArtisanID   uuid.UUID               `json:"artisan_id" validate:"required"`
+	Type        models.AvailabilityType `json:"type" validate:"required"`
+	DayOfWeek   *int                    `json:"day_of_week,omitempty"`
+	Date        *time.Time              `json:"date,omitempty"`
+	StartTime   time.Time               `json:"start_time" validate:"required"`
+	EndTime     time.Time               `json:"end_time" validate:"required,gtfield=StartTime"`
+	IsRecurring bool                    `json:"is_recurring"`
+	RecurUntil  *time.Time              `json:"recur_until,omitempty"`
+	Notes       string                  `json:"notes,omitempty"`
 }
 
 // UpdateAvailabilitySlotRequest represents a request to update an availability slot
@@ -58,14 +58,14 @@ type CheckAvailabilitySlotRequest struct {
 
 // BulkCreateAvailabilitySlotRequest represents a bulk availability creation request
 type BulkCreateAvailabilitySlotRequest struct {
-	ArtisanID     uuid.UUID                `json:"artisan_id" validate:"required"`
-	Type          models.AvailabilityType  `json:"type" validate:"required"`
-	DaysOfWeek    []int                    `json:"days_of_week" validate:"required,min=1"`
-	StartTime     time.Time                `json:"start_time" validate:"required"`
-	EndTime       time.Time                `json:"end_time" validate:"required"`
-	IsRecurring   bool                     `json:"is_recurring"`
-	RecurUntil    *time.Time               `json:"recur_until,omitempty"`
-	Notes         string                   `json:"notes,omitempty"`
+	ArtisanID   uuid.UUID               `json:"artisan_id" validate:"required"`
+	Type        models.AvailabilityType `json:"type" validate:"required"`
+	DaysOfWeek  []int                   `json:"days_of_week" validate:"required,min=1"`
+	StartTime   time.Time               `json:"start_time" validate:"required"`
+	EndTime     time.Time               `json:"end_time" validate:"required"`
+	IsRecurring bool                    `json:"is_recurring"`
+	RecurUntil  *time.Time              `json:"recur_until,omitempty"`
+	Notes       string                  `json:"notes,omitempty"`
 }
 
 // ============================================================================
@@ -74,40 +74,40 @@ type BulkCreateAvailabilitySlotRequest struct {
 
 // AvailabilityResponse represents an availability slot
 type AvailabilitySlotResponse struct {
-	ID          uuid.UUID                `json:"id"`
-	TenantID    uuid.UUID                `json:"tenant_id"`
-	ArtisanID   uuid.UUID                `json:"artisan_id"`
-	Type        models.AvailabilityType  `json:"type"`
-	DayOfWeek   *int                     `json:"day_of_week,omitempty"`
-	DayName     string                   `json:"day_name,omitempty"`
-	Date        *time.Time               `json:"date,omitempty"`
-	StartTime   time.Time                `json:"start_time"`
-	EndTime     time.Time                `json:"end_time"`
-	IsRecurring bool                     `json:"is_recurring"`
-	RecurUntil  *time.Time               `json:"recur_until,omitempty"`
-	Notes       string                   `json:"notes,omitempty"`
-	Artisan     *UserSummary             `json:"artisan,omitempty"`
-	CreatedAt   time.Time                `json:"created_at"`
-	UpdatedAt   time.Time                `json:"updated_at"`
+	ID          uuid.UUID               `json:"id"`
+	TenantID    uuid.UUID               `json:"tenant_id"`
+	ArtisanID   uuid.UUID               `json:"artisan_id"`
+	Type        models.AvailabilityType `json:"type"`
+	DayOfWeek   *int                    `json:"day_of_week,omitempty"`
+	DayName     string                  `json:"day_name,omitempty"`
+	Date        *time.Time              `json:"date,omitempty"`
+	StartTime   time.Time               `json:"start_time"`
+	EndTime     time.Time               `json:"end_time"`
+	IsRecurring bool                    `json:"is_recurring"`
+	RecurUntil  *time.Time              `json:"recur_until,omitempty"`
+	Notes       string                  `json:"notes,omitempty"`
+	Artisan     *UserSummary            `json:"artisan,omitempty"`
+	CreatedAt   time.Time               `json:"created_at"`
+	UpdatedAt   time.Time               `json:"updated_at"`
 }
 
 // AvailabilitySlotListResponse represents a paginated list of availability slots
 type AvailabilitySlotListResponse struct {
 	Availabilities []*AvailabilitySlotResponse `json:"availabilities"`
-	Page           int                     `json:"page"`
-	PageSize       int                     `json:"page_size"`
-	TotalItems     int64                   `json:"total_items"`
-	TotalPages     int                     `json:"total_pages"`
-	HasNext        bool                    `json:"has_next"`
-	HasPrevious    bool                    `json:"has_previous"`
+	Page           int                         `json:"page"`
+	PageSize       int                         `json:"page_size"`
+	TotalItems     int64                       `json:"total_items"`
+	TotalPages     int                         `json:"total_pages"`
+	HasNext        bool                        `json:"has_next"`
+	HasPrevious    bool                        `json:"has_previous"`
 }
 
 // AvailabilitySlotCheckResponse represents the result of an availability check
 type AvailabilitySlotCheckResponse struct {
-	IsAvailable       bool                          `json:"is_available"`
-	ConflictingSlots  []*AvailabilitySlotResponse  `json:"conflicting_slots,omitempty"`
-	AvailableSlots    []*AvailabilitySlotResponse  `json:"available_slots,omitempty"`
-	SuggestedTimes    []TimeSlot                    `json:"suggested_times,omitempty"`
+	IsAvailable      bool                        `json:"is_available"`
+	ConflictingSlots []*AvailabilitySlotResponse `json:"conflicting_slots,omitempty"`
+	AvailableSlots   []*AvailabilitySlotResponse `json:"available_slots,omitempty"`
+	SuggestedTimes   []TimeSlot                  `json:"suggested_times,omitempty"`
 }
 
 // TimeSlot represents a suggested time slot
@@ -119,9 +119,9 @@ type TimeSlot struct {
 
 // WeeklyScheduleResponse represents a weekly schedule
 type WeeklyScheduleResponse struct {
-	ArtisanID uuid.UUID                           `json:"artisan_id"`
-	WeekStart time.Time                           `json:"week_start"`
-	WeekEnd   time.Time                           `json:"week_end"`
+	ArtisanID uuid.UUID                              `json:"artisan_id"`
+	WeekStart time.Time                              `json:"week_start"`
+	WeekEnd   time.Time                              `json:"week_end"`
 	Schedule  map[string][]*AvailabilitySlotResponse `json:"schedule"` // day -> slots
 }
 
