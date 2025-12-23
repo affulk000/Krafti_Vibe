@@ -14,38 +14,38 @@ import (
 
 // CreateSDKClientRequest represents a request to create an SDK client
 type CreateSDKClientRequest struct {
-	Name           string                  `json:"name" validate:"required,min=2,max=255"`
-	Description    string                  `json:"description,omitempty"`
-	Platform       models.SDKPlatform      `json:"platform" validate:"required"`
-	Environment    models.SDKEnvironment   `json:"environment" validate:"required"`
-	AppIdentifier  string                  `json:"app_identifier,omitempty"`
-	AppVersion     string                  `json:"app_version,omitempty"`
-	AllowedOrigins []string                `json:"allowed_origins,omitempty"`
-	AllowedIPs     []string                `json:"allowed_ips,omitempty"`
-	WebhookURL     string                  `json:"webhook_url,omitempty" validate:"omitempty,url"`
-	Configuration  models.SDKConfig        `json:"configuration"`
-	Scopes         []string                `json:"scopes,omitempty"`
-	Permissions    models.SDKPermissions   `json:"permissions"`
+	Name            string                 `json:"name" validate:"required,min=2,max=255"`
+	Description     string                 `json:"description,omitempty"`
+	Platform        models.SDKPlatform     `json:"platform" validate:"required"`
+	Environment     models.SDKEnvironment  `json:"environment" validate:"required"`
+	AppIdentifier   string                 `json:"app_identifier,omitempty"`
+	AppVersion      string                 `json:"app_version,omitempty"`
+	AllowedOrigins  []string               `json:"allowed_origins,omitempty"`
+	AllowedIPs      []string               `json:"allowed_ips,omitempty"`
+	WebhookURL      string                 `json:"webhook_url,omitempty" validate:"omitempty,url"`
+	Configuration   models.SDKConfig       `json:"configuration"`
+	Scopes          []string               `json:"scopes,omitempty"`
+	Permissions     models.SDKPermissions  `json:"permissions"`
 	RateLimitConfig models.RateLimitConfig `json:"rate_limit_config"`
-	Tags           []string                `json:"tags,omitempty"`
-	IsActive       bool                    `json:"is_active"`
+	Tags            []string               `json:"tags,omitempty"`
+	IsActive        bool                   `json:"is_active"`
 }
 
 // UpdateSDKClientRequest represents a request to update an SDK client
 type UpdateSDKClientRequest struct {
-	Name            *string                  `json:"name,omitempty" validate:"omitempty,min=2,max=255"`
-	Description     *string                  `json:"description,omitempty"`
-	AppIdentifier   *string                  `json:"app_identifier,omitempty"`
-	AppVersion      *string                  `json:"app_version,omitempty"`
-	AllowedOrigins  *[]string                `json:"allowed_origins,omitempty"`
-	AllowedIPs      *[]string                `json:"allowed_ips,omitempty"`
-	WebhookURL      *string                  `json:"webhook_url,omitempty" validate:"omitempty,url"`
-	Configuration   *models.SDKConfig        `json:"configuration,omitempty"`
-	Scopes          *[]string                `json:"scopes,omitempty"`
-	Permissions     *models.SDKPermissions   `json:"permissions,omitempty"`
-	RateLimitConfig *models.RateLimitConfig  `json:"rate_limit_config,omitempty"`
-	Tags            *[]string                `json:"tags,omitempty"`
-	IsActive        *bool                    `json:"is_active,omitempty"`
+	Name            *string                 `json:"name,omitempty" validate:"omitempty,min=2,max=255"`
+	Description     *string                 `json:"description,omitempty"`
+	AppIdentifier   *string                 `json:"app_identifier,omitempty"`
+	AppVersion      *string                 `json:"app_version,omitempty"`
+	AllowedOrigins  *[]string               `json:"allowed_origins,omitempty"`
+	AllowedIPs      *[]string               `json:"allowed_ips,omitempty"`
+	WebhookURL      *string                 `json:"webhook_url,omitempty" validate:"omitempty,url"`
+	Configuration   *models.SDKConfig       `json:"configuration,omitempty"`
+	Scopes          *[]string               `json:"scopes,omitempty"`
+	Permissions     *models.SDKPermissions  `json:"permissions,omitempty"`
+	RateLimitConfig *models.RateLimitConfig `json:"rate_limit_config,omitempty"`
+	Tags            *[]string               `json:"tags,omitempty"`
+	IsActive        *bool                   `json:"is_active,omitempty"`
 }
 
 // CreateSDKKeyRequest represents a request to create an SDK key
@@ -61,11 +61,11 @@ type CreateSDKKeyRequest struct {
 
 // UpdateSDKKeyRequest represents a request to update an SDK key
 type UpdateSDKKeyRequest struct {
-	Name            *string                  `json:"name,omitempty" validate:"omitempty,min=2,max=255"`
-	Description     *string                  `json:"description,omitempty"`
-	Scopes          *[]string                `json:"scopes,omitempty"`
-	RateLimitConfig *models.RateLimitConfig  `json:"rate_limit_config,omitempty"`
-	Status          *models.SDKKeyStatus     `json:"status,omitempty"`
+	Name            *string                 `json:"name,omitempty" validate:"omitempty,min=2,max=255"`
+	Description     *string                 `json:"description,omitempty"`
+	Scopes          *[]string               `json:"scopes,omitempty"`
+	RateLimitConfig *models.RateLimitConfig `json:"rate_limit_config,omitempty"`
+	Status          *models.SDKKeyStatus    `json:"status,omitempty"`
 }
 
 // RevokeSDKKeyRequest represents a request to revoke an SDK key
@@ -235,25 +235,25 @@ type SDKUsageListResponse struct {
 
 // SDKUsageStatsResponse represents aggregated usage statistics
 type SDKUsageStatsResponse struct {
-	ClientID         uuid.UUID         `json:"client_id"`
-	TotalRequests    int64             `json:"total_requests"`
-	TotalErrors      int64             `json:"total_errors"`
-	ErrorRate        float64           `json:"error_rate"`
-	AvgResponseTime  float64           `json:"avg_response_time"`
-	TotalDataSent    int64             `json:"total_data_sent"`
+	ClientID          uuid.UUID        `json:"client_id"`
+	TotalRequests     int64            `json:"total_requests"`
+	TotalErrors       int64            `json:"total_errors"`
+	ErrorRate         float64          `json:"error_rate"`
+	AvgResponseTime   float64          `json:"avg_response_time"`
+	TotalDataSent     int64            `json:"total_data_sent"`
 	TotalDataReceived int64            `json:"total_data_received"`
-	TopEndpoints     []EndpointStat    `json:"top_endpoints"`
-	StatusCodeDist   map[string]int64  `json:"status_code_distribution"`
-	RequestsByDay    []DailyStat       `json:"requests_by_day"`
-	ErrorsByType     map[string]int64  `json:"errors_by_type"`
-	GeographicDist   []GeographicStat  `json:"geographic_distribution"`
+	TopEndpoints      []EndpointStat   `json:"top_endpoints"`
+	StatusCodeDist    map[string]int64 `json:"status_code_distribution"`
+	RequestsByDay     []DailyStat      `json:"requests_by_day"`
+	ErrorsByType      map[string]int64 `json:"errors_by_type"`
+	GeographicDist    []GeographicStat `json:"geographic_distribution"`
 }
 
 // EndpointStat represents statistics for an endpoint
 type EndpointStat struct {
-	Endpoint      string  `json:"endpoint"`
-	RequestCount  int64   `json:"request_count"`
-	ErrorCount    int64   `json:"error_count"`
+	Endpoint        string  `json:"endpoint"`
+	RequestCount    int64   `json:"request_count"`
+	ErrorCount      int64   `json:"error_count"`
 	AvgResponseTime float64 `json:"avg_response_time"`
 }
 

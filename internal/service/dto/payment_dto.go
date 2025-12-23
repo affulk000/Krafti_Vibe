@@ -15,18 +15,18 @@ import (
 
 // CreatePaymentRequest represents a request to create a payment
 type CreatePaymentRequest struct {
-	TenantID          uuid.UUID        `json:"tenant_id" validate:"required"`
-	BookingID         uuid.UUID        `json:"booking_id" validate:"required"`
-	CustomerID        uuid.UUID        `json:"customer_id" validate:"required"`
-	ArtisanID         *uuid.UUID       `json:"artisan_id,omitempty"`
-	Amount            float64          `json:"amount" validate:"required,min=0"`
-	Currency          string           `json:"currency" validate:"required,len=3"`
+	TenantID          uuid.UUID            `json:"tenant_id" validate:"required"`
+	BookingID         uuid.UUID            `json:"booking_id" validate:"required"`
+	CustomerID        uuid.UUID            `json:"customer_id" validate:"required"`
+	ArtisanID         *uuid.UUID           `json:"artisan_id,omitempty"`
+	Amount            float64              `json:"amount" validate:"required,min=0"`
+	Currency          string               `json:"currency" validate:"required,len=3"`
 	Method            models.PaymentMethod `json:"method" validate:"required"`
 	Type              models.PaymentType   `json:"type" validate:"required"`
-	ProviderName      string           `json:"provider_name,omitempty"`
-	ProviderPaymentID string           `json:"provider_payment_id,omitempty"`
-	CommissionRate    float64          `json:"commission_rate" validate:"min=0,max=100"`
-	Metadata          models.JSONB     `json:"metadata,omitempty"`
+	ProviderName      string               `json:"provider_name,omitempty"`
+	ProviderPaymentID string               `json:"provider_payment_id,omitempty"`
+	CommissionRate    float64              `json:"commission_rate" validate:"min=0,max=100"`
+	Metadata          models.JSONB         `json:"metadata,omitempty"`
 }
 
 // Validate validates the create payment request
@@ -97,12 +97,12 @@ type RefundRecordResponse struct {
 
 // EarningsResponse represents artisan earnings
 type EarningsResponse struct {
-	ArtisanID  uuid.UUID `json:"artisan_id"`
-	Amount     float64   `json:"amount"`
-	Currency   string    `json:"currency"`
-	StartDate  time.Time `json:"start_date,omitempty"`
-	EndDate    time.Time `json:"end_date,omitempty"`
-	IsPaid     bool      `json:"is_paid"`
+	ArtisanID uuid.UUID `json:"artisan_id"`
+	Amount    float64   `json:"amount"`
+	Currency  string    `json:"currency"`
+	StartDate time.Time `json:"start_date,omitempty"`
+	EndDate   time.Time `json:"end_date,omitempty"`
+	IsPaid    bool      `json:"is_paid"`
 }
 
 // RevenueResponse represents platform revenue
@@ -196,16 +196,16 @@ func ToPaymentResponse(payment *models.Payment) *PaymentResponse {
 	}
 
 	return &PaymentResponse{
-		ID:                payment.ID,
-		SubscriptionID:    uuid.Nil, // Not applicable for booking payments
-		Amount:            payment.Amount,
-		Currency:          payment.Currency,
-		Status:            string(payment.Status),
-		Method:            string(payment.Method),
-		Description:       fmt.Sprintf("Payment for booking %s", payment.BookingID),
-		FailureReason:     payment.FailureReason,
-		ProcessedAt:       payment.ProcessedAt,
-		CreatedAt:         payment.CreatedAt,
+		ID:             payment.ID,
+		SubscriptionID: uuid.Nil, // Not applicable for booking payments
+		Amount:         payment.Amount,
+		Currency:       payment.Currency,
+		Status:         string(payment.Status),
+		Method:         string(payment.Method),
+		Description:    fmt.Sprintf("Payment for booking %s", payment.BookingID),
+		FailureReason:  payment.FailureReason,
+		ProcessedAt:    payment.ProcessedAt,
+		CreatedAt:      payment.CreatedAt,
 	}
 }
 
@@ -227,10 +227,10 @@ func ToPaymentResponses(payments []*models.Payment) []*PaymentResponse {
 // ============================================================================
 
 var (
-	ErrTenantIDRequired       = fmt.Errorf("tenant ID is required")
-	ErrBookingIDRequired      = fmt.Errorf("booking ID is required")
-	ErrCustomerIDRequired     = fmt.Errorf("customer ID is required")
-	ErrInvalidAmount          = fmt.Errorf("amount must be positive")
-	ErrInvalidCurrency        = fmt.Errorf("currency must be a 3-letter code")
-	ErrInvalidCommissionRate  = fmt.Errorf("commission rate must be between 0 and 100")
+	ErrTenantIDRequired      = fmt.Errorf("tenant ID is required")
+	ErrBookingIDRequired     = fmt.Errorf("booking ID is required")
+	ErrCustomerIDRequired    = fmt.Errorf("customer ID is required")
+	ErrInvalidAmount         = fmt.Errorf("amount must be positive")
+	ErrInvalidCurrency       = fmt.Errorf("currency must be a 3-letter code")
+	ErrInvalidCommissionRate = fmt.Errorf("commission rate must be between 0 and 100")
 )

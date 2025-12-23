@@ -31,30 +31,30 @@ type CreateTaskRequest struct {
 
 // UpdateTaskRequest represents a request to update a task
 type UpdateTaskRequest struct {
-	Title          *string                 `json:"title,omitempty" validate:"omitempty,max=255"`
-	Description    *string                 `json:"description,omitempty"`
-	Status         *models.TaskStatus      `json:"status,omitempty"`
-	Priority       *models.TaskPriority    `json:"priority,omitempty"`
-	AssignedToID   *uuid.UUID              `json:"assigned_to_id,omitempty"`
-	MilestoneID    *uuid.UUID              `json:"milestone_id,omitempty"`
-	StartDate      *time.Time              `json:"start_date,omitempty"`
-	DueDate        *time.Time              `json:"due_date,omitempty"`
-	EstimatedHours *float64                `json:"estimated_hours,omitempty" validate:"omitempty,min=0"`
-	EstimatedCost  *float64                `json:"estimated_cost,omitempty" validate:"omitempty,min=0"`
-	TrackedHours   *float64                `json:"tracked_hours,omitempty" validate:"omitempty,min=0"`
-	ActualCost     *float64                `json:"actual_cost,omitempty" validate:"omitempty,min=0"`
-	DependsOn      []uuid.UUID             `json:"depends_on,omitempty"`
-	BlockedBy      []uuid.UUID             `json:"blocked_by,omitempty"`
-	BlockReason    *string                 `json:"block_reason,omitempty"`
-	Checklist      []models.ChecklistItem  `json:"checklist,omitempty"`
-	AttachmentURLs []string                `json:"attachment_urls,omitempty"`
-	Metadata       map[string]interface{}  `json:"metadata,omitempty"`
+	Title          *string                `json:"title,omitempty" validate:"omitempty,max=255"`
+	Description    *string                `json:"description,omitempty"`
+	Status         *models.TaskStatus     `json:"status,omitempty"`
+	Priority       *models.TaskPriority   `json:"priority,omitempty"`
+	AssignedToID   *uuid.UUID             `json:"assigned_to_id,omitempty"`
+	MilestoneID    *uuid.UUID             `json:"milestone_id,omitempty"`
+	StartDate      *time.Time             `json:"start_date,omitempty"`
+	DueDate        *time.Time             `json:"due_date,omitempty"`
+	EstimatedHours *float64               `json:"estimated_hours,omitempty" validate:"omitempty,min=0"`
+	EstimatedCost  *float64               `json:"estimated_cost,omitempty" validate:"omitempty,min=0"`
+	TrackedHours   *float64               `json:"tracked_hours,omitempty" validate:"omitempty,min=0"`
+	ActualCost     *float64               `json:"actual_cost,omitempty" validate:"omitempty,min=0"`
+	DependsOn      []uuid.UUID            `json:"depends_on,omitempty"`
+	BlockedBy      []uuid.UUID            `json:"blocked_by,omitempty"`
+	BlockReason    *string                `json:"block_reason,omitempty"`
+	Checklist      []models.ChecklistItem `json:"checklist,omitempty"`
+	AttachmentURLs []string               `json:"attachment_urls,omitempty"`
+	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // ReorderTasksRequest represents a request to reorder tasks
 type ReorderTasksRequest struct {
-	ProjectID  uuid.UUID        `json:"project_id" validate:"required"`
-	TaskOrders map[string]int   `json:"task_orders" validate:"required"` // task_id -> order_index
+	ProjectID  uuid.UUID      `json:"project_id" validate:"required"`
+	TaskOrders map[string]int `json:"task_orders" validate:"required"` // task_id -> order_index
 }
 
 // TaskFilter represents filters for task queries
@@ -145,10 +145,10 @@ type UserSummary struct {
 
 // MilestoneSummary represents a summary of a milestone
 type MilestoneSummary struct {
-	ID      uuid.UUID               `json:"id"`
-	Title   string                  `json:"title"`
-	Status  models.MilestoneStatus  `json:"status"`
-	DueDate *time.Time              `json:"due_date,omitempty"`
+	ID      uuid.UUID              `json:"id"`
+	Title   string                 `json:"title"`
+	Status  models.MilestoneStatus `json:"status"`
+	DueDate *time.Time             `json:"due_date,omitempty"`
 }
 
 // ============================================================================

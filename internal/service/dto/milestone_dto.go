@@ -30,21 +30,21 @@ type CreateMilestoneRequest struct {
 
 // UpdateMilestoneRequest represents a request to update a milestone
 type UpdateMilestoneRequest struct {
-	Title              *string                `json:"title,omitempty" validate:"omitempty,max=255"`
-	Description        *string                `json:"description,omitempty"`
+	Title              *string                 `json:"title,omitempty" validate:"omitempty,max=255"`
+	Description        *string                 `json:"description,omitempty"`
 	Status             *models.MilestoneStatus `json:"status,omitempty"`
-	StartDate          *time.Time             `json:"start_date,omitempty"`
-	DueDate            *time.Time             `json:"due_date,omitempty"`
-	PaymentAmount      *float64               `json:"payment_amount,omitempty" validate:"omitempty,min=0"`
-	PaymentPercentage  *float64               `json:"payment_percentage,omitempty" validate:"omitempty,min=0,max=100"`
-	IsPaymentMilestone *bool                  `json:"is_payment_milestone,omitempty"`
-	RequiresApproval   *bool                  `json:"requires_approval,omitempty"`
-	Deliverables       []string               `json:"deliverables,omitempty"`
-	AttachmentURLs     []string               `json:"attachment_urls,omitempty"`
-	CompletionProof    []string               `json:"completion_proof,omitempty"`
-	ArtisanNotes       *string                `json:"artisan_notes,omitempty"`
-	CustomerNotes      *string                `json:"customer_notes,omitempty"`
-	Metadata           map[string]interface{} `json:"metadata,omitempty"`
+	StartDate          *time.Time              `json:"start_date,omitempty"`
+	DueDate            *time.Time              `json:"due_date,omitempty"`
+	PaymentAmount      *float64                `json:"payment_amount,omitempty" validate:"omitempty,min=0"`
+	PaymentPercentage  *float64                `json:"payment_percentage,omitempty" validate:"omitempty,min=0,max=100"`
+	IsPaymentMilestone *bool                   `json:"is_payment_milestone,omitempty"`
+	RequiresApproval   *bool                   `json:"requires_approval,omitempty"`
+	Deliverables       []string                `json:"deliverables,omitempty"`
+	AttachmentURLs     []string                `json:"attachment_urls,omitempty"`
+	CompletionProof    []string                `json:"completion_proof,omitempty"`
+	ArtisanNotes       *string                 `json:"artisan_notes,omitempty"`
+	CustomerNotes      *string                 `json:"customer_notes,omitempty"`
+	Metadata           map[string]interface{}  `json:"metadata,omitempty"`
 }
 
 // ApproveMilestoneRequest represents a request to approve a milestone
@@ -66,11 +66,11 @@ type ReorderMilestonesRequest struct {
 
 // MilestoneFilter represents filters for milestone queries
 type MilestoneFilter struct {
-	ProjectID        uuid.UUID               `json:"project_id"`
-	Status           *models.MilestoneStatus `json:"status,omitempty"`
-	IsPaymentMilestone *bool                 `json:"is_payment_milestone,omitempty"`
-	RequiresApproval *bool                   `json:"requires_approval,omitempty"`
-	IsOverdue        *bool                   `json:"is_overdue,omitempty"`
+	ProjectID          uuid.UUID               `json:"project_id"`
+	Status             *models.MilestoneStatus `json:"status,omitempty"`
+	IsPaymentMilestone *bool                   `json:"is_payment_milestone,omitempty"`
+	RequiresApproval   *bool                   `json:"requires_approval,omitempty"`
+	IsOverdue          *bool                   `json:"is_overdue,omitempty"`
 }
 
 // ============================================================================
@@ -79,39 +79,39 @@ type MilestoneFilter struct {
 
 // MilestoneResponse represents a milestone
 type MilestoneResponse struct {
-	ID                 uuid.UUID               `json:"id"`
-	TenantID           uuid.UUID               `json:"tenant_id"`
-	ProjectID          uuid.UUID               `json:"project_id"`
-	Title              string                  `json:"title"`
-	Description        string                  `json:"description,omitempty"`
-	Status             models.MilestoneStatus  `json:"status"`
-	OrderIndex         int                     `json:"order_index"`
-	StartDate          *time.Time              `json:"start_date,omitempty"`
-	DueDate            *time.Time              `json:"due_date,omitempty"`
-	CompletedAt        *time.Time              `json:"completed_at,omitempty"`
-	PaymentAmount      float64                 `json:"payment_amount"`
-	PaymentPercentage  float64                 `json:"payment_percentage"`
-	IsPaymentMilestone bool                    `json:"is_payment_milestone"`
-	PaymentReceived    bool                    `json:"payment_received"`
-	PaymentReceivedAt  *time.Time              `json:"payment_received_at,omitempty"`
-	Deliverables       []string                `json:"deliverables,omitempty"`
-	AttachmentURLs     []string                `json:"attachment_urls,omitempty"`
-	CompletionProof    []string                `json:"completion_proof,omitempty"`
-	RequiresApproval   bool                    `json:"requires_approval"`
-	ApprovedByCustomer bool                    `json:"approved_by_customer"`
-	ApprovedAt         *time.Time              `json:"approved_at,omitempty"`
-	RejectionReason    string                  `json:"rejection_reason,omitempty"`
-	ArtisanNotes       string                  `json:"artisan_notes,omitempty"`
-	CustomerNotes      string                  `json:"customer_notes,omitempty"`
-	Metadata           models.JSONB            `json:"metadata,omitempty"`
-	IsCompleted        bool                    `json:"is_completed"`
-	IsOverdue          bool                    `json:"is_overdue"`
-	CanComplete        bool                    `json:"can_complete"`
-	TaskCount          int                     `json:"task_count"`
-	CompletedTaskCount int                     `json:"completed_task_count"`
-	Tasks              []*TaskResponse         `json:"tasks,omitempty"`
-	CreatedAt          time.Time               `json:"created_at"`
-	UpdatedAt          time.Time               `json:"updated_at"`
+	ID                 uuid.UUID              `json:"id"`
+	TenantID           uuid.UUID              `json:"tenant_id"`
+	ProjectID          uuid.UUID              `json:"project_id"`
+	Title              string                 `json:"title"`
+	Description        string                 `json:"description,omitempty"`
+	Status             models.MilestoneStatus `json:"status"`
+	OrderIndex         int                    `json:"order_index"`
+	StartDate          *time.Time             `json:"start_date,omitempty"`
+	DueDate            *time.Time             `json:"due_date,omitempty"`
+	CompletedAt        *time.Time             `json:"completed_at,omitempty"`
+	PaymentAmount      float64                `json:"payment_amount"`
+	PaymentPercentage  float64                `json:"payment_percentage"`
+	IsPaymentMilestone bool                   `json:"is_payment_milestone"`
+	PaymentReceived    bool                   `json:"payment_received"`
+	PaymentReceivedAt  *time.Time             `json:"payment_received_at,omitempty"`
+	Deliverables       []string               `json:"deliverables,omitempty"`
+	AttachmentURLs     []string               `json:"attachment_urls,omitempty"`
+	CompletionProof    []string               `json:"completion_proof,omitempty"`
+	RequiresApproval   bool                   `json:"requires_approval"`
+	ApprovedByCustomer bool                   `json:"approved_by_customer"`
+	ApprovedAt         *time.Time             `json:"approved_at,omitempty"`
+	RejectionReason    string                 `json:"rejection_reason,omitempty"`
+	ArtisanNotes       string                 `json:"artisan_notes,omitempty"`
+	CustomerNotes      string                 `json:"customer_notes,omitempty"`
+	Metadata           models.JSONB           `json:"metadata,omitempty"`
+	IsCompleted        bool                   `json:"is_completed"`
+	IsOverdue          bool                   `json:"is_overdue"`
+	CanComplete        bool                   `json:"can_complete"`
+	TaskCount          int                    `json:"task_count"`
+	CompletedTaskCount int                    `json:"completed_task_count"`
+	Tasks              []*TaskResponse        `json:"tasks,omitempty"`
+	CreatedAt          time.Time              `json:"created_at"`
+	UpdatedAt          time.Time              `json:"updated_at"`
 }
 
 // MilestoneListResponse represents a paginated list of milestones
@@ -180,7 +180,7 @@ func ToMilestoneResponse(milestone *models.ProjectMilestone) *MilestoneResponse 
 	if milestone.Tasks != nil {
 		resp.Tasks = ToTaskResponses(convertTaskSlice(milestone.Tasks))
 		resp.TaskCount = len(milestone.Tasks)
-		
+
 		// Count completed tasks
 		completedCount := 0
 		for _, task := range milestone.Tasks {

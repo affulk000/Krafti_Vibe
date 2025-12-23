@@ -35,11 +35,11 @@ type UpdateProjectUpdateRequest struct {
 
 // ProjectUpdateFilter represents filters for project update queries
 type ProjectUpdateFilter struct {
-	ProjectID         uuid.UUID         `json:"project_id"`
+	ProjectID         uuid.UUID          `json:"project_id"`
 	Type              *models.UpdateType `json:"type,omitempty"`
-	VisibleToCustomer *bool             `json:"visible_to_customer,omitempty"`
-	Page              int               `json:"page"`
-	PageSize          int               `json:"page_size"`
+	VisibleToCustomer *bool              `json:"visible_to_customer,omitempty"`
+	Page              int                `json:"page"`
+	PageSize          int                `json:"page_size"`
 }
 
 // ============================================================================

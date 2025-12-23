@@ -74,10 +74,10 @@ type CreateWhiteLabelRequest struct {
 	EmailSettings models.EmailBranding `json:"email_settings"`
 
 	// Advanced Customization
-	CustomCSS      string             `json:"custom_css,omitempty"`
-	CustomJS       string             `json:"custom_js,omitempty"`
-	CustomHead     string             `json:"custom_head,omitempty"`
-	CustomMetaTags models.CustomMeta  `json:"custom_meta_tags"`
+	CustomCSS       string            `json:"custom_css,omitempty"`
+	CustomJS        string            `json:"custom_js,omitempty"`
+	CustomHead      string            `json:"custom_head,omitempty"`
+	CustomMetaTags  models.CustomMeta `json:"custom_meta_tags"`
 	CustomAnalytics models.Analytics  `json:"custom_analytics"`
 
 	// Localization
@@ -361,13 +361,13 @@ type PublicWhiteLabelResponse struct {
 	DarkModeEnabled bool               `json:"dark_mode_enabled"`
 
 	// Company Information
-	CompanyName        string `json:"company_name,omitempty"`
-	CompanyTagline     string `json:"company_tagline,omitempty"`
-	CompanyPhone       string `json:"company_phone,omitempty"`
-	CompanyEmail       string `json:"company_email,omitempty"`
-	SupportEmail       string `json:"support_email,omitempty"`
-	SupportPhone       string `json:"support_phone,omitempty"`
-	SupportURL         string `json:"support_url,omitempty"`
+	CompanyName    string `json:"company_name,omitempty"`
+	CompanyTagline string `json:"company_tagline,omitempty"`
+	CompanyPhone   string `json:"company_phone,omitempty"`
+	CompanyEmail   string `json:"company_email,omitempty"`
+	SupportEmail   string `json:"support_email,omitempty"`
+	SupportPhone   string `json:"support_phone,omitempty"`
+	SupportURL     string `json:"support_url,omitempty"`
 
 	// Legal & Policy Links
 	TermsOfServiceURL string `json:"terms_of_service_url,omitempty"`
@@ -489,47 +489,47 @@ func ToPublicWhiteLabelResponse(whitelabel *models.WhiteLabel) *PublicWhiteLabel
 	}
 
 	return &PublicWhiteLabelResponse{
-		LogoURL:             whitelabel.LogoURL,
-		LogoDarkURL:         whitelabel.LogoDarkURL,
-		FaviconURL:          whitelabel.FaviconURL,
-		AppleTouchIcon:      whitelabel.AppleTouchIcon,
-		SplashScreenURL:     whitelabel.SplashScreenURL,
-		PrimaryColor:        whitelabel.PrimaryColor,
-		SecondaryColor:      whitelabel.SecondaryColor,
-		AccentColor:         whitelabel.AccentColor,
-		BackgroundColor:     whitelabel.BackgroundColor,
-		SurfaceColor:        whitelabel.SurfaceColor,
-		TextColor:           whitelabel.TextColor,
-		TextSecondaryColor:  whitelabel.TextSecondaryColor,
-		ErrorColor:          whitelabel.ErrorColor,
-		WarningColor:        whitelabel.WarningColor,
-		SuccessColor:        whitelabel.SuccessColor,
-		InfoColor:           whitelabel.InfoColor,
-		FontFamily:          whitelabel.FontFamily,
-		HeadingFontFamily:   whitelabel.HeadingFontFamily,
-		FontSize:            whitelabel.FontSize,
-		FontWeight:          whitelabel.FontWeight,
-		Theme:               whitelabel.Theme,
-		DarkModeEnabled:     whitelabel.DarkModeEnabled,
-		CompanyName:         whitelabel.CompanyName,
-		CompanyTagline:      whitelabel.CompanyTagline,
-		CompanyPhone:        whitelabel.CompanyPhone,
-		CompanyEmail:        whitelabel.CompanyEmail,
-		SupportEmail:        whitelabel.SupportEmail,
-		SupportPhone:        whitelabel.SupportPhone,
-		SupportURL:          whitelabel.SupportURL,
-		TermsOfServiceURL:   whitelabel.TermsOfServiceURL,
-		PrivacyPolicyURL:    whitelabel.PrivacyPolicyURL,
-		CookiePolicyURL:     whitelabel.CookiePolicyURL,
-		AcceptableUseURL:    whitelabel.AcceptableUseURL,
-		RefundPolicyURL:     whitelabel.RefundPolicyURL,
-		SocialLinks:         whitelabel.SocialLinks,
-		DefaultLanguage:     whitelabel.DefaultLanguage,
-		SupportedLocales:    whitelabel.SupportedLocales,
-		Timezone:            whitelabel.Timezone,
-		DateFormat:          whitelabel.DateFormat,
-		TimeFormat:          whitelabel.TimeFormat,
-		Currency:            whitelabel.Currency,
+		LogoURL:            whitelabel.LogoURL,
+		LogoDarkURL:        whitelabel.LogoDarkURL,
+		FaviconURL:         whitelabel.FaviconURL,
+		AppleTouchIcon:     whitelabel.AppleTouchIcon,
+		SplashScreenURL:    whitelabel.SplashScreenURL,
+		PrimaryColor:       whitelabel.PrimaryColor,
+		SecondaryColor:     whitelabel.SecondaryColor,
+		AccentColor:        whitelabel.AccentColor,
+		BackgroundColor:    whitelabel.BackgroundColor,
+		SurfaceColor:       whitelabel.SurfaceColor,
+		TextColor:          whitelabel.TextColor,
+		TextSecondaryColor: whitelabel.TextSecondaryColor,
+		ErrorColor:         whitelabel.ErrorColor,
+		WarningColor:       whitelabel.WarningColor,
+		SuccessColor:       whitelabel.SuccessColor,
+		InfoColor:          whitelabel.InfoColor,
+		FontFamily:         whitelabel.FontFamily,
+		HeadingFontFamily:  whitelabel.HeadingFontFamily,
+		FontSize:           whitelabel.FontSize,
+		FontWeight:         whitelabel.FontWeight,
+		Theme:              whitelabel.Theme,
+		DarkModeEnabled:    whitelabel.DarkModeEnabled,
+		CompanyName:        whitelabel.CompanyName,
+		CompanyTagline:     whitelabel.CompanyTagline,
+		CompanyPhone:       whitelabel.CompanyPhone,
+		CompanyEmail:       whitelabel.CompanyEmail,
+		SupportEmail:       whitelabel.SupportEmail,
+		SupportPhone:       whitelabel.SupportPhone,
+		SupportURL:         whitelabel.SupportURL,
+		TermsOfServiceURL:  whitelabel.TermsOfServiceURL,
+		PrivacyPolicyURL:   whitelabel.PrivacyPolicyURL,
+		CookiePolicyURL:    whitelabel.CookiePolicyURL,
+		AcceptableUseURL:   whitelabel.AcceptableUseURL,
+		RefundPolicyURL:    whitelabel.RefundPolicyURL,
+		SocialLinks:        whitelabel.SocialLinks,
+		DefaultLanguage:    whitelabel.DefaultLanguage,
+		SupportedLocales:   whitelabel.SupportedLocales,
+		Timezone:           whitelabel.Timezone,
+		DateFormat:         whitelabel.DateFormat,
+		TimeFormat:         whitelabel.TimeFormat,
+		Currency:           whitelabel.Currency,
 		SEOSettings: PublicSEOConfig{
 			SiteName:        whitelabel.SEOSettings.SiteName,
 			SiteDescription: whitelabel.SEOSettings.SiteDescription,

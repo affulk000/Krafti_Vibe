@@ -16,18 +16,18 @@ import (
 
 // CreateProjectRequest represents a request to create a project
 type CreateProjectRequest struct {
-	TenantID     uuid.UUID               `json:"tenant_id" validate:"required"`
-	ArtisanID    uuid.UUID               `json:"artisan_id" validate:"required"`
-	CustomerID   *uuid.UUID              `json:"customer_id,omitempty"`
-	Title        string                  `json:"title" validate:"required,max=255"`
-	Description  string                  `json:"description,omitempty"`
-	Priority     models.ProjectPriority  `json:"priority" validate:"required"`
-	StartDate    *time.Time              `json:"start_date,omitempty"`
-	DueDate      *time.Time              `json:"due_date,omitempty"`
-	BudgetAmount float64                 `json:"budget_amount,omitempty" validate:"min=0"`
-	Currency     string                  `json:"currency,omitempty" validate:"len=3"`
-	Tags         []string                `json:"tags,omitempty"`
-	Metadata     map[string]interface{}  `json:"metadata,omitempty"`
+	TenantID     uuid.UUID              `json:"tenant_id" validate:"required"`
+	ArtisanID    uuid.UUID              `json:"artisan_id" validate:"required"`
+	CustomerID   *uuid.UUID             `json:"customer_id,omitempty"`
+	Title        string                 `json:"title" validate:"required,max=255"`
+	Description  string                 `json:"description,omitempty"`
+	Priority     models.ProjectPriority `json:"priority" validate:"required"`
+	StartDate    *time.Time             `json:"start_date,omitempty"`
+	DueDate      *time.Time             `json:"due_date,omitempty"`
+	BudgetAmount float64                `json:"budget_amount,omitempty" validate:"min=0"`
+	Currency     string                 `json:"currency,omitempty" validate:"len=3"`
+	Tags         []string               `json:"tags,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // Validate validates the create project request
@@ -65,17 +65,17 @@ type UpdateProjectRequest struct {
 
 // ProjectFilter represents filters for project queries
 type ProjectFilter struct {
-	TenantID    uuid.UUID                `json:"tenant_id"`
-	ArtisanID   *uuid.UUID               `json:"artisan_id,omitempty"`
-	CustomerID  *uuid.UUID               `json:"customer_id,omitempty"`
-	Status      *models.ProjectStatus    `json:"status,omitempty"`
-	Priority    *models.ProjectPriority  `json:"priority,omitempty"`
-	Tags        []string                 `json:"tags,omitempty"`
-	FromDate    *time.Time               `json:"from_date,omitempty"`
-	ToDate      *time.Time               `json:"to_date,omitempty"`
-	IsOverdue   *bool                    `json:"is_overdue,omitempty"`
-	Page        int                      `json:"page"`
-	PageSize    int                      `json:"page_size"`
+	TenantID   uuid.UUID               `json:"tenant_id"`
+	ArtisanID  *uuid.UUID              `json:"artisan_id,omitempty"`
+	CustomerID *uuid.UUID              `json:"customer_id,omitempty"`
+	Status     *models.ProjectStatus   `json:"status,omitempty"`
+	Priority   *models.ProjectPriority `json:"priority,omitempty"`
+	Tags       []string                `json:"tags,omitempty"`
+	FromDate   *time.Time              `json:"from_date,omitempty"`
+	ToDate     *time.Time              `json:"to_date,omitempty"`
+	IsOverdue  *bool                   `json:"is_overdue,omitempty"`
+	Page       int                     `json:"page"`
+	PageSize   int                     `json:"page_size"`
 }
 
 // ProjectStatusUpdateRequest represents a request to update project status
@@ -86,9 +86,9 @@ type ProjectStatusUpdateRequest struct {
 
 // BulkProjectUpdateRequest represents bulk project update
 type BulkProjectUpdateRequest struct {
-	ProjectIDs []uuid.UUID          `json:"project_ids" validate:"required,min=1"`
+	ProjectIDs []uuid.UUID           `json:"project_ids" validate:"required,min=1"`
 	Status     *models.ProjectStatus `json:"status,omitempty"`
-	ArtisanID  *uuid.UUID           `json:"artisan_id,omitempty"`
+	ArtisanID  *uuid.UUID            `json:"artisan_id,omitempty"`
 }
 
 // ============================================================================
@@ -97,30 +97,30 @@ type BulkProjectUpdateRequest struct {
 
 // ProjectResponse represents a project
 type ProjectResponse struct {
-	ID                  uuid.UUID               `json:"id"`
-	TenantID            uuid.UUID               `json:"tenant_id"`
-	ArtisanID           uuid.UUID               `json:"artisan_id"`
-	CustomerID          *uuid.UUID              `json:"customer_id,omitempty"`
-	Title               string                  `json:"title"`
-	Description         string                  `json:"description,omitempty"`
-	Status              models.ProjectStatus    `json:"status"`
-	Priority            models.ProjectPriority  `json:"priority"`
-	StartDate           *time.Time              `json:"start_date,omitempty"`
-	DueDate             *time.Time              `json:"due_date,omitempty"`
-	CompletedAt         *time.Time              `json:"completed_at,omitempty"`
-	BudgetAmount        float64                 `json:"budget_amount"`
-	Currency            string                  `json:"currency"`
-	ProgressPercent     int                     `json:"progress_percent"`
-	TasksTotal          int                     `json:"tasks_total"`
-	TasksCompleted      int                     `json:"tasks_completed"`
-	TasksOverdue        int                     `json:"tasks_overdue"`
-	ActiveBlockedTasks  int                     `json:"active_blocked_tasks"`
-	Tags                []string                `json:"tags,omitempty"`
-	Metadata            models.JSONB            `json:"metadata,omitempty"`
-	ArtisanName         string                  `json:"artisan_name,omitempty"`
-	CustomerName        string                  `json:"customer_name,omitempty"`
-	CreatedAt           time.Time               `json:"created_at"`
-	UpdatedAt           time.Time               `json:"updated_at"`
+	ID                 uuid.UUID              `json:"id"`
+	TenantID           uuid.UUID              `json:"tenant_id"`
+	ArtisanID          uuid.UUID              `json:"artisan_id"`
+	CustomerID         *uuid.UUID             `json:"customer_id,omitempty"`
+	Title              string                 `json:"title"`
+	Description        string                 `json:"description,omitempty"`
+	Status             models.ProjectStatus   `json:"status"`
+	Priority           models.ProjectPriority `json:"priority"`
+	StartDate          *time.Time             `json:"start_date,omitempty"`
+	DueDate            *time.Time             `json:"due_date,omitempty"`
+	CompletedAt        *time.Time             `json:"completed_at,omitempty"`
+	BudgetAmount       float64                `json:"budget_amount"`
+	Currency           string                 `json:"currency"`
+	ProgressPercent    int                    `json:"progress_percent"`
+	TasksTotal         int                    `json:"tasks_total"`
+	TasksCompleted     int                    `json:"tasks_completed"`
+	TasksOverdue       int                    `json:"tasks_overdue"`
+	ActiveBlockedTasks int                    `json:"active_blocked_tasks"`
+	Tags               []string               `json:"tags,omitempty"`
+	Metadata           models.JSONB           `json:"metadata,omitempty"`
+	ArtisanName        string                 `json:"artisan_name,omitempty"`
+	CustomerName       string                 `json:"customer_name,omitempty"`
+	CreatedAt          time.Time              `json:"created_at"`
+	UpdatedAt          time.Time              `json:"updated_at"`
 }
 
 // ProjectListResponse represents a paginated list of projects
@@ -136,19 +136,19 @@ type ProjectListResponse struct {
 
 // ProjectStatsResponse represents project statistics
 type ProjectStatsResponse struct {
-	TotalProjects          int64                                     `json:"total_projects"`
-	ActiveProjects         int64                                     `json:"active_projects"`
-	CompletedProjects      int64                                     `json:"completed_projects"`
-	OnHoldProjects         int64                                     `json:"on_hold_projects"`
-	CancelledProjects      int64                                     `json:"cancelled_projects"`
-	OverdueProjects        int64                                     `json:"overdue_projects"`
-	ByStatus               map[models.ProjectStatus]int64            `json:"by_status"`
-	ByPriority             map[models.ProjectPriority]int64          `json:"by_priority"`
-	AverageProgress        float64                                   `json:"average_progress"`
-	TotalBudget            float64                                   `json:"total_budget"`
-	OnTimeProjects         int64                                     `json:"on_time_projects"`
-	CompletionRate         float64                                   `json:"completion_rate"`
-	AverageTasksPerProject float64                                   `json:"average_tasks_per_project"`
+	TotalProjects          int64                            `json:"total_projects"`
+	ActiveProjects         int64                            `json:"active_projects"`
+	CompletedProjects      int64                            `json:"completed_projects"`
+	OnHoldProjects         int64                            `json:"on_hold_projects"`
+	CancelledProjects      int64                            `json:"cancelled_projects"`
+	OverdueProjects        int64                            `json:"overdue_projects"`
+	ByStatus               map[models.ProjectStatus]int64   `json:"by_status"`
+	ByPriority             map[models.ProjectPriority]int64 `json:"by_priority"`
+	AverageProgress        float64                          `json:"average_progress"`
+	TotalBudget            float64                          `json:"total_budget"`
+	OnTimeProjects         int64                            `json:"on_time_projects"`
+	CompletionRate         float64                          `json:"completion_rate"`
+	AverageTasksPerProject float64                          `json:"average_tasks_per_project"`
 }
 
 // ArtisanProjectStatsResponse represents artisan project stats
@@ -205,21 +205,21 @@ type TimelineEventResponse struct {
 
 // ArtisanDashboardResponse represents artisan dashboard
 type ArtisanDashboardResponse struct {
-	ActiveProjects    []*ProjectResponse           `json:"active_projects"`
-	UpcomingDeadlines []*ProjectResponse           `json:"upcoming_deadlines"`
-	OverdueProjects   []*ProjectResponse           `json:"overdue_projects"`
-	RecentlyCompleted []*ProjectResponse           `json:"recently_completed"`
-	Statistics        ArtisanProjectStatsResponse  `json:"statistics"`
-	TasksSummary      TasksSummaryResponse         `json:"tasks_summary"`
+	ActiveProjects    []*ProjectResponse          `json:"active_projects"`
+	UpcomingDeadlines []*ProjectResponse          `json:"upcoming_deadlines"`
+	OverdueProjects   []*ProjectResponse          `json:"overdue_projects"`
+	RecentlyCompleted []*ProjectResponse          `json:"recently_completed"`
+	Statistics        ArtisanProjectStatsResponse `json:"statistics"`
+	TasksSummary      TasksSummaryResponse        `json:"tasks_summary"`
 }
 
 // TenantProjectDashboardResponse represents tenant dashboard
 type TenantProjectDashboardResponse struct {
-	Statistics           ProjectStatsResponse       `json:"statistics"`
-	ActiveProjects       []*ProjectResponse         `json:"active_projects"`
-	HighPriorityProjects []*ProjectResponse         `json:"high_priority_projects"`
-	OverdueProjects      []*ProjectResponse         `json:"overdue_projects"`
-	RecentActivity       []*TimelineEventResponse   `json:"recent_activity"`
+	Statistics           ProjectStatsResponse          `json:"statistics"`
+	ActiveProjects       []*ProjectResponse            `json:"active_projects"`
+	HighPriorityProjects []*ProjectResponse            `json:"high_priority_projects"`
+	OverdueProjects      []*ProjectResponse            `json:"overdue_projects"`
+	RecentActivity       []*TimelineEventResponse      `json:"recent_activity"`
 	TopArtisans          []*ArtisanPerformanceResponse `json:"top_artisans"`
 }
 

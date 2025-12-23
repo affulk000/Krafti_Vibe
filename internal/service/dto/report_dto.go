@@ -14,16 +14,16 @@ import (
 
 // CreateReportRequest represents a request to create a report
 type CreateReportRequest struct {
-	Type        models.ReportType `json:"type" validate:"required"`
-	Name        string            `json:"name" validate:"required"`
-	Description string            `json:"description,omitempty"`
-	StartDate   time.Time         `json:"start_date" validate:"required"`
-	EndDate     time.Time         `json:"end_date" validate:"required,gtfield=StartDate"`
-	FileFormat  string            `json:"file_format,omitempty" validate:"omitempty,oneof=pdf csv xlsx"`
-	Filters     map[string]any    `json:"filters,omitempty"`
-	IsScheduled bool              `json:"is_scheduled"`
-	ScheduleCron string           `json:"schedule_cron,omitempty"`
-	Metadata    map[string]any    `json:"metadata,omitempty"`
+	Type         models.ReportType `json:"type" validate:"required"`
+	Name         string            `json:"name" validate:"required"`
+	Description  string            `json:"description,omitempty"`
+	StartDate    time.Time         `json:"start_date" validate:"required"`
+	EndDate      time.Time         `json:"end_date" validate:"required,gtfield=StartDate"`
+	FileFormat   string            `json:"file_format,omitempty" validate:"omitempty,oneof=pdf csv xlsx"`
+	Filters      map[string]any    `json:"filters,omitempty"`
+	IsScheduled  bool              `json:"is_scheduled"`
+	ScheduleCron string            `json:"schedule_cron,omitempty"`
+	Metadata     map[string]any    `json:"metadata,omitempty"`
 }
 
 // UpdateReportRequest represents a request to update a report
@@ -36,15 +36,15 @@ type UpdateReportRequest struct {
 
 // ReportFilter represents filters for report queries
 type ReportFilter struct {
-	TenantID      uuid.UUID             `json:"tenant_id" validate:"required"`
-	Type          *models.ReportType    `json:"type,omitempty"`
-	Status        *models.ReportStatus  `json:"status,omitempty"`
-	RequestedByID *uuid.UUID            `json:"requested_by_id,omitempty"`
-	IsScheduled   *bool                 `json:"is_scheduled,omitempty"`
-	StartDate     *time.Time            `json:"start_date,omitempty"`
-	EndDate       *time.Time            `json:"end_date,omitempty"`
-	Page          int                   `json:"page"`
-	PageSize      int                   `json:"page_size"`
+	TenantID      uuid.UUID            `json:"tenant_id" validate:"required"`
+	Type          *models.ReportType   `json:"type,omitempty"`
+	Status        *models.ReportStatus `json:"status,omitempty"`
+	RequestedByID *uuid.UUID           `json:"requested_by_id,omitempty"`
+	IsScheduled   *bool                `json:"is_scheduled,omitempty"`
+	StartDate     *time.Time           `json:"start_date,omitempty"`
+	EndDate       *time.Time           `json:"end_date,omitempty"`
+	Page          int                  `json:"page"`
+	PageSize      int                  `json:"page_size"`
 }
 
 // ============================================================================
@@ -53,27 +53,27 @@ type ReportFilter struct {
 
 // ReportResponse represents a report
 type ReportResponse struct {
-	ID            uuid.UUID            `json:"id"`
-	TenantID      uuid.UUID            `json:"tenant_id"`
-	Type          models.ReportType    `json:"type"`
-	Name          string               `json:"name"`
-	Description   string               `json:"description,omitempty"`
-	Status        models.ReportStatus  `json:"status"`
-	StartDate     time.Time            `json:"start_date"`
-	EndDate       time.Time            `json:"end_date"`
-	Filters       models.JSONB         `json:"filters,omitempty"`
-	FileURL       string               `json:"file_url,omitempty"`
-	FileFormat    string               `json:"file_format"`
-	GeneratedAt   *time.Time           `json:"generated_at,omitempty"`
-	ErrorMessage  string               `json:"error_message,omitempty"`
-	RequestedByID uuid.UUID            `json:"requested_by_id"`
-	RequestedBy   *UserSummary         `json:"requested_by,omitempty"`
-	IsScheduled   bool                 `json:"is_scheduled"`
-	ScheduleCron  string               `json:"schedule_cron,omitempty"`
-	IsCompleted   bool                 `json:"is_completed"`
-	IsFailed      bool                 `json:"is_failed"`
-	CreatedAt     time.Time            `json:"created_at"`
-	UpdatedAt     time.Time            `json:"updated_at"`
+	ID            uuid.UUID           `json:"id"`
+	TenantID      uuid.UUID           `json:"tenant_id"`
+	Type          models.ReportType   `json:"type"`
+	Name          string              `json:"name"`
+	Description   string              `json:"description,omitempty"`
+	Status        models.ReportStatus `json:"status"`
+	StartDate     time.Time           `json:"start_date"`
+	EndDate       time.Time           `json:"end_date"`
+	Filters       models.JSONB        `json:"filters,omitempty"`
+	FileURL       string              `json:"file_url,omitempty"`
+	FileFormat    string              `json:"file_format"`
+	GeneratedAt   *time.Time          `json:"generated_at,omitempty"`
+	ErrorMessage  string              `json:"error_message,omitempty"`
+	RequestedByID uuid.UUID           `json:"requested_by_id"`
+	RequestedBy   *UserSummary        `json:"requested_by,omitempty"`
+	IsScheduled   bool                `json:"is_scheduled"`
+	ScheduleCron  string              `json:"schedule_cron,omitempty"`
+	IsCompleted   bool                `json:"is_completed"`
+	IsFailed      bool                `json:"is_failed"`
+	CreatedAt     time.Time           `json:"created_at"`
+	UpdatedAt     time.Time           `json:"updated_at"`
 }
 
 // ReportListResponse represents a paginated list of reports
@@ -89,20 +89,20 @@ type ReportListResponse struct {
 
 // ReportStatsResponse represents report statistics
 type ReportStatsResponse struct {
-	TenantID              uuid.UUID                           `json:"tenant_id"`
-	TotalReports          int64                               `json:"total_reports"`
-	CompletedReports      int64                               `json:"completed_reports"`
-	PendingReports        int64                               `json:"pending_reports"`
-	FailedReports         int64                               `json:"failed_reports"`
-	ScheduledReports      int64                               `json:"scheduled_reports"`
-	ByType                map[models.ReportType]int64         `json:"by_type"`
-	ByStatus              map[models.ReportStatus]int64       `json:"by_status"`
-	ByFormat              map[string]int64                    `json:"by_format"`
-	ReportsThisWeek       int64                               `json:"reports_this_week"`
-	ReportsThisMonth      int64                               `json:"reports_this_month"`
-	AvgGenerationTime     float64                             `json:"avg_generation_time_seconds"`
-	SuccessRate           float64                             `json:"success_rate"`
-	MostRequestedType     models.ReportType                   `json:"most_requested_type"`
+	TenantID          uuid.UUID                     `json:"tenant_id"`
+	TotalReports      int64                         `json:"total_reports"`
+	CompletedReports  int64                         `json:"completed_reports"`
+	PendingReports    int64                         `json:"pending_reports"`
+	FailedReports     int64                         `json:"failed_reports"`
+	ScheduledReports  int64                         `json:"scheduled_reports"`
+	ByType            map[models.ReportType]int64   `json:"by_type"`
+	ByStatus          map[models.ReportStatus]int64 `json:"by_status"`
+	ByFormat          map[string]int64              `json:"by_format"`
+	ReportsThisWeek   int64                         `json:"reports_this_week"`
+	ReportsThisMonth  int64                         `json:"reports_this_month"`
+	AvgGenerationTime float64                       `json:"avg_generation_time_seconds"`
+	SuccessRate       float64                       `json:"success_rate"`
+	MostRequestedType models.ReportType             `json:"most_requested_type"`
 }
 
 // ============================================================================

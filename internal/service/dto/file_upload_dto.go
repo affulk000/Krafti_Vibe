@@ -14,18 +14,18 @@ import (
 
 // UploadFileRequest represents a request to upload a file
 type UploadFileRequest struct {
-	FileName          string         `json:"file_name" validate:"required"`
+	FileName          string          `json:"file_name" validate:"required"`
 	FileType          models.FileType `json:"file_type" validate:"required,oneof=image document video other"`
-	MimeType          string         `json:"mime_type" validate:"required"`
-	FileSize          int64          `json:"file_size" validate:"required,min=1"`
-	FilePath          string         `json:"file_path" validate:"required"`
-	FileURL           string         `json:"file_url" validate:"required,url"`
-	ThumbnailURL      string         `json:"thumbnail_url,omitempty"`
-	RelatedEntityType string         `json:"related_entity_type,omitempty" validate:"omitempty,oneof=booking user review project artisan"`
-	RelatedEntityID   *uuid.UUID     `json:"related_entity_id,omitempty"`
-	StorageProvider   string         `json:"storage_provider,omitempty" validate:"omitempty,oneof=s3 local cloudinary"`
-	StorageBucket     string         `json:"storage_bucket,omitempty"`
-	Metadata          map[string]any `json:"metadata,omitempty"`
+	MimeType          string          `json:"mime_type" validate:"required"`
+	FileSize          int64           `json:"file_size" validate:"required,min=1"`
+	FilePath          string          `json:"file_path" validate:"required"`
+	FileURL           string          `json:"file_url" validate:"required,url"`
+	ThumbnailURL      string          `json:"thumbnail_url,omitempty"`
+	RelatedEntityType string          `json:"related_entity_type,omitempty" validate:"omitempty,oneof=booking user review project artisan"`
+	RelatedEntityID   *uuid.UUID      `json:"related_entity_id,omitempty"`
+	StorageProvider   string          `json:"storage_provider,omitempty" validate:"omitempty,oneof=s3 local cloudinary"`
+	StorageBucket     string          `json:"storage_bucket,omitempty"`
+	Metadata          map[string]any  `json:"metadata,omitempty"`
 }
 
 // UpdateFileRequest represents a request to update file metadata
@@ -39,16 +39,16 @@ type UpdateFileRequest struct {
 
 // FileUploadFilter represents filters for file queries
 type FileUploadFilter struct {
-	TenantID          uuid.UUID       `json:"tenant_id" validate:"required"`
-	UploadedByID      *uuid.UUID      `json:"uploaded_by_id,omitempty"`
+	TenantID          uuid.UUID        `json:"tenant_id" validate:"required"`
+	UploadedByID      *uuid.UUID       `json:"uploaded_by_id,omitempty"`
 	FileType          *models.FileType `json:"file_type,omitempty"`
-	RelatedEntityType *string         `json:"related_entity_type,omitempty"`
-	RelatedEntityID   *uuid.UUID      `json:"related_entity_id,omitempty"`
-	MinSize           *int64          `json:"min_size,omitempty"`
-	MaxSize           *int64          `json:"max_size,omitempty"`
-	SearchQuery       string          `json:"search_query,omitempty"`
-	Page              int             `json:"page"`
-	PageSize          int             `json:"page_size"`
+	RelatedEntityType *string          `json:"related_entity_type,omitempty"`
+	RelatedEntityID   *uuid.UUID       `json:"related_entity_id,omitempty"`
+	MinSize           *int64           `json:"min_size,omitempty"`
+	MaxSize           *int64           `json:"max_size,omitempty"`
+	SearchQuery       string           `json:"search_query,omitempty"`
+	Page              int              `json:"page"`
+	PageSize          int              `json:"page_size"`
 }
 
 // ============================================================================
@@ -92,13 +92,13 @@ type FileUploadListResponse struct {
 
 // FileStatsResponse represents file statistics
 type FileStatsResponse struct {
-	TenantID           uuid.UUID              `json:"tenant_id"`
-	TotalFiles         int64                  `json:"total_files"`
-	StorageUsedBytes   int64                  `json:"storage_used_bytes"`
-	StorageUsedMB      float64                `json:"storage_used_mb"`
-	StorageUsedGB      float64                `json:"storage_used_gb"`
-	FilesByType        map[string]int64       `json:"files_by_type"`
-	RecentUploads30d   int64                  `json:"recent_uploads_30d"`
+	TenantID         uuid.UUID        `json:"tenant_id"`
+	TotalFiles       int64            `json:"total_files"`
+	StorageUsedBytes int64            `json:"storage_used_bytes"`
+	StorageUsedMB    float64          `json:"storage_used_mb"`
+	StorageUsedGB    float64          `json:"storage_used_gb"`
+	FilesByType      map[string]int64 `json:"files_by_type"`
+	RecentUploads30d int64            `json:"recent_uploads_30d"`
 }
 
 // ============================================================================

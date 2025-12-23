@@ -64,34 +64,34 @@ type ReviewFilter struct {
 
 // ReviewDetailResponse represents a detailed review with full information
 type ReviewDetailResponse struct {
-	ID                    uuid.UUID      `json:"id"`
-	TenantID              uuid.UUID      `json:"tenant_id"`
-	BookingID             uuid.UUID      `json:"booking_id"`
-	ArtisanID             uuid.UUID      `json:"artisan_id"`
-	CustomerID            uuid.UUID      `json:"customer_id"`
-	ServiceID             uuid.UUID      `json:"service_id"`
-	Rating                int            `json:"rating"`
-	Title                 string         `json:"title,omitempty"`
-	Comment               string         `json:"comment,omitempty"`
-	QualityRating         *int           `json:"quality_rating,omitempty"`
-	ProfessionalismRating *int           `json:"professionalism_rating,omitempty"`
-	ValueRating           *int           `json:"value_rating,omitempty"`
-	TimelinessRating      *int           `json:"timeliness_rating,omitempty"`
-	PhotoURLs             []string       `json:"photo_urls,omitempty"`
-	ResponseText          string         `json:"response_text,omitempty"`
-	ResponsedAt           *time.Time     `json:"responsed_at,omitempty"`
-	IsPublished           bool           `json:"is_published"`
-	IsFlagged             bool           `json:"is_flagged"`
-	FlaggedReason         string         `json:"flagged_reason,omitempty"`
-	HelpfulCount          int            `json:"helpful_count"`
-	NotHelpfulCount       int            `json:"not_helpful_count"`
-	Artisan               *UserSummary   `json:"artisan,omitempty"`
-	Customer              *UserSummary   `json:"customer,omitempty"`
+	ID                    uuid.UUID             `json:"id"`
+	TenantID              uuid.UUID             `json:"tenant_id"`
+	BookingID             uuid.UUID             `json:"booking_id"`
+	ArtisanID             uuid.UUID             `json:"artisan_id"`
+	CustomerID            uuid.UUID             `json:"customer_id"`
+	ServiceID             uuid.UUID             `json:"service_id"`
+	Rating                int                   `json:"rating"`
+	Title                 string                `json:"title,omitempty"`
+	Comment               string                `json:"comment,omitempty"`
+	QualityRating         *int                  `json:"quality_rating,omitempty"`
+	ProfessionalismRating *int                  `json:"professionalism_rating,omitempty"`
+	ValueRating           *int                  `json:"value_rating,omitempty"`
+	TimelinessRating      *int                  `json:"timeliness_rating,omitempty"`
+	PhotoURLs             []string              `json:"photo_urls,omitempty"`
+	ResponseText          string                `json:"response_text,omitempty"`
+	ResponsedAt           *time.Time            `json:"responsed_at,omitempty"`
+	IsPublished           bool                  `json:"is_published"`
+	IsFlagged             bool                  `json:"is_flagged"`
+	FlaggedReason         string                `json:"flagged_reason,omitempty"`
+	HelpfulCount          int                   `json:"helpful_count"`
+	NotHelpfulCount       int                   `json:"not_helpful_count"`
+	Artisan               *UserSummary          `json:"artisan,omitempty"`
+	Customer              *UserSummary          `json:"customer,omitempty"`
 	Service               *ReviewServiceSummary `json:"service,omitempty"`
-	IsPositive            bool           `json:"is_positive"`
-	HasResponse           bool           `json:"has_response"`
-	CreatedAt             time.Time      `json:"created_at"`
-	UpdatedAt             time.Time      `json:"updated_at"`
+	IsPositive            bool                  `json:"is_positive"`
+	HasResponse           bool                  `json:"has_response"`
+	CreatedAt             time.Time             `json:"created_at"`
+	UpdatedAt             time.Time             `json:"updated_at"`
 }
 
 // ReviewListResponse represents a paginated list of reviews
@@ -107,15 +107,15 @@ type ReviewListResponse struct {
 
 // ReviewStatsResponse represents review statistics
 type ReviewStatsResponse struct {
-	ArtisanID        uuid.UUID        `json:"artisan_id,omitempty"`
-	TotalReviews     int64            `json:"total_reviews"`
-	AverageRating    float64          `json:"average_rating"`
-	RatingDistribution map[int]int64  `json:"rating_distribution"`
-	PositiveReviews  int64            `json:"positive_reviews"`
-	NegativeReviews  int64            `json:"negative_reviews"`
-	ReviewsThisMonth int64            `json:"reviews_this_month"`
-	ReviewsWithPhotos int64           `json:"reviews_with_photos"`
-	ResponseRate     float64          `json:"response_rate"`
+	ArtisanID          uuid.UUID     `json:"artisan_id,omitempty"`
+	TotalReviews       int64         `json:"total_reviews"`
+	AverageRating      float64       `json:"average_rating"`
+	RatingDistribution map[int]int64 `json:"rating_distribution"`
+	PositiveReviews    int64         `json:"positive_reviews"`
+	NegativeReviews    int64         `json:"negative_reviews"`
+	ReviewsThisMonth   int64         `json:"reviews_this_month"`
+	ReviewsWithPhotos  int64         `json:"reviews_with_photos"`
+	ResponseRate       float64       `json:"response_rate"`
 }
 
 // ReviewServiceSummary represents a minimal service summary for reviews

@@ -416,17 +416,15 @@ func ToCustomerResponses(customers []*models.Customer) []*CustomerResponse {
 // CustomerSearchRequest represents a customer search request
 type CustomerSearchRequest struct {
 	Query    string         `json:"query" validate:"required,min=2"`
-	TenantID uuid.UUID      `json:"tenant_id" validate:"required"`
+	TenantID uuid.UUID      `json:"tenant_id,omitempty"` // Optional - will be extracted from auth context if not provided
 	Filters  CustomerFilter `json:"filters,omitempty"`
 }
 
 // Validate validates the customer search request
 func (r *CustomerSearchRequest) Validate() error {
-	if r.TenantID == uuid.Nil {
-		return fmt.Errorf("tenant ID is required")
-	}
 	if len(strings.TrimSpace(r.Query)) < 2 {
 		return fmt.Errorf("search query must be at least 2 characters")
 	}
+	// Note: TenantID is now optional and will be set from auth context by the handler
 	return r.Filters.Validate()
 }

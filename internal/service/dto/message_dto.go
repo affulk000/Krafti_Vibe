@@ -14,13 +14,13 @@ import (
 
 // SendMessageRequest represents a request to send a message
 type SendMessageRequest struct {
-	ReceiverID      uuid.UUID         `json:"receiver_id" validate:"required"`
+	ReceiverID      uuid.UUID          `json:"receiver_id" validate:"required"`
 	Type            models.MessageType `json:"type" validate:"required,oneof=text image file system"`
-	Content         string            `json:"content" validate:"required"`
-	FileURL         string            `json:"file_url,omitempty" validate:"omitempty,url"`
-	BookingID       *uuid.UUID        `json:"booking_id,omitempty"`
-	ParentMessageID *uuid.UUID        `json:"parent_message_id,omitempty"`
-	Metadata        map[string]any    `json:"metadata,omitempty"`
+	Content         string             `json:"content" validate:"required"`
+	FileURL         string             `json:"file_url,omitempty" validate:"omitempty,url"`
+	BookingID       *uuid.UUID         `json:"booking_id,omitempty"`
+	ParentMessageID *uuid.UUID         `json:"parent_message_id,omitempty"`
+	Metadata        map[string]any     `json:"metadata,omitempty"`
 }
 
 // UpdateMessageRequest represents a request to update a message
@@ -31,19 +31,19 @@ type UpdateMessageRequest struct {
 
 // MessageFilter represents filters for message queries
 type MessageFilter struct {
-	TenantID   uuid.UUID              `json:"tenant_id" validate:"required"`
-	UserID     *uuid.UUID             `json:"user_id,omitempty"`
-	SenderID   *uuid.UUID             `json:"sender_id,omitempty"`
-	ReceiverID *uuid.UUID             `json:"receiver_id,omitempty"`
-	BookingID  *uuid.UUID             `json:"booking_id,omitempty"`
-	Type       *models.MessageType    `json:"type,omitempty"`
-	Status     *models.MessageStatus  `json:"status,omitempty"`
-	IsUnread   *bool                  `json:"is_unread,omitempty"`
-	StartDate  *time.Time             `json:"start_date,omitempty"`
-	EndDate    *time.Time             `json:"end_date,omitempty"`
+	TenantID    uuid.UUID             `json:"tenant_id" validate:"required"`
+	UserID      *uuid.UUID            `json:"user_id,omitempty"`
+	SenderID    *uuid.UUID            `json:"sender_id,omitempty"`
+	ReceiverID  *uuid.UUID            `json:"receiver_id,omitempty"`
+	BookingID   *uuid.UUID            `json:"booking_id,omitempty"`
+	Type        *models.MessageType   `json:"type,omitempty"`
+	Status      *models.MessageStatus `json:"status,omitempty"`
+	IsUnread    *bool                 `json:"is_unread,omitempty"`
+	StartDate   *time.Time            `json:"start_date,omitempty"`
+	EndDate     *time.Time            `json:"end_date,omitempty"`
 	SearchQuery string                `json:"search_query,omitempty"`
-	Page       int                    `json:"page"`
-	PageSize   int                    `json:"page_size"`
+	Page        int                   `json:"page"`
+	PageSize    int                   `json:"page_size"`
 }
 
 // ConversationRequest represents a request to get a conversation
@@ -60,25 +60,25 @@ type ConversationRequest struct {
 
 // MessageResponse represents a message
 type MessageResponse struct {
-	ID              uuid.UUID             `json:"id"`
-	TenantID        uuid.UUID             `json:"tenant_id"`
-	SenderID        uuid.UUID             `json:"sender_id"`
-	ReceiverID      uuid.UUID             `json:"receiver_id"`
-	BookingID       *uuid.UUID            `json:"booking_id,omitempty"`
-	Type            models.MessageType    `json:"type"`
-	Content         string                `json:"content"`
-	FileURL         string                `json:"file_url,omitempty"`
-	Status          models.MessageStatus  `json:"status"`
-	ReadAt          *time.Time            `json:"read_at,omitempty"`
-	ParentMessageID *uuid.UUID            `json:"parent_message_id,omitempty"`
-	Metadata        models.JSONB          `json:"metadata,omitempty"`
-	Sender          *UserSummary          `json:"sender,omitempty"`
-	Receiver        *UserSummary          `json:"receiver,omitempty"`
-	Booking         *BookingSummary       `json:"booking,omitempty"`
-	IsUnread        bool                  `json:"is_unread"`
-	ReplyCount      int                   `json:"reply_count,omitempty"`
-	CreatedAt       time.Time             `json:"created_at"`
-	UpdatedAt       time.Time             `json:"updated_at"`
+	ID              uuid.UUID            `json:"id"`
+	TenantID        uuid.UUID            `json:"tenant_id"`
+	SenderID        uuid.UUID            `json:"sender_id"`
+	ReceiverID      uuid.UUID            `json:"receiver_id"`
+	BookingID       *uuid.UUID           `json:"booking_id,omitempty"`
+	Type            models.MessageType   `json:"type"`
+	Content         string               `json:"content"`
+	FileURL         string               `json:"file_url,omitempty"`
+	Status          models.MessageStatus `json:"status"`
+	ReadAt          *time.Time           `json:"read_at,omitempty"`
+	ParentMessageID *uuid.UUID           `json:"parent_message_id,omitempty"`
+	Metadata        models.JSONB         `json:"metadata,omitempty"`
+	Sender          *UserSummary         `json:"sender,omitempty"`
+	Receiver        *UserSummary         `json:"receiver,omitempty"`
+	Booking         *BookingSummary      `json:"booking,omitempty"`
+	IsUnread        bool                 `json:"is_unread"`
+	ReplyCount      int                  `json:"reply_count,omitempty"`
+	CreatedAt       time.Time            `json:"created_at"`
+	UpdatedAt       time.Time            `json:"updated_at"`
 }
 
 // MessageListResponse represents a paginated list of messages
@@ -114,31 +114,31 @@ type ConversationListResponse struct {
 
 // MessageStatsResponse represents message statistics
 type MessageStatsResponse struct {
-	UserID           *uuid.UUID                         `json:"user_id,omitempty"`
-	TenantID         uuid.UUID                          `json:"tenant_id"`
-	TotalMessages    int64                              `json:"total_messages"`
-	SentMessages     int64                              `json:"sent_messages"`
-	ReceivedMessages int64                              `json:"received_messages"`
-	UnreadMessages   int64                              `json:"unread_messages"`
-	MessagesByType   map[models.MessageType]int64       `json:"messages_by_type"`
-	MessagesByStatus map[models.MessageStatus]int64     `json:"messages_by_status"`
-	AveragePerDay    float64                            `json:"average_per_day"`
-	LastMessageAt    *time.Time                         `json:"last_message_at,omitempty"`
+	UserID           *uuid.UUID                     `json:"user_id,omitempty"`
+	TenantID         uuid.UUID                      `json:"tenant_id"`
+	TotalMessages    int64                          `json:"total_messages"`
+	SentMessages     int64                          `json:"sent_messages"`
+	ReceivedMessages int64                          `json:"received_messages"`
+	UnreadMessages   int64                          `json:"unread_messages"`
+	MessagesByType   map[models.MessageType]int64   `json:"messages_by_type"`
+	MessagesByStatus map[models.MessageStatus]int64 `json:"messages_by_status"`
+	AveragePerDay    float64                        `json:"average_per_day"`
+	LastMessageAt    *time.Time                     `json:"last_message_at,omitempty"`
 }
 
 // ConversationStatsResponse represents statistics for a specific conversation
 type ConversationStatsResponse struct {
-	UserID1             uuid.UUID                      `json:"user_id_1"`
-	UserID2             uuid.UUID                      `json:"user_id_2"`
-	TotalMessages       int64                          `json:"total_messages"`
-	User1SentCount      int64                          `json:"user1_sent_count"`
-	User2SentCount      int64                          `json:"user2_sent_count"`
-	UnreadCount         int64                          `json:"unread_count"`
-	FirstMessageAt      *time.Time                     `json:"first_message_at,omitempty"`
-	LastMessageAt       *time.Time                     `json:"last_message_at,omitempty"`
-	MessagesByType      map[models.MessageType]int64   `json:"messages_by_type"`
-	AverageResponseTime string                         `json:"average_response_time"` // Human readable format
-	AverageResponseSec  float64                        `json:"average_response_seconds"`
+	UserID1             uuid.UUID                    `json:"user_id_1"`
+	UserID2             uuid.UUID                    `json:"user_id_2"`
+	TotalMessages       int64                        `json:"total_messages"`
+	User1SentCount      int64                        `json:"user1_sent_count"`
+	User2SentCount      int64                        `json:"user2_sent_count"`
+	UnreadCount         int64                        `json:"unread_count"`
+	FirstMessageAt      *time.Time                   `json:"first_message_at,omitempty"`
+	LastMessageAt       *time.Time                   `json:"last_message_at,omitempty"`
+	MessagesByType      map[models.MessageType]int64 `json:"messages_by_type"`
+	AverageResponseTime string                       `json:"average_response_time"` // Human readable format
+	AverageResponseSec  float64                      `json:"average_response_seconds"`
 }
 
 // BookingSummary represents a minimal booking summary for messages
