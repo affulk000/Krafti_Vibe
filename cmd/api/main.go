@@ -340,45 +340,66 @@ func run() error {
 	})
 
 	// ============================================================================
-	// Zitadel Authentication
+	// Zitadel Authentication (Optional in Development)
 	// ============================================================================
 
-	zapLogger.Info("initializing Zitadel authentication",
-		zap.String("domain", cfg.Zitadel.Domain),
-	)
+	var zitadelAuth *auth.ZitadelAuth
+	var zitadelMiddleware *middleware.ZitadelAuthMiddleware
 
-	// Initialize Zitadel authentication
-	zitadelAuth, err := auth.NewZitadelAuth(cfg)
-	if err != nil {
-		return fmt.Errorf("failed to initialize Zitadel authentication: %w", err)
+	// Skip Zitadel initialization if domain is empty or in development without proper config
+	if cfg.Zitadel.Domain == "" || cfg.Zitadel.Domain == "zitadel.localhost" {
+		zapLogger.Warn("Zitadel authentication disabled",
+			zap.String("domain", cfg.Zitadel.Domain),
+			zap.String("reason", "domain not configured or set to localhost"),
+		)
+	} else {
+		zapLogger.Info("initializing Zitadel authentication",
+			zap.String("domain", cfg.Zitadel.Domain),
+		)
+
+		// Initialize Zitadel authentication
+		var err error
+		zitadelAuth, err = auth.NewZitadelAuth(cfg)
+		if err != nil {
+			if cfg.Environment == "development" {
+				zapLogger.Warn("failed to initialize Zitadel authentication in development mode, continuing without auth",
+					zap.Error(err),
+				)
+			} else {
+				return fmt.Errorf("failed to initialize Zitadel authentication: %w", err)
+			}
+		} else {
+			zapLogger.Info("Zitadel authentication initialized successfully")
+
+			// ============================================================================
+			// User Sync Service (for Zitadel user synchronization)
+			// ============================================================================
+
+			zapLogger.Info("initializing user sync service")
+
+			// Create fiber logger adapter (defined later)
+			fiberLogger := logger.NewFiberLogger(zapLogger)
+
+			// Create user repository for sync service
+			userRepo := repository.NewUserRepository(db, repository.RepositoryConfig{
+				Logger: fiberLogger,
+			})
+
+			// Create user sync service
+			userSyncService := service.NewUserSyncService(userRepo, zapLogger)
+
+			// Create Zitadel authentication middleware with user sync
+			zitadelMiddleware = middleware.NewZitadelAuthMiddleware(
+				zitadelAuth.AuthZ,
+				userSyncService,
+			)
+
+			zapLogger.Info("user sync service initialized - users will be auto-synced on authentication")
+		}
 	}
 
-	zapLogger.Info("Zitadel authentication initialized successfully")
-
-	// ============================================================================
-	// User Sync Service (for Zitadel user synchronization)
-	// ============================================================================
-
-	zapLogger.Info("initializing user sync service")
-
-	// Create fiber logger adapter (defined later)
+	// Create fiber logger adapter if not already created
 	fiberLogger := logger.NewFiberLogger(zapLogger)
-
-	// Create user repository for sync service
-	userRepo := repository.NewUserRepository(db, repository.RepositoryConfig{
-		Logger: fiberLogger,
-	})
-
-	// Create user sync service
-	userSyncService := service.NewUserSyncService(userRepo, zapLogger)
-
-	// Create Zitadel authentication middleware with user sync
-	zitadelMiddleware := middleware.NewZitadelAuthMiddleware(
-		zitadelAuth.AuthZ,
-		userSyncService,
-	)
-
-	zapLogger.Info("user sync service initialized - users will be auto-synced on authentication")
 
 	// ============================================================================
 	// API Router Setup
@@ -401,12 +422,17 @@ func run() error {
 	routerConfig := &router.Config{
 		DB:                db,
 		Logger:            fiberLogger,
-		ZitadelAuthZ:      zitadelAuth.AuthZ,
+		ZitadelAuthZ:      nil, // Will be set below if zitadelAuth is not nil
 		ZitadelMiddleware: zitadelMiddleware,
 		Cache:             redisCache,
 		ZapLogger:         zapLogger,
 		CORSConfig:        corsConfig,
 		WebhookSecret:     "",
+	}
+
+	// Set ZitadelAuthZ only if zitadelAuth was successfully initialized
+	if zitadelAuth != nil {
+		routerConfig.ZitadelAuthZ = zitadelAuth.AuthZ
 	}
 
 	apiRouter := router.New(app, routerConfig)
