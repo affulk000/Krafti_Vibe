@@ -20,8 +20,7 @@ func TestWhiteLabelRepository_Create(t *testing.T) {
 	repo := repository.NewWhiteLabelRepository(tdb.DB)
 	ctx := context.Background()
 
-	tenant := testutil.CreateTestTenant()
-	require.NoError(t, tdb.DB.Create(tenant).Error)
+	_, tenant := testutil.CreateTestTenantWithOwner(tdb.DB)
 
 	t.Run("create whitelabel successfully", func(t *testing.T) {
 		whiteLabel := testutil.CreateTestWhiteLabel(tenant.ID)
@@ -38,8 +37,7 @@ func TestWhiteLabelRepository_GetByTenantID(t *testing.T) {
 	repo := repository.NewWhiteLabelRepository(tdb.DB)
 	ctx := context.Background()
 
-	tenant := testutil.CreateTestTenant()
-	require.NoError(t, tdb.DB.Create(tenant).Error)
+	_, tenant := testutil.CreateTestTenantWithOwner(tdb.DB)
 
 	whiteLabel := testutil.CreateTestWhiteLabel(tenant.ID)
 	require.NoError(t, repo.Create(ctx, whiteLabel))
@@ -59,11 +57,11 @@ func TestWhiteLabelRepository_GetByCustomDomain(t *testing.T) {
 	repo := repository.NewWhiteLabelRepository(tdb.DB)
 	ctx := context.Background()
 
-	tenant := testutil.CreateTestTenant()
-	require.NoError(t, tdb.DB.Create(tenant).Error)
+	_, tenant := testutil.CreateTestTenantWithOwner(tdb.DB)
 
 	whiteLabel := testutil.CreateTestWhiteLabel(tenant.ID, func(w *models.WhiteLabel) {
 		w.CustomDomain = "custom.example.com"
+		w.CustomDomainEnabled = true
 	})
 	require.NoError(t, repo.Create(ctx, whiteLabel))
 
@@ -82,8 +80,7 @@ func TestWhiteLabelRepository_Update(t *testing.T) {
 	repo := repository.NewWhiteLabelRepository(tdb.DB)
 	ctx := context.Background()
 
-	tenant := testutil.CreateTestTenant()
-	require.NoError(t, tdb.DB.Create(tenant).Error)
+	_, tenant := testutil.CreateTestTenantWithOwner(tdb.DB)
 
 	whiteLabel := testutil.CreateTestWhiteLabel(tenant.ID)
 	require.NoError(t, repo.Create(ctx, whiteLabel))
