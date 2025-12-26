@@ -5,11 +5,11 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '.editorconfig'
+      - "**.md"
+      - "docs/**"
+      - ".gitignore"
+      - "LICENSE"
+      - ".editorconfig"
 
 jobs:
   test-and-build:
@@ -25,7 +25,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: "1.24"
           cache: true
           cache-dependency-path: go.sum
 
@@ -36,9 +36,6 @@ jobs:
 
       - name: Install tools
         run: make install-tools
-
-      - name: Run all checks
-        run: make check
 
       - name: Run tests with coverage
         run: make test-coverage

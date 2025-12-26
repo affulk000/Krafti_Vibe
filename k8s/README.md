@@ -52,9 +52,8 @@ Update the following in `base/secret.yaml`:
 - `DB_PASSWORD`
 - `REDIS_PASSWORD`
 - `MINIO_SECRET_KEY`
-- `LOGTO_JWKS_URI`
-- `LOGTO_ISSUER`
-- `LOGTO_API_RESOURCE`
+- `ZITADEL_DOMAIN`
+- `ZITADEL_KEY_PATH`
 
 ### 2. Build Docker Image
 
