@@ -1,0 +1,60 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+# Keep docs/swagger for API documentation
+!docs/swagger/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Logs
+*.log
+
+# Test files
+*_test.go
+testdata/
+
+# Build artifacts
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Environment files
+.env
+.env.local
+.env.*
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Kubernetes
+k8s/
+
+# Scripts
+scripts/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Dependencies
+vendor/
+
+# OS files
+.DS_Store
+Thumbs.db
