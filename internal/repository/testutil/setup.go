@@ -148,6 +148,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&models.DataExportRequest{},
 		&models.APIKey{},
 		&models.SDKClient{},
+		&models.SDKKey{},
+		&models.SDKUsage{},
 		&models.WhiteLabel{},
 	)
 }

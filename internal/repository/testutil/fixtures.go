@@ -408,7 +408,7 @@ func CreateTestSDKClient(tenantID uuid.UUID, overrides ...func(*models.SDKClient
 			CanCreateBookings: true,
 			CanReadServices:   true,
 		},
-		Scopes: []string{"read:bookings", "write:bookings"},
+		Scopes: models.StringArray{"read:bookings", "write:bookings"},
 	}
 
 	for _, override := range overrides {

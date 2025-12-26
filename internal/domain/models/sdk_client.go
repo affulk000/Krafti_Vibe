@@ -67,14 +67,14 @@ type SDKClient struct {
 	SDKVersion    string `json:"sdk_version,omitempty" gorm:"size:50"`
 
 	// Configuration
-	AllowedOrigins []string  `json:"allowed_origins,omitempty" gorm:"type:text[]"`
-	AllowedIPs     []string  `json:"allowed_ips,omitempty" gorm:"type:text[]"`
-	WebhookURL     string    `json:"webhook_url,omitempty" gorm:"size:500"`
-	WebhookSecret  string    `json:"webhook_secret,omitempty" gorm:"size:255"`
-	Configuration  SDKConfig `json:"configuration" gorm:"type:jsonb"`
+	AllowedOrigins StringArray `json:"allowed_origins,omitempty" gorm:"type:jsonb"`
+	AllowedIPs     StringArray `json:"allowed_ips,omitempty" gorm:"type:jsonb"`
+	WebhookURL     string      `json:"webhook_url,omitempty" gorm:"size:500"`
+	WebhookSecret  string      `json:"webhook_secret,omitempty" gorm:"size:255"`
+	Configuration  SDKConfig   `json:"configuration" gorm:"type:jsonb"`
 
 	// Permissions & Scopes
-	Scopes      []string       `json:"scopes" gorm:"type:text[]"`
+	Scopes      StringArray    `json:"scopes" gorm:"type:jsonb"`
 	Permissions SDKPermissions `json:"permissions" gorm:"type:jsonb"`
 
 	// Rate Limiting
@@ -88,8 +88,8 @@ type SDKClient struct {
 	LastUsedVersion string     `json:"last_used_version,omitempty" gorm:"size:50"`
 
 	// Metadata
-	Metadata JSONB    `json:"metadata,omitempty" gorm:"type:jsonb"`
-	Tags     []string `json:"tags,omitempty" gorm:"type:text[]"`
+	Metadata JSONB       `json:"metadata,omitempty" gorm:"type:jsonb"`
+	Tags     StringArray `json:"tags,omitempty" gorm:"type:jsonb"`
 
 	// Status
 	IsActive bool `json:"is_active" gorm:"default:true;index:idx_sdk_clients_active"`
