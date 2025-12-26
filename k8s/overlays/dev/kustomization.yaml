@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: kraftivibe-dev
+
+namePrefix: dev-
+
+resources:
+  - ../../base
+
+labels:
+  - pairs:
+      environment: development
+
+patches:
+  - path: patch-configmap.yaml
+    target:
+      kind: ConfigMap
+      name: kraftivibe-config
+  - path: patch-api-deployment.yaml
+    target:
+      kind: Deployment
+      name: kraftivibe-api
+
+replicas:
+  - name: kraftivibe-api
+    count: 1
+
+images:
+  - name: kraftivibe/api
+    newTag: dev

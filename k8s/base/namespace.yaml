@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kraftivibe
+  labels:
+    name: kraftivibe
+    app.kubernetes.io/name: kraftivibe
+    app.kubernetes.io/part-of: kraftivibe

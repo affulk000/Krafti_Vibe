@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kraftivibe-config
+  namespace: kraftivibe-dev
+data:
+  ENV: "development"
+  LOG_LEVEL: "debug"
+  DB_NAME: "krafti_vibe_dev"
+  DB_SSLMODE: "disable"
+  DB_HOST: "dev-postgres-service"
+  REDIS_HOST: "dev-redis-service"
+  MINIO_ENDPOINT: "dev-minio-service:9000"
