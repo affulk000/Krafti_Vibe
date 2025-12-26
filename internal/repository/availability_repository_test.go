@@ -18,8 +18,7 @@ func setupAvailabilityTest(t *testing.T) (*testutil.TestDB, repository.Availabil
 	tdb := testutil.NewTestDB(t)
 	repo := repository.NewAvailabilityRepository(tdb.DB)
 
-	tenant := testutil.CreateTestTenant()
-	require.NoError(t, tdb.DB.Create(tenant).Error)
+	_, tenant := testutil.CreateTestTenantWithOwner(tdb.DB)
 
 	artisanUser := testutil.CreateTestUser(&tenant.ID, func(u *models.User) {
 		u.Email = "artisan@example.com"

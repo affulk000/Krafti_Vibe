@@ -180,13 +180,26 @@ func TestUserRepository_GetByTenantID(t *testing.T) {
 	repo := repository.NewUserRepository(tdb.DB, testutil.DefaultRepositoryConfig())
 	ctx := context.Background()
 
+	// Create tenant1 with unique owner email
+	owner1 := testutil.CreateTestOwner(func(u *models.User) {
+		u.Email = "owner1@example.com"
+	})
+	require.NoError(t, tdb.DB.Create(owner1).Error)
 	tenant1 := testutil.CreateTestTenant(func(t *models.Tenant) {
+		t.OwnerID = owner1.ID
 		t.Subdomain = "tenant1"
 	})
+	require.NoError(t, tdb.DB.Create(tenant1).Error)
+
+	// Create tenant2 with unique owner email
+	owner2 := testutil.CreateTestOwner(func(u *models.User) {
+		u.Email = "owner2@example.com"
+	})
+	require.NoError(t, tdb.DB.Create(owner2).Error)
 	tenant2 := testutil.CreateTestTenant(func(t *models.Tenant) {
+		t.OwnerID = owner2.ID
 		t.Subdomain = "tenant2"
 	})
-	require.NoError(t, tdb.DB.Create(tenant1).Error)
 	require.NoError(t, tdb.DB.Create(tenant2).Error)
 
 	// Create users for tenant1

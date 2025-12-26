@@ -20,8 +20,7 @@ func TestSDKRepository_Create(t *testing.T) {
 	repo := repository.NewSDKClientRepository(tdb.DB)
 	ctx := context.Background()
 
-	tenant := testutil.CreateTestTenant()
-	require.NoError(t, tdb.DB.Create(tenant).Error)
+	_, tenant := testutil.CreateTestTenantWithOwner(tdb.DB)
 
 	t.Run("create SDK client successfully", func(t *testing.T) {
 		client := testutil.CreateTestSDKClient(tenant.ID)
@@ -40,8 +39,7 @@ func TestSDKRepository_GetByID(t *testing.T) {
 	repo := repository.NewSDKClientRepository(tdb.DB)
 	ctx := context.Background()
 
-	tenant := testutil.CreateTestTenant()
-	require.NoError(t, tdb.DB.Create(tenant).Error)
+	_, tenant := testutil.CreateTestTenantWithOwner(tdb.DB)
 
 	client := testutil.CreateTestSDKClient(tenant.ID)
 	require.NoError(t, repo.Create(ctx, client))
@@ -66,13 +64,26 @@ func TestSDKRepository_GetByTenantID(t *testing.T) {
 	repo := repository.NewSDKClientRepository(tdb.DB)
 	ctx := context.Background()
 
+	// Create tenant1 with unique owner email
+	owner1 := testutil.CreateTestOwner(func(u *models.User) {
+		u.Email = "owner1@example.com"
+	})
+	require.NoError(t, tdb.DB.Create(owner1).Error)
 	tenant1 := testutil.CreateTestTenant(func(t *models.Tenant) {
+		t.OwnerID = owner1.ID
 		t.Subdomain = "tenant1"
 	})
+	require.NoError(t, tdb.DB.Create(tenant1).Error)
+
+	// Create tenant2 with unique owner email
+	owner2 := testutil.CreateTestOwner(func(u *models.User) {
+		u.Email = "owner2@example.com"
+	})
+	require.NoError(t, tdb.DB.Create(owner2).Error)
 	tenant2 := testutil.CreateTestTenant(func(t *models.Tenant) {
+		t.OwnerID = owner2.ID
 		t.Subdomain = "tenant2"
 	})
-	require.NoError(t, tdb.DB.Create(tenant1).Error)
 	require.NoError(t, tdb.DB.Create(tenant2).Error)
 
 	// Create clients for tenant1
@@ -102,8 +113,7 @@ func TestSDKRepository_Update(t *testing.T) {
 	repo := repository.NewSDKClientRepository(tdb.DB)
 	ctx := context.Background()
 
-	tenant := testutil.CreateTestTenant()
-	require.NoError(t, tdb.DB.Create(tenant).Error)
+	_, tenant := testutil.CreateTestTenantWithOwner(tdb.DB)
 
 	client := testutil.CreateTestSDKClient(tenant.ID, func(c *models.SDKClient) {
 		c.IsActive = true
