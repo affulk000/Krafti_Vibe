@@ -194,6 +194,9 @@ func autoMigrate(db *gorm.DB, logger *zap.Logger) error {
 		&models.WebhookEvent{},
 		&models.AuditLog{},
 		&models.APIKey{},
+
+		// Branding and customization
+		&models.WhiteLabel{},
 	}
 
 	// Run migration for all models at once
