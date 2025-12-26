@@ -346,11 +346,11 @@ func run() error {
 	var zitadelAuth *auth.ZitadelAuth
 	var zitadelMiddleware *middleware.ZitadelAuthMiddleware
 
-	// Skip Zitadel initialization if domain is empty or in development without proper config
-	if cfg.Zitadel.Domain == "" || cfg.Zitadel.Domain == "zitadel.localhost" {
+	// Skip Zitadel initialization if domain is empty
+	if cfg.Zitadel.Domain == "" {
 		zapLogger.Warn("Zitadel authentication disabled",
 			zap.String("domain", cfg.Zitadel.Domain),
-			zap.String("reason", "domain not configured or set to localhost"),
+			zap.String("reason", "domain not configured"),
 		)
 	} else {
 		zapLogger.Info("initializing Zitadel authentication",
