@@ -463,7 +463,8 @@ func TestUserRepository_MarkForDeletion(t *testing.T) {
 	require.NoError(t, repo.Create(ctx, user))
 
 	t.Run("mark user for deletion", func(t *testing.T) {
-		scheduledDate := time.Now().UTC().Add(30 * 24 * time.Hour)
+		// Schedule deletion for 1 hour ago to ensure it's included in GetUsersMarkedForDeletion
+		scheduledDate := time.Now().UTC().Add(-1 * time.Hour)
 		err := repo.MarkForDeletion(ctx, user.ID, scheduledDate)
 		require.NoError(t, err)
 
