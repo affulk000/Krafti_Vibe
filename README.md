@@ -1,6 +1,7 @@
 <div align="center">
   <img src="docs/assets/krafti-vibe-banner.png" alt="Krafti Vibe Banner" width="100%">
-# Krafti Vibe
+  
+  <h1>Krafti Vibe</h1>
 
 [![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![Fiber Version](https://img.shields.io/badge/Fiber-v2.52-00ACD7?style=flat)](https://gofiber.io/)
