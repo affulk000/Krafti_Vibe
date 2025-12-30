@@ -1,3 +1,5 @@
+<div align="center">
+  <img src="docs/assets/krafti-vibe-banner.png" alt="Krafti Vibe Banner" width="100%">
 # Krafti Vibe
 
 [![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?style=flat&logo=go)](https://go.dev/)
@@ -6,7 +8,9 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > **Multi-Tenant SaaS Platform for Artisan Service Businesses**
-
+[Features](#-core-features) • [Quick Start](#-quick-start) • [Architecture](#%EF%B8%8F-architecture) • [Documentation](#-documentation) • [Contributing](#-contributing)
+</div>
+---
 Krafti Vibe is a complete backend platform purpose-built for artisan service businesses - from solo craftspeople to large service organizations. Built with Go and Fiber, it delivers enterprise-grade multi-tenancy, intelligent booking management, and comprehensive business operations in a single platform.
 
 ## 🎯 What Makes Krafti Vibe Different
