@@ -27,7 +27,7 @@ func (r *Router) setupArtisanRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	artisans.Use(r.zitadelMW.RequireAuth())
+	artisans.Use(r.RequireAuth())
 
 	// ============================================================================
 	// Core Artisan Operations
