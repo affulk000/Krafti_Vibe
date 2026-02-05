@@ -34,25 +34,25 @@ func (r *Router) setupMilestoneRoutes(api fiber.Router) {
 
 	// Create milestone (authenticated, requires milestone:write scope)
 	milestones.Post("/",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		milestoneHandler.CreateMilestone,
 	)
 
 	// Get milestone by ID (authenticated, requires milestone:read scope)
 	milestones.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		milestoneHandler.GetMilestone,
 	)
 
 	// Update milestone (authenticated, requires milestone:write scope)
 	milestones.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		milestoneHandler.UpdateMilestone,
 	)
 
 	// Delete milestone (authenticated, requires milestone:write scope)
 	milestones.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		milestoneHandler.DeleteMilestone,
 	)
 
@@ -62,7 +62,7 @@ func (r *Router) setupMilestoneRoutes(api fiber.Router) {
 
 	// Complete milestone (authenticated, requires milestone:write scope)
 	milestones.Post("/:id/complete",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		milestoneHandler.CompleteMilestone,
 	)
 
@@ -72,7 +72,7 @@ func (r *Router) setupMilestoneRoutes(api fiber.Router) {
 
 	// Get milestones by project (authenticated, requires milestone:read scope)
 	milestones.Get("/project/:project_id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		milestoneHandler.GetProjectMilestones,
 	)
 }

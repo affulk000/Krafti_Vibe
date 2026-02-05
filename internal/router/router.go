@@ -155,3 +155,14 @@ func (r *Router) setupAPIRoutes() {
 func (r *Router) GetRepositories() *repository.Repositories {
 	return r.repos
 }
+
+// RequireAuth returns authentication middleware or a no-op handler if Zitadel is not configured
+// This prevents nil pointer dereference when running in development mode without Zitadel
+func (r *Router) RequireAuth(opts ...authorization.CheckOption) fiber.Handler {
+	if r.zitadelMW == nil {
+		return func(c *fiber.Ctx) error {
+			return c.Next()
+		}
+	}
+	return r.zitadelMW.RequireAuth(opts...)
+}

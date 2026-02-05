@@ -26,37 +26,37 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Create setting
 	settings.Post("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.CreateSetting,
 	)
 
 	// List settings
 	settings.Get("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.ListSettings,
 	)
 
 	// Search settings
 	settings.Get("/search",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.SearchSettings,
 	)
 
 	// Get setting by ID
 	settings.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.GetSetting,
 	)
 
 	// Update setting
 	settings.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.UpdateSetting,
 	)
 
 	// Delete setting
 	settings.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.DeleteSetting,
 	)
 
@@ -66,13 +66,13 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Get setting by key
 	settings.Get("/key/:key",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.GetSettingByKey,
 	)
 
 	// Delete setting by key
 	settings.Delete("/key/:key",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.DeleteSettingByKey,
 	)
 
@@ -82,31 +82,31 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Get all categories
 	settings.Get("/categories",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.GetSettingCategories,
 	)
 
 	// Get categories with counts
 	settings.Get("/categories/stats",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.GetCategoriesWithCount,
 	)
 
 	// Get all groups
 	settings.Get("/groups",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.GetSettingGroups,
 	)
 
 	// Get settings by category
 	settings.Get("/category/:category",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.GetSettingsByCategory,
 	)
 
 	// Get settings by group
 	settings.Get("/group/:group",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.GetSettingsByGroup,
 	)
 
@@ -116,13 +116,13 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Get public settings
 	settings.Get("/public",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.GetPublicSettings,
 	)
 
 	// Get private settings
 	settings.Get("/private",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.GetPrivateSettings,
 	)
 
@@ -132,13 +132,13 @@ func (r *Router) setupSystemSettingsRoutes(api fiber.Router) {
 
 	// Bulk set settings
 	settings.Post("/bulk",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.BulkSetSettings,
 	)
 
 	// Bulk delete settings
 	settings.Post("/bulk/delete",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		settingsHandler.BulkDeleteSettings,
 	)
 }

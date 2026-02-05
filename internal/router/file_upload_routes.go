@@ -17,7 +17,7 @@ func (r *Router) setupFileUploadRoutes(api fiber.Router) {
 
 	// File upload routes group
 	files := api.Group("/files")
-	files.Use(r.zitadelMW.RequireAuth())
+	files.Use(r.RequireAuth())
 
 	// Upload routes
 	files.Post("/upload", fileHandler.UploadFile)

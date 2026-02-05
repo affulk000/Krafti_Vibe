@@ -31,7 +31,7 @@ func (r *Router) setupTenantRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	tenants.Use(r.zitadelMW.RequireAuth())
+	tenants.Use(r.RequireAuth())
 
 	// ============================================================================
 	// Core Tenant Operations

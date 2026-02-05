@@ -27,7 +27,7 @@ func (r *Router) setupCustomerRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	customers.Use(r.zitadelMW.RequireAuth())
+	customers.Use(r.RequireAuth())
 
 	// ============================================================================
 	// Core Customer Operations

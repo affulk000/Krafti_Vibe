@@ -23,25 +23,25 @@ func (r *Router) setupServiceRoutes(api fiber.Router) {
 
 	// Create service
 	services.Post("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.CreateService,
 	)
 
 	// Get service by ID (read-only)
 	services.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.GetServiceByID,
 	)
 
 	// Update service
 	services.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.UpdateService,
 	)
 
 	// Delete service
 	services.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.DeleteService,
 	)
 
@@ -51,13 +51,13 @@ func (r *Router) setupServiceRoutes(api fiber.Router) {
 
 	// List services (with pagination)
 	services.Post("/list",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.ListServices,
 	)
 
 	// Search services
 	services.Get("/search",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.SearchServices,
 	)
 
@@ -67,13 +67,13 @@ func (r *Router) setupServiceRoutes(api fiber.Router) {
 
 	// Activate service
 	services.Post("/:id/activate",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.ActivateService,
 	)
 
 	// Deactivate service
 	services.Post("/:id/deactivate",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.DeactivateService,
 	)
 
@@ -83,13 +83,13 @@ func (r *Router) setupServiceRoutes(api fiber.Router) {
 
 	// Get service statistics
 	services.Get("/stats",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.GetServiceStatistics,
 	)
 
 	// Get popular services
 	services.Get("/popular",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		serviceHandler.GetPopularServices,
 	)
 }

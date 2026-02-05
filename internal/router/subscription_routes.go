@@ -37,25 +37,25 @@ func (r *Router) setupSubscriptionRoutes(api fiber.Router) {
 
 	// Create subscription (authenticated, requires subscription:write scope)
 	subscriptions.Post("/",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		subscriptionHandler.CreateSubscription,
 	)
 
 	// Get subscription by ID (authenticated, requires subscription:read scope)
 	subscriptions.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		subscriptionHandler.GetSubscription,
 	)
 
 	// Update subscription (authenticated, requires subscription:write scope)
 	subscriptions.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		subscriptionHandler.UpdateSubscription,
 	)
 
 	// List subscriptions (authenticated, requires subscription:read scope)
 	subscriptions.Get("/",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		subscriptionHandler.ListSubscriptions,
 	)
 
@@ -65,7 +65,7 @@ func (r *Router) setupSubscriptionRoutes(api fiber.Router) {
 
 	// Cancel subscription (authenticated, requires subscription:write scope)
 	subscriptions.Post("/:id/cancel",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		subscriptionHandler.CancelSubscription,
 	)
 }

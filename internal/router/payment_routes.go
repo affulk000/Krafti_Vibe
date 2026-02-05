@@ -27,7 +27,7 @@ func (r *Router) setupPaymentRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	payments.Use(r.zitadelMW.RequireAuth())
+	payments.Use(r.RequireAuth())
 
 	// ============================================================================
 	// Core Payment Operations

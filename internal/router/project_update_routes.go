@@ -26,31 +26,31 @@ func (r *Router) setupProjectUpdateRoutes(api fiber.Router) {
 
 	// Create project update
 	updates.Post("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		updateHandler.CreateProjectUpdate,
 	)
 
 	// List project updates (with filters)
 	updates.Get("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		updateHandler.ListProjectUpdates,
 	)
 
 	// Get project update by ID
 	updates.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		updateHandler.GetProjectUpdate,
 	)
 
 	// Update project update
 	updates.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		updateHandler.UpdateProjectUpdate,
 	)
 
 	// Delete project update
 	updates.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		updateHandler.DeleteProjectUpdate,
 	)
 
@@ -60,19 +60,19 @@ func (r *Router) setupProjectUpdateRoutes(api fiber.Router) {
 
 	// Get latest update for a project
 	updates.Get("/project/:project_id/latest",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		updateHandler.GetLatestUpdate,
 	)
 
 	// List customer-visible updates for a project
 	updates.Get("/project/:project_id/customer-visible",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		updateHandler.ListCustomerVisible,
 	)
 
 	// List updates by type for a project
 	updates.Get("/project/:project_id/type/:type",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		updateHandler.ListByType,
 	)
 }

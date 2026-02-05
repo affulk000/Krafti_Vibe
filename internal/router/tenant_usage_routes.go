@@ -36,55 +36,55 @@ func (r *Router) setupTenantUsageRoutes(api fiber.Router) {
 
 	// Daily usage (authenticated, requires usage:read scope)
 	tenantsUsage.Get("/daily",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		usageHandler.GetDailyUsage,
 	)
 
 	// Usage history (authenticated, requires usage:read scope)
 	tenantsUsage.Get("/history",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		usageHandler.GetUsageHistory,
 	)
 
 	// API usage stats (authenticated, requires usage:read scope)
 	tenantsUsage.Get("/api",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		usageHandler.GetAPIUsageStats,
 	)
 
 	// Peak usage (authenticated, requires usage:read scope)
 	tenantsUsage.Get("/peak",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		usageHandler.GetPeakUsage,
 	)
 
 	// Average usage (authenticated, requires usage:read scope)
 	tenantsUsage.Get("/average",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		usageHandler.GetAverageUsage,
 	)
 
 	// Track feature usage (authenticated, requires usage:write scope)
 	tenantsUsage.Post("/track",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantContext(),
 		usageHandler.TrackFeatureUsage,
 	)
 
 	// Increment API usage (internal use - authenticated)
 	tenantsUsage.Post("/api/increment",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		usageHandler.IncrementAPIUsage,
 	)
 
 	// Check API rate limit (authenticated)
 	tenantsUsage.Get("/api/check",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		usageHandler.CheckAPIRateLimit,
 	)
 
@@ -106,7 +106,7 @@ func (r *Router) setupTenantUsageRoutes(api fiber.Router) {
 
 	// Delete old usage records (platform admin only)
 	usage.Delete("/cleanup",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		usageHandler.DeleteOldUsageRecords,
 	)

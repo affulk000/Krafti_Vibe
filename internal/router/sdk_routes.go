@@ -24,7 +24,7 @@ func (r *Router) setupSDKRoutes(api fiber.Router) {
 
 	// SDK Client Routes
 	clients := sdk.Group("/clients")
-	clients.Use(r.zitadelMW.RequireAuth())
+	clients.Use(r.RequireAuth())
 
 	// Client CRUD
 	clients.Post("", r.zitadelMW.RequireRole("platform_super_admin"), sdkHandler.CreateSDKClient)
@@ -35,7 +35,7 @@ func (r *Router) setupSDKRoutes(api fiber.Router) {
 
 	// SDK Key Routes
 	keys := sdk.Group("/keys")
-	keys.Use(r.zitadelMW.RequireAuth())
+	keys.Use(r.RequireAuth())
 
 	// Key Management
 	keys.Post("", sdkHandler.CreateSDKKey)
@@ -48,6 +48,6 @@ func (r *Router) setupSDKRoutes(api fiber.Router) {
 	keys.Post("/:id/rotate", sdkHandler.RotateSDKKey)
 
 	// Usage Tracking
-	sdk.Post("/usage", r.zitadelMW.RequireAuth(), sdkHandler.TrackSDKUsage)
-	sdk.Get("/usage", r.zitadelMW.RequireAuth(), sdkHandler.ListSDKUsage)
+	sdk.Post("/usage", r.RequireAuth(), sdkHandler.TrackSDKUsage)
+	sdk.Get("/usage", r.RequireAuth(), sdkHandler.ListSDKUsage)
 }

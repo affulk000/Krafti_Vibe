@@ -31,7 +31,7 @@ func (r *Router) setupBookingRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	bookings.Use(r.zitadelMW.RequireAuth())
+	bookings.Use(r.RequireAuth())
 
 	// ============================================================================
 	// Core Booking Operations

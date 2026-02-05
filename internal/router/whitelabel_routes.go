@@ -40,31 +40,31 @@ func (r *Router) setupWhiteLabelRoutes(api fiber.Router) {
 
 	// Get my whitelabel configuration
 	whitelabel.Get("/me",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.GetMyWhiteLabel,
 	)
 
 	// Create whitelabel configuration
 	whitelabel.Post("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.CreateWhiteLabel,
 	)
 
 	// Get whitelabel by ID
 	whitelabel.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.GetWhiteLabel,
 	)
 
 	// Update whitelabel configuration
 	whitelabel.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.UpdateWhiteLabel,
 	)
 
 	// Delete whitelabel configuration
 	whitelabel.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.DeleteWhiteLabel,
 	)
 
@@ -74,19 +74,19 @@ func (r *Router) setupWhiteLabelRoutes(api fiber.Router) {
 
 	// Update color scheme only
 	whitelabel.Put("/colors",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.UpdateColorScheme,
 	)
 
 	// Update branding assets only
 	whitelabel.Put("/branding",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.UpdateBranding,
 	)
 
 	// Update custom domain only
 	whitelabel.Put("/domain",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.UpdateDomain,
 	)
 
@@ -96,13 +96,13 @@ func (r *Router) setupWhiteLabelRoutes(api fiber.Router) {
 
 	// Activate whitelabel
 	whitelabel.Post("/activate",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.ActivateWhiteLabel,
 	)
 
 	// Deactivate whitelabel
 	whitelabel.Post("/deactivate",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.DeactivateWhiteLabel,
 	)
 
@@ -112,7 +112,7 @@ func (r *Router) setupWhiteLabelRoutes(api fiber.Router) {
 
 	// Check domain availability
 	whitelabel.Get("/check-domain",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		whiteLabelHandler.CheckDomainAvailability,
 	)
 }

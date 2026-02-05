@@ -39,7 +39,7 @@ func (r *Router) setupUserRoutes(api fiber.Router) {
 
 	// Protected routes (authentication required)
 	// Base auth middleware validates token - applied to all routes below
-	users.Use(r.zitadelMW.RequireAuth())
+	users.Use(r.RequireAuth())
 
 	// Analytics - must be registered before /:id routes
 	users.Get("/stats", middleware.RequireTenantOwnerOrAdmin(), userHandler.GetUserStats)

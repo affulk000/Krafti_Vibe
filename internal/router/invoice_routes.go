@@ -27,7 +27,7 @@ func (r *Router) setupInvoiceRoutes(api fiber.Router) {
 	}
 
 	// Auth middleware configuration
-	invoices.Use(r.zitadelMW.RequireAuth())
+	invoices.Use(r.RequireAuth())
 
 	// ============================================================================
 	// Core Invoice Operations

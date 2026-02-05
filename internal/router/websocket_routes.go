@@ -30,7 +30,7 @@ func (r *Router) setupWebSocketRoutes(api fiber.Router, wsHandler *ws.Handler) {
 
 	// WebSocket connection endpoint (authenticated)
 	wsGroup.Get("/connect",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		websocket.New(wsHandler.HandleConnection, websocket.Config{
 			EnableCompression: true,
 		}),
@@ -42,13 +42,13 @@ func (r *Router) setupWebSocketRoutes(api fiber.Router, wsHandler *ws.Handler) {
 
 	// Get WebSocket statistics (authenticated, requires admin scope)
 	wsGroup.Get("/stats",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		wsHandler.GetStats,
 	)
 
 	// Check if a user is online (authenticated)
 	wsGroup.Get("/users/:user_id/online",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		wsHandler.CheckUserOnline,
 	)
 
@@ -58,19 +58,19 @@ func (r *Router) setupWebSocketRoutes(api fiber.Router, wsHandler *ws.Handler) {
 
 	// Broadcast message to a specific user (authenticated, requires admin scope)
 	wsGroup.Post("/broadcast/user",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		wsHandler.BroadcastToUser,
 	)
 
 	// Broadcast message to a tenant (authenticated, requires admin scope)
 	wsGroup.Post("/broadcast/tenant",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		wsHandler.BroadcastToTenant,
 	)
 
 	// Broadcast message to all users (authenticated, requires admin scope)
 	wsGroup.Post("/broadcast/all",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		wsHandler.BroadcastToAll,
 	)
 }

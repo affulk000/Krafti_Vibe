@@ -26,37 +26,37 @@ func (r *Router) setupReportRoutes(api fiber.Router) {
 
 	// Create report
 	reports.Post("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.CreateReport,
 	)
 
 	// List reports
 	reports.Get("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.ListReports,
 	)
 
 	// Search reports
 	reports.Get("/search",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.SearchReports,
 	)
 
 	// Get report by ID
 	reports.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.GetReport,
 	)
 
 	// Update report
 	reports.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.UpdateReport,
 	)
 
 	// Delete report
 	reports.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.DeleteReport,
 	)
 
@@ -66,19 +66,19 @@ func (r *Router) setupReportRoutes(api fiber.Router) {
 
 	// Get pending reports
 	reports.Get("/pending",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.GetPendingReports,
 	)
 
 	// Get scheduled reports
 	reports.Get("/scheduled",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.GetScheduledReports,
 	)
 
 	// Get failed reports
 	reports.Get("/failed",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.GetFailedReports,
 	)
 
@@ -88,25 +88,25 @@ func (r *Router) setupReportRoutes(api fiber.Router) {
 
 	// Mark as generating
 	reports.Post("/:id/generating",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.MarkAsGenerating,
 	)
 
 	// Mark as completed
 	reports.Post("/:id/completed",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.MarkAsCompleted,
 	)
 
 	// Mark as failed
 	reports.Post("/:id/failed",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.MarkAsFailed,
 	)
 
 	// Retry failed report
 	reports.Post("/:id/retry",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.RetryFailedReport,
 	)
 
@@ -116,19 +116,19 @@ func (r *Router) setupReportRoutes(api fiber.Router) {
 
 	// Enable schedule
 	reports.Post("/:id/schedule/enable",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.EnableSchedule,
 	)
 
 	// Disable schedule
 	reports.Post("/:id/schedule/disable",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.DisableSchedule,
 	)
 
 	// Update schedule cron
 	reports.Put("/:id/schedule/cron",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.UpdateScheduleCron,
 	)
 
@@ -138,25 +138,25 @@ func (r *Router) setupReportRoutes(api fiber.Router) {
 
 	// Get report statistics
 	reports.Get("/stats",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.GetReportStats,
 	)
 
 	// Get report type usage
 	reports.Get("/analytics/type-usage",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.GetReportTypeUsage,
 	)
 
 	// Get user report activity
 	reports.Get("/analytics/user-activity",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.GetUserReportActivity,
 	)
 
 	// Get generation metrics
 	reports.Get("/analytics/generation-metrics",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.GetReportGenerationMetrics,
 	)
 
@@ -166,13 +166,13 @@ func (r *Router) setupReportRoutes(api fiber.Router) {
 
 	// Delete old reports
 	reports.Delete("/cleanup/old",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.DeleteOldReports,
 	)
 
 	// Delete failed reports
 	reports.Delete("/cleanup/failed",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		reportHandler.DeleteFailedReports,
 	)
 }

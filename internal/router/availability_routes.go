@@ -26,31 +26,31 @@ func (r *Router) setupAvailabilityRoutes(api fiber.Router) {
 
 	// Create availability
 	availability.Post("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.CreateAvailability,
 	)
 
 	// List availabilities (with filters)
 	availability.Get("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.ListAvailabilities,
 	)
 
 	// Get availability by ID
 	availability.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.GetAvailability,
 	)
 
 	// Update availability
 	availability.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.UpdateAvailability,
 	)
 
 	// Delete availability
 	availability.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.DeleteAvailability,
 	)
 
@@ -60,7 +60,7 @@ func (r *Router) setupAvailabilityRoutes(api fiber.Router) {
 
 	// Check availability for a time slot
 	availability.Post("/check",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.CheckAvailability,
 	)
 
@@ -70,7 +70,7 @@ func (r *Router) setupAvailabilityRoutes(api fiber.Router) {
 
 	// Bulk create availability
 	availability.Post("/bulk",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.BulkCreateAvailability,
 	)
 
@@ -80,25 +80,25 @@ func (r *Router) setupAvailabilityRoutes(api fiber.Router) {
 
 	// Get weekly schedule for artisan
 	availability.Get("/artisan/:artisan_id/weekly",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.GetWeeklySchedule,
 	)
 
 	// Get availability by day of week
 	availability.Get("/artisan/:artisan_id/day/:day",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.GetByDayOfWeek,
 	)
 
 	// Get availability by type
 	availability.Get("/artisan/:artisan_id/type/:type",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.ListByType,
 	)
 
 	// Delete availability by type
 	availability.Delete("/artisan/:artisan_id/type/:type",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		availabilityHandler.DeleteByType,
 	)
 }

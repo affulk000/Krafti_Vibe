@@ -17,7 +17,7 @@ func (r *Router) setupProjectRoutes(api fiber.Router) {
 	projects := api.Group("/projects")
 
 	// Auth middleware configuration
-	projects.Use(r.zitadelMW.RequireAuth())
+	projects.Use(r.RequireAuth())
 
 	// ============================================================================
 	// CRUD Operations

@@ -26,43 +26,43 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Create promo code
 	promos.Post("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.CreatePromoCode,
 	)
 
 	// List promo codes
 	promos.Get("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.ListPromoCodes,
 	)
 
 	// Search promo codes
 	promos.Get("/search",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.SearchPromoCodes,
 	)
 
 	// Get promo code by ID
 	promos.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.GetPromoCode,
 	)
 
 	// Get promo code by code
 	promos.Get("/code/:code",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.GetPromoCodeByCode,
 	)
 
 	// Update promo code
 	promos.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.UpdatePromoCode,
 	)
 
 	// Delete promo code
 	promos.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.DeletePromoCode,
 	)
 
@@ -72,19 +72,19 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Get active promo codes
 	promos.Get("/active",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.GetActivePromoCodes,
 	)
 
 	// Get expired promo codes
 	promos.Get("/expired",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.GetExpiredPromoCodes,
 	)
 
 	// Get expiring promo codes
 	promos.Get("/expiring",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.GetExpiringPromoCodes,
 	)
 
@@ -94,13 +94,13 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Validate promo code
 	promos.Post("/validate",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.ValidatePromoCode,
 	)
 
 	// Apply promo code
 	promos.Post("/apply",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.ApplyPromoCode,
 	)
 
@@ -110,13 +110,13 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Activate promo code
 	promos.Post("/:id/activate",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.ActivatePromoCode,
 	)
 
 	// Deactivate promo code
 	promos.Post("/:id/deactivate",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.DeactivatePromoCode,
 	)
 
@@ -126,19 +126,19 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Bulk activate promo codes
 	promos.Post("/bulk/activate",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.BulkActivate,
 	)
 
 	// Bulk deactivate promo codes
 	promos.Post("/bulk/deactivate",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.BulkDeactivate,
 	)
 
 	// Bulk delete promo codes
 	promos.Delete("/bulk",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.BulkDelete,
 	)
 
@@ -148,13 +148,13 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Get valid promo codes for service
 	promos.Get("/service/:service_id/valid",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.GetValidPromoCodesForService,
 	)
 
 	// Get valid promo codes for artisan
 	promos.Get("/artisan/:artisan_id/valid",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.GetValidPromoCodesForArtisan,
 	)
 
@@ -164,13 +164,13 @@ func (r *Router) setupPromoRoutes(api fiber.Router) {
 
 	// Get promo code statistics
 	promos.Get("/stats",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.GetPromoCodeStats,
 	)
 
 	// Get top performing promo codes
 	promos.Get("/analytics/top-performing",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		promoHandler.GetTopPerformingPromoCodes,
 	)
 }

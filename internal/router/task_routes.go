@@ -34,25 +34,25 @@ func (r *Router) setupTaskRoutes(api fiber.Router) {
 
 	// Create task (authenticated, requires task:write scope)
 	tasks.Post("/",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		taskHandler.CreateTask,
 	)
 
 	// Get task by ID (authenticated, requires task:read scope)
 	tasks.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		taskHandler.GetTask,
 	)
 
 	// Update task (authenticated, requires task:write scope)
 	tasks.Put("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		taskHandler.UpdateTask,
 	)
 
 	// Delete task (authenticated, requires task:write scope)
 	tasks.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		taskHandler.DeleteTask,
 	)
 
@@ -62,7 +62,7 @@ func (r *Router) setupTaskRoutes(api fiber.Router) {
 
 	// Complete task (authenticated, requires task:write scope)
 	tasks.Post("/:id/complete",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		taskHandler.CompleteTask,
 	)
 
@@ -72,7 +72,7 @@ func (r *Router) setupTaskRoutes(api fiber.Router) {
 
 	// Get tasks by milestone (authenticated, requires task:read scope)
 	tasks.Get("/milestone/:milestone_id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		taskHandler.GetMilestoneTasks,
 	)
 }

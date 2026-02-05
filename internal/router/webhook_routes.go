@@ -23,19 +23,19 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Create webhook event
 	webhooks.Post("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.CreateWebhookEvent,
 	)
 
 	// Get webhook event by ID
 	webhooks.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.GetWebhookEvent,
 	)
 
 	// List webhook events
 	webhooks.Post("/list",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.ListWebhookEvents,
 	)
 
@@ -45,25 +45,25 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Deliver webhook (manual trigger)
 	webhooks.Post("/:id/deliver",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.DeliverWebhook,
 	)
 
 	// Retry webhook
 	webhooks.Post("/:id/retry",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.RetryWebhook,
 	)
 
 	// Retry failed webhooks for a tenant
 	webhooks.Post("/tenant/:tenantId/retry-failed",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.RetryFailedWebhooks,
 	)
 
 	// Bulk retry webhooks
 	webhooks.Post("/bulk-retry",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.BulkRetryWebhooks,
 	)
 
@@ -73,25 +73,25 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Get pending webhooks
 	webhooks.Get("/pending",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.GetPendingWebhooks,
 	)
 
 	// Get failed webhooks
 	webhooks.Get("/failed",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.GetFailedWebhooks,
 	)
 
 	// Get delivered webhooks
 	webhooks.Get("/delivered",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.GetDeliveredWebhooks,
 	)
 
 	// Get recent webhooks
 	webhooks.Get("/recent",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.GetRecentWebhooks,
 	)
 
@@ -101,19 +101,19 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Get webhook statistics
 	webhooks.Get("/stats",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.GetWebhookStats,
 	)
 
 	// Get webhook analytics
 	webhooks.Get("/analytics",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.GetWebhookAnalytics,
 	)
 
 	// Get failure reasons
 	webhooks.Get("/failure-reasons",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.GetFailureReasons,
 	)
 
@@ -123,19 +123,19 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Cleanup old webhooks
 	webhooks.Post("/cleanup/old",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.CleanupOldWebhooks,
 	)
 
 	// Cleanup delivered webhooks
 	webhooks.Post("/cleanup/delivered",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.CleanupDeliveredWebhooks,
 	)
 
 	// Purge failed webhooks
 	webhooks.Post("/cleanup/purge",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.PurgeFailedWebhooks,
 	)
 
@@ -145,7 +145,7 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Process pending webhooks
 	webhooks.Post("/process-pending",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.ProcessPendingWebhooks,
 	)
 
@@ -155,13 +155,13 @@ func (r *Router) setupWebhookRoutes(api fiber.Router) {
 
 	// Health check (read access)
 	webhooks.Get("/health",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.HealthCheck,
 	)
 
 	// Service metrics (read access)
 	webhooks.Get("/metrics",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		webhookHandler.GetServiceMetrics,
 	)
 

@@ -36,28 +36,28 @@ func (r *Router) setupDataExportRoutes(api fiber.Router) {
 
 	// Request data export (authenticated, requires data:export scope)
 	exports.Post("/",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantContext(),
 		exportHandler.RequestDataExport,
 	)
 
 	// Get export status (authenticated, requires data:read scope)
 	exports.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantContext(),
 		exportHandler.GetDataExportStatus,
 	)
 
 	// List data exports (authenticated, requires data:read scope)
 	exports.Get("/",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantContext(),
 		exportHandler.ListDataExports,
 	)
 
 	// Cancel data export (authenticated, requires data:export scope)
 	exports.Post("/:id/cancel",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantContext(),
 		exportHandler.CancelDataExport,
 	)
@@ -68,21 +68,21 @@ func (r *Router) setupDataExportRoutes(api fiber.Router) {
 
 	// Get pending exports (admin only)
 	exports.Get("/pending",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		exportHandler.GetPendingExports,
 	)
 
 	// Get exports by status (admin only)
 	exports.Get("/by-status",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		exportHandler.GetExportsByStatus,
 	)
 
 	// Delete expired exports (admin only)
 	exports.Post("/cleanup",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		exportHandler.DeleteExpiredExports,
 	)

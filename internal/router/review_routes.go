@@ -17,7 +17,7 @@ func (r *Router) setupReviewRoutes(api fiber.Router) {
 	reviews := api.Group("/reviews")
 
 	// Apply authentication to all review routes
-	reviews.Use(r.zitadelMW.RequireAuth())
+	reviews.Use(r.RequireAuth())
 
 	// ============================================================================
 	// CRUD Operations

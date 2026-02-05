@@ -34,13 +34,13 @@ func (r *Router) setupMessageRoutes(api fiber.Router) {
 
 	// Send message (authenticated, requires message:write scope)
 	messages.Post("/",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		messageHandler.SendMessage,
 	)
 
 	// Mark message as read (authenticated, requires message:write scope)
 	messages.Post("/:id/read",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		messageHandler.MarkAsRead,
 	)
 
@@ -50,19 +50,19 @@ func (r *Router) setupMessageRoutes(api fiber.Router) {
 
 	// Get conversation with another user (authenticated, requires message:read scope)
 	messages.Get("/conversation",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		messageHandler.GetConversation,
 	)
 
 	// Get all user conversations (authenticated, requires message:read scope)
 	messages.Get("/conversations",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		messageHandler.GetUserConversations,
 	)
 
 	// Get unread message count (authenticated, requires message:read scope)
 	messages.Get("/unread-count",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		messageHandler.GetUnreadCount,
 	)
 }

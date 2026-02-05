@@ -26,19 +26,19 @@ func (r *Router) setupTenantInvitationRoutes(api fiber.Router) {
 
 	// Create invitation
 	invitations.Post("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		invitationHandler.CreateInvitation,
 	)
 
 	// List invitations
 	invitations.Get("",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		invitationHandler.ListInvitations,
 	)
 
 	// Get invitation by ID
 	invitations.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		invitationHandler.GetInvitation,
 	)
 
@@ -57,13 +57,13 @@ func (r *Router) setupTenantInvitationRoutes(api fiber.Router) {
 
 	// Get pending invitations
 	invitations.Get("/pending",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		invitationHandler.GetPendingInvitations,
 	)
 
 	// Get invitations by email
 	invitations.Get("/by-email",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		invitationHandler.GetInvitationsByEmail,
 	)
 
@@ -78,13 +78,13 @@ func (r *Router) setupTenantInvitationRoutes(api fiber.Router) {
 
 	// Revoke invitation
 	invitations.Post("/:id/revoke",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		invitationHandler.RevokeInvitation,
 	)
 
 	// Resend invitation
 	invitations.Post("/:id/resend",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		invitationHandler.ResendInvitation,
 	)
 
@@ -94,7 +94,7 @@ func (r *Router) setupTenantInvitationRoutes(api fiber.Router) {
 
 	// Delete expired invitations
 	invitations.Delete("/cleanup/expired",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		invitationHandler.DeleteExpiredInvitations,
 	)
 }

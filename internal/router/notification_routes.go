@@ -34,19 +34,19 @@ func (r *Router) setupNotificationRoutes(api fiber.Router) {
 
 	// Send notification (authenticated, requires notification:write scope)
 	notifications.Post("/",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		notificationHandler.SendNotification,
 	)
 
 	// Get user notifications (authenticated, requires notification:read scope)
 	notifications.Get("/",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		notificationHandler.GetUserNotifications,
 	)
 
 	// Get unread notification count (authenticated, requires notification:read scope)
 	notifications.Get("/unread-count",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		notificationHandler.GetUnreadCount,
 	)
 
@@ -56,50 +56,50 @@ func (r *Router) setupNotificationRoutes(api fiber.Router) {
 
 	// Mark notification as read (authenticated, requires notification:write scope)
 	notifications.Post("/:id/read",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		notificationHandler.MarkAsRead,
 	)
 
 	// Mark all notifications as read (authenticated, requires notification:write scope)
 	notifications.Post("/read-all",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		notificationHandler.MarkAllAsRead,
 	)
 
 	// Get notification by ID (authenticated, requires notification:read scope)
 	notifications.Get("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		notificationHandler.GetNotification,
 	)
 
 	// Delete notification (authenticated, requires notification:write scope)
 	notifications.Delete("/:id",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		notificationHandler.DeleteNotification,
 	)
 
 	// Mark multiple notifications as read (authenticated, requires notification:write scope)
 	notifications.Post("/mark-multiple-read",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		notificationHandler.MarkMultipleAsRead,
 	)
 
 	// Send bulk notification (admin only)
 	notifications.Post("/bulk",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		notificationHandler.SendBulkNotification,
 	)
 
 	// Delete read notifications (authenticated)
 	notifications.Delete("/cleanup/read",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		notificationHandler.DeleteReadNotifications,
 	)
 
 	// Delete old notifications (platform admin only)
 	notifications.Delete("/cleanup/old",
-		r.zitadelMW.RequireAuth(),
+		r.RequireAuth(),
 		middleware.RequireTenantOwnerOrAdmin(),
 		notificationHandler.DeleteOldNotifications,
 	)
