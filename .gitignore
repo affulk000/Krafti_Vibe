@@ -1,2 +1,28 @@
 .env
-344424221306257411.json
+*.env
+!.env.example
+
+# Credentials and local secrets
+*.json
+!package.json
+!tsconfig.json
+!swagger.json
+
+# Go build and test artifacts
+/bin/
+*.exe
+*.out
+*.test
+coverage.out
+coverage.html
+
+# Local tooling and OS files
+.air/
+.vscode/
+.idea/
+.DS_Store
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
